@@ -1557,7 +1557,10 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 function syncIfConnected() {
-  if(getToken()) pushSync();
+  if(!getToken()) return;
+  window._localChangeTs=Date.now();
+  clearTimeout(window._pushTimer);
+  window._pushTimer=setTimeout(function(){pushSync();},2000);
 }
 
 // Force all connected devices to pull immediately after any change
