@@ -1454,8 +1454,22 @@ async function pushSync() {
   var payload = {cars:cars, ts:Date.now(), v:4};
   var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   try {
-    // Get current file SHA (needed for update)
-    var sha = localStorage.getItem('gh_sha') || null;
+    // Always fetch current SHA from GitHub before pushing
+    var sha = null;
+    try {
+      var shaRes = await fetch(GH_WRITE, {
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github+json'
+        }
+      });
+      if(shaRes.ok) {
+        var shaData = await shaRes.json();
+        sha = shaData.sha;
+        localStorage.setItem('gh_sha', sha);
+      }
+    } catch(e) { sha = localStorage.getItem('gh_sha') || null; }
+
     var body = {
       message: 'Update workshop data',
       content: content,
