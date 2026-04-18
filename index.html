@@ -1497,6 +1497,7 @@ async function pushSync() {
     }
     lastSyncTs = payload.ts;
     window._localChangeTs = payload.ts;
+    window._lastPushTs = payload.ts;
     setSyncStatus('on','🟢 Saved — all devices will sync in 5s');
     showToast('✅ Saved! All devices update in 5 seconds','#10b981');
   } catch(e) {
@@ -1518,16 +1519,18 @@ async function pullSilent() {
     var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
     var data = JSON.parse(decoded);
     if(data && data.cars && Array.isArray(data.cars)) {
-      if(data.ts > window._localChangeTs) {
-        var serverStr = JSON.stringify(data.cars);
-        var localStr  = JSON.stringify(cars);
-        if(serverStr !== localStr) {
+      var serverStr = JSON.stringify(data.cars);
+      var localStr  = JSON.stringify(cars);
+      if(serverStr !== localStr) {
+        // Server has different data - always update local
+        // But only if server data is newer than our last push
+        if(data.ts > (window._lastPushTs || 0)) {
           cars = data.cars;
-          lastSyncTs = data.ts;
-          window._localChangeTs = 0;
+          window._lastPushTs = data.ts;
           persist(); renderCars(); updateSidebar();
           var el=document.getElementById('sync-last');
           if(el) el.textContent='Synced: '+new Date().toLocaleTimeString('en-IN');
+          showToast('🔄 Updated!','#10b981');
         }
       }
       setSyncStatus('on','🟢 Live — auto-syncing every 5s');
@@ -1586,9 +1589,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 function syncIfConnected() {
   if(!getToken()) return;
-  // Mark that WE made a local change right now
-  window._localChangeTs = Date.now();
-  // Small delay to batch rapid changes together
   clearTimeout(window._pushTimer);
   window._pushTimer = setTimeout(function(){ pushSync(); }, 1500);
 }
