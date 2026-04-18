@@ -1415,6 +1415,10 @@ function exportAll(){
 // syncTimer and syncCode already declared above
 syncCode   = 'CARECAY';
 var lastSyncTs = 0;
+window._localChangeTs = 0;
+window._pushTimer = null;
+window._lastPulledSha = null;
+window._lastPushSha = null;
 
 // GitHub repo details
 var GH_USER  = 'workshop4carecay-debug';
@@ -1423,7 +1427,7 @@ var GH_FILE  = 'data.json';
 var GH_TOKEN = ''; // Will be set by user — see instructions in Sync tab
 
 // Read URL — public, no auth needed
-var GH_READ  = 'https://raw.githubusercontent.com/' + GH_USER + '/' + GH_REPO + '/main/' + GH_FILE;
+var GH_READ  = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE;
 // Write URL — needs token
 var GH_WRITE = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE;
 
@@ -1474,8 +1478,11 @@ async function pushSync() {
     var data = await res.json();
     if(data.content && data.content.sha){
       localStorage.setItem('gh_sha', data.content.sha);
+      window._lastPushSha   = data.content.sha;
+      window._lastPulledSha = data.content.sha;
     }
-    lastSyncTs = payload.ts + 1; // +1 so we don't re-pull our own push
+    lastSyncTs = payload.ts;
+    window._localChangeTs = payload.ts;
     setSyncStatus('on','🟢 Saved — all devices will sync in 5s');
     showToast('✅ Saved! All devices update in 5 seconds','#10b981');
   } catch(e) {
@@ -1487,20 +1494,27 @@ async function pushSync() {
 
 async function pullSilent() {
   try {
-    var res = await fetch(GH_READ + '?t=' + Date.now());
+    var token = getToken();
+    var headers = {'Accept':'application/vnd.github+json','Cache-Control':'no-cache'};
+    if(token) headers['Authorization'] = 'token ' + token;
+    var res = await fetch(GH_READ, {headers: headers});
     if(!res.ok) return false;
-    var data = await res.json();
+    var fileData = await res.json();
+    // GitHub API returns base64 encoded content
+    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
+    var data = JSON.parse(decoded);
     if(data && data.cars && Array.isArray(data.cars)) {
-      // Always update from server — server is always the truth
-      var serverStr = JSON.stringify(data.cars);
-      var localStr  = JSON.stringify(cars);
-      if(serverStr !== localStr) {
-        cars = data.cars;
-        lastSyncTs = data.ts || Date.now();
-        persist(); renderCars(); updateSidebar();
-        var el=document.getElementById('sync-last');
-        if(el) el.textContent='Synced: '+new Date().toLocaleTimeString('en-IN');
-        showToast('🔄 Updated from cloud','#10b981');
+      if(data.ts > window._localChangeTs) {
+        var serverStr = JSON.stringify(data.cars);
+        var localStr  = JSON.stringify(cars);
+        if(serverStr !== localStr) {
+          cars = data.cars;
+          lastSyncTs = data.ts;
+          window._localChangeTs = 0;
+          persist(); renderCars(); updateSidebar();
+          var el=document.getElementById('sync-last');
+          if(el) el.textContent='Synced: '+new Date().toLocaleTimeString('en-IN');
+        }
       }
       setSyncStatus('on','🟢 Live — auto-syncing every 5s');
       return true;
@@ -1558,9 +1572,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
 function syncIfConnected() {
   if(!getToken()) return;
-  window._localChangeTs=Date.now();
+  // Mark that WE made a local change right now
+  window._localChangeTs = Date.now();
+  // Small delay to batch rapid changes together
   clearTimeout(window._pushTimer);
-  window._pushTimer=setTimeout(function(){pushSync();},2000);
+  window._pushTimer = setTimeout(function(){ pushSync(); }, 1500);
 }
 
 // Force all connected devices to pull immediately after any change
