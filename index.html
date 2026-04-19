@@ -329,9 +329,9 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
   <div class="dss">
     <div class="dsl">Fleet Summary</div>
     <div class="rrow"><span class="rl">Cars Active</span><span class="rv" id="sb-cars" style="color:var(--blue);">0</span></div>
-    <div class="rrow"><span class="rl">⏰ Waiting</span><span class="rv" id="sb-wait" style="color:var(--red);">0</span></div>
-    <div class="rrow"><span class="rl">📋 Estimation</span><span class="rv" id="sb-est" style="color:var(--pink);">0</span></div>
-    <div class="rrow"><span class="rl">🔧 Mechanic</span><span class="rv" id="sb-mech" style="color:var(--pink);">0</span></div>
+    <div class="rrow"><span class="rl">📋 IRFAN</span><span class="rv" id="sb-wait" style="color:var(--red);">0</span></div>
+    <div class="rrow"><span class="rl">🔧 NIKETU (Mech)</span><span class="rv" id="sb-est" style="color:var(--pink);">0</span></div>
+    <div class="rrow"><span class="rl">🔨 BHAVIN</span><span class="rv" id="sb-mech" style="color:var(--pink);">0</span></div>
     <div class="rrow"><span class="rl">🔨 Denting</span><span class="rv" id="sb-dent" style="color:var(--orange);">0</span></div>
     <div class="rrow"><span class="rl">🎨 Painting</span><span class="rv" id="sb-paint" style="color:var(--purple);">0</span></div>
     <div class="rrow"><span class="rl">🔩 Fitting</span><span class="rv" id="sb-fit" style="color:var(--blue);">0</span></div>
@@ -370,13 +370,10 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
   <div class="tp" id="tab-wip">
     <div class="ptitle">WIP <span>Board</span></div>
     <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:14px;" id="wip-summary"></div>
-    <div class="sec-title">⏰ Waiting for Work Start</div><div id="wip-waiting"></div>
-    <div class="sec-title">📋 Estimation</div><div id="wip-est"></div>
-    <div class="sec-title">🔧 WIP Mechanic</div><div id="wip-mech"></div>
-    <div class="sec-title">🔨 WIP Denting</div><div id="wip-dent"></div>
-    <div class="sec-title">🎨 WIP Painting</div><div id="wip-paint"></div>
-    <div class="sec-title">🔩 WIP Fitting</div><div id="wip-fit"></div>
-    <div class="sec-title">✅ Ready / Delivered</div><div id="wip-ready"></div>
+    <div class="sec-title" style="color:var(--blue);">📋 IRFAN — Body Shop</div><div id="wip-irfan"></div>
+    <div class="sec-title" style="color:var(--orange);">🔨 BHAVIN — Body Shop</div><div id="wip-bhavin"></div>
+    <div class="sec-title" style="color:var(--green);">🧾 PRIYA — Body Shop</div><div id="wip-priya"></div>
+    <div class="sec-title" style="color:var(--pink);">🔧 NIKETU — Mechanical</div><div id="wip-niketu"></div>
   </div>
   <!-- PENDING -->
   <div class="tp" id="tab-pending">
@@ -547,14 +544,51 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
       <div class="ff"><label class="fl">Total Panels</label><input class="fi" id="car-panels" type="number" min="0" placeholder="e.g. 3"></div>
       <div class="ff"><label class="fl">Car Stage</label>
         <select class="fsel" id="car-stage">
-          <option value="waiting">⏰ Waiting for Work Start</option>
-          <option value="estimation">📋 Estimation</option>
-          <option value="wip-mechanic">🔧 WIP Mechanic</option>
-          <option value="wip-denting">🔨 WIP Denting</option>
-          <option value="wip-painting">🎨 WIP Painting</option>
-          <option value="wip-fitting">🔩 WIP Fitting</option>
-          <option value="ready">✅ Ready for Delivery</option>
-          <option value="delivered">🚗 Delivered</option>
+          <optgroup label="── BODY SHOP — IRFAN ──">
+            <option value="bs-inward">📥 Car Inward &amp; Receive Photos</option>
+            <option value="bs-jobcard">📋 Job Card Created</option>
+            <option value="bs-claim">📄 Claim Intimation Process</option>
+            <option value="bs-survey-pend">🔍 Survey Pending</option>
+            <option value="bs-survey-done">✅ Survey Done</option>
+            <option value="bs-ins-approval">🏢 Waiting for Insurance Approval</option>
+            <option value="bs-ins-received">✅ Insurance Approval Received</option>
+            <option value="bs-cust-approval">👤 Waiting for Customer Approval</option>
+            <option value="bs-parts-ordered">🛒 Parts Ordered</option>
+          </optgroup>
+          <optgroup label="── BODY SHOP — BHAVIN ──">
+            <option value="bs-waiting-parts">⏳ Waiting for Parts</option>
+            <option value="bs-parts-received">📦 Parts Received</option>
+            <option value="bs-denting">🔨 WIP - Denting</option>
+            <option value="bs-painting">🎨 WIP - Painting</option>
+            <option value="bs-fitting">🔩 WIP - Fitting</option>
+            <option value="bs-polish">✨ WIP - Polish</option>
+            <option value="bs-washing">🚿 Car Washing</option>
+          </optgroup>
+          <optgroup label="── BODY SHOP — PRIYA ──">
+            <option value="bs-performa-pend">📃 Performa Pending</option>
+            <option value="bs-performa-ready">📃 Performa Ready</option>
+            <option value="bs-ins-liability">📊 Waiting for Insurance Liability</option>
+            <option value="bs-billing">🧾 Billing Process</option>
+            <option value="bs-pay-pending">💳 Payment Pending</option>
+            <option value="bs-pay-received">💰 Payment Received</option>
+            <option value="bs-ready">✅ Ready for Delivery</option>
+            <option value="bs-delivered">🚗 Delivered</option>
+          </optgroup>
+          <optgroup label="── MECHANICAL — NIKETU ──">
+            <option value="rp-inward">📥 Car Inward &amp; Receive Photos</option>
+            <option value="rp-jobcard">📋 Job Card Created</option>
+            <option value="rp-estimation">📊 Estimation</option>
+            <option value="rp-cust-approval">👤 Waiting for Customer Approval</option>
+            <option value="rp-waiting-parts">⏳ Waiting for Parts</option>
+            <option value="rp-parts-received">📦 Parts Received</option>
+            <option value="rp-mechanical">🔧 WIP - Mechanic</option>
+            <option value="rp-washing">🚿 Car Washing</option>
+            <option value="rp-billing">🧾 Billing Process</option>
+            <option value="rp-pay-pending">💳 Payment Pending</option>
+            <option value="rp-pay-received">💰 Payment Received</option>
+            <option value="rp-ready">✅ Ready for Delivery</option>
+            <option value="rp-delivered">🚗 Delivered</option>
+          </optgroup>
         </select>
       </div>
     </div>
@@ -576,14 +610,51 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
     <div class="mtitle">🔧 Update Stage — <span id="stage-car-label" style="color:var(--text);font-size:16px;"></span></div>
     <div class="ff"><label class="fl">New Stage</label>
       <select class="fsel" id="stage-sel">
-        <option value="waiting">⏰ Waiting for Work Start</option>
-        <option value="estimation">📋 Estimation</option>
-        <option value="wip-mechanic">🔧 WIP Mechanic</option>
-        <option value="wip-denting">🔨 WIP Denting</option>
-        <option value="wip-painting">🎨 WIP Painting</option>
-        <option value="wip-fitting">🔩 WIP Fitting</option>
-        <option value="ready">✅ Ready for Delivery</option>
-        <option value="delivered">🚗 Delivered</option>
+          <optgroup label="── BODY SHOP — IRFAN ──">
+            <option value="bs-inward">📥 Car Inward &amp; Receive Photos</option>
+            <option value="bs-jobcard">📋 Job Card Created</option>
+            <option value="bs-claim">📄 Claim Intimation Process</option>
+            <option value="bs-survey-pend">🔍 Survey Pending</option>
+            <option value="bs-survey-done">✅ Survey Done</option>
+            <option value="bs-ins-approval">🏢 Waiting for Insurance Approval</option>
+            <option value="bs-ins-received">✅ Insurance Approval Received</option>
+            <option value="bs-cust-approval">👤 Waiting for Customer Approval</option>
+            <option value="bs-parts-ordered">🛒 Parts Ordered</option>
+          </optgroup>
+          <optgroup label="── BODY SHOP — BHAVIN ──">
+            <option value="bs-waiting-parts">⏳ Waiting for Parts</option>
+            <option value="bs-parts-received">📦 Parts Received</option>
+            <option value="bs-denting">🔨 WIP - Denting</option>
+            <option value="bs-painting">🎨 WIP - Painting</option>
+            <option value="bs-fitting">🔩 WIP - Fitting</option>
+            <option value="bs-polish">✨ WIP - Polish</option>
+            <option value="bs-washing">🚿 Car Washing</option>
+          </optgroup>
+          <optgroup label="── BODY SHOP — PRIYA ──">
+            <option value="bs-performa-pend">📃 Performa Pending</option>
+            <option value="bs-performa-ready">📃 Performa Ready</option>
+            <option value="bs-ins-liability">📊 Waiting for Insurance Liability</option>
+            <option value="bs-billing">🧾 Billing Process</option>
+            <option value="bs-pay-pending">💳 Payment Pending</option>
+            <option value="bs-pay-received">💰 Payment Received</option>
+            <option value="bs-ready">✅ Ready for Delivery</option>
+            <option value="bs-delivered">🚗 Delivered</option>
+          </optgroup>
+          <optgroup label="── MECHANICAL — NIKETU ──">
+            <option value="rp-inward">📥 Car Inward &amp; Receive Photos</option>
+            <option value="rp-jobcard">📋 Job Card Created</option>
+            <option value="rp-estimation">📊 Estimation</option>
+            <option value="rp-cust-approval">👤 Waiting for Customer Approval</option>
+            <option value="rp-waiting-parts">⏳ Waiting for Parts</option>
+            <option value="rp-parts-received">📦 Parts Received</option>
+            <option value="rp-mechanical">🔧 WIP - Mechanic</option>
+            <option value="rp-washing">🚿 Car Washing</option>
+            <option value="rp-billing">🧾 Billing Process</option>
+            <option value="rp-pay-pending">💳 Payment Pending</option>
+            <option value="rp-pay-received">💰 Payment Received</option>
+            <option value="rp-ready">✅ Ready for Delivery</option>
+            <option value="rp-delivered">🚗 Delivered</option>
+          </optgroup>
       </select>
     </div>
     <!-- THREE DATES in stage modal -->
@@ -950,12 +1021,25 @@ function goTab(t){
 // ════════════════════════════════════
 // PIPELINE HTML helper
 // ════════════════════════════════════
-function pipeHTML(current){
-  const idx=STAGES.indexOf(current);
-  return`<div class="wip-pipe">${STAGES.map((s,i)=>{
-    const cls=i<idx?'done':i===idx?'active':'pend';
-    return`${i>0?'<div class="wip-arr">›</div>':''}<div class="wip-step"><div class="wip-dot ${cls}">${STAGE_ICONS[s]}</div><div class="wip-lbl ${cls==='active'?'active':''}">${STAGE_LBLS_SHORT[s]}</div></div>`;
-  }).join('')}</div>`;
+function pipeHTML(current, workType){
+  var stageList = (workType==='repair') ? RP_STAGES : BS_STAGES;
+  var stageLabels = (workType==='repair') ? RP_LABELS : BS_LABELS;
+  var currIdx = stageList.indexOf(current);
+  // Show condensed pipeline - just key milestone stages
+  var milestones = workType==='repair'
+    ? ['rp-inward','rp-estimation','rp-waiting-parts','rp-mechanical','rp-billing','rp-ready','rp-delivered']
+    : ['bs-inward','bs-ins-approval','bs-parts-ordered','bs-denting','bs-painting','bs-washing','bs-billing','bs-ready','bs-delivered'];
+  return '<div class="wip-pipe">' + milestones.map(function(s,i){
+    var sIdx = stageList.indexOf(s);
+    var cls = sIdx < currIdx ? 'done' : sIdx === currIdx ? 'active' : 'pend';
+    // If current is between two milestones, mark previous milestone as done
+    if(cls==='pend' && currIdx > stageList.indexOf(milestones[i-1]||s)) cls='done';
+    var icon = getStageIcon(s);
+    var lbl = (stageLabels[s]||s).replace('WIP - ','').replace('Waiting for ','').replace('Insurance ','Ins.').substring(0,8);
+    return (i>0?'<div class="wip-arr">›</div>':'')
+      +'<div class="wip-step"><div class="wip-dot '+cls+'">'+icon+'</div>'
+      +'<div class="wip-lbl '+(cls==='active'?'active':'')+'">'+lbl+'</div></div>';
+  }).join('') + '</div>';
 }
 
 function fmt(d){if(!d)return'—';const p=d.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:'—';}
@@ -980,7 +1064,7 @@ function renderCars(){
         <div style="flex:1;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <div class="car-reg">${car.regno}</div>
-            <span class="pipe-tag ${STAGE_CLASS[stage]}">${STAGE_ICONS[stage]} ${STAGE_LABELS[stage]}</span>
+            <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${getStageIcon(stage)} ${getStageLabel(stage)}</span>
           </div>
           <div class="car-sub">${car.model||''} ${car.customer?'· '+car.customer:''} ${car.insco?'· '+car.insco:''}</div>
           <div class="car-dates">
@@ -1001,7 +1085,7 @@ function renderCars(){
         </div>
         <span style="color:var(--m2);font-size:20px;transition:transform .2s;" id="arr-${car.id}">›</span>
       </div>
-      ${pipeHTML(stage)}
+      ${pipeHTML(stage, car.workType)}
       <div class="car-stats">
         <div class="cs"><div class="csn b">${p.length}</div><div class="csl">Parts</div></div>
         <div class="cs"><div class="csn ${bPend?'r':'g'}">${bPend}</div><div class="csl">Before✗</div></div>
@@ -1101,7 +1185,7 @@ function openAddCar(){
   ['car-dentor','car-painter','car-mechanic','car-fitter','car-helper'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('car-work-type').value='body-shop';
   document.getElementById('car-panels').value='';
-  document.getElementById('car-stage').value='waiting';
+  document.getElementById('car-stage').value='bs-inward';
   document.getElementById('car-date').valueAsDate=new Date();
   document.getElementById('car-dent-date').value='';
   document.getElementById('car-paint-date').value='';
@@ -1119,7 +1203,7 @@ function editCarOpen(id){
   document.getElementById('car-dent-date').value=car.dentDate||'';
   document.getElementById('car-paint-date').value=car.paintDate||'';
   document.getElementById('car-panels').value=car.panels||'';
-  document.getElementById('car-stage').value=car.stage||'waiting';
+  document.getElementById('car-stage').value=car.stage||'bs-inward';
   openModal('addCarModal');
 }
 function saveCar(){
@@ -1157,7 +1241,7 @@ function saveCar(){
       helper:document.getElementById('car-helper').value,
       workType:document.getElementById('car-work-type').value,
       panels:parseInt(document.getElementById('car-panels').value)||0,
-      stage,stageHistory:[],parts:[],invoice:{}
+      stage:stage||'bs-inward',stageHistory:[],parts:[],invoice:{}
     });
   }
   persist();syncIfConnected();renderCars();closeModal('addCarModal');
@@ -1177,7 +1261,7 @@ function openStageModal(carId){
   const car=cars.find(c=>c.id===carId);if(!car)return;
   stageCarId=carId;
   document.getElementById('stage-car-label').textContent=car.regno;
-  document.getElementById('stage-sel').value=car.stage||'waiting';
+  document.getElementById('stage-sel').value=car.stage||'bs-inward';
   document.getElementById('stage-inward-date').value=car.date||'';
   document.getElementById('stage-dent-date').value=car.dentDate||'';
   document.getElementById('stage-paint-date').value=car.paintDate||'';
@@ -1221,64 +1305,64 @@ function saveStage(){
 // WIP BOARD
 // ════════════════════════════════════
 function renderWIP(){
-  const sc={};STAGES.forEach(s=>sc[s]=0);
-  cars.forEach(c=>{const st=c.stage||'waiting';if(sc[st]!==undefined)sc[st]++;});
-  document.getElementById('wip-summary').innerHTML=STAGES.map(s=>`
-    <div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:8px 4px;text-align:center;">
-      <div style="font-family:var(--disp);font-size:24px;font-weight:800;color:${STAGE_COLORS[s]};">${sc[s]}</div>
-      <div style="font-size:9px;color:var(--m2);text-transform:uppercase;line-height:1.3;">${STAGE_ICONS[s]}<br>${STAGE_LBLS_SHORT[s]}</div>
-    </div>`).join('');
+  // Summary boxes — one per person
+  var irfanCount = cars.filter(function(x){ return ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'].indexOf(x.stage)!==-1; }).length;
+  var bhavinCount = cars.filter(function(x){ return ['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'].indexOf(x.stage)!==-1; }).length;
+  var priyaCount  = cars.filter(function(x){ return ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'].indexOf(x.stage)!==-1; }).length;
+  var niketuCount = cars.filter(function(x){ return ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'].indexOf(x.stage)!==-1; }).length;
+  var workers = [
+    {name:'IRFAN', icon:'📋', count:irfanCount, color:'var(--blue)'},
+    {name:'BHAVIN', icon:'🔨', count:bhavinCount, color:'var(--orange)'},
+    {name:'PRIYA', icon:'🧾', count:priyaCount, color:'var(--green)'},
+    {name:'NIKETU', icon:'🔧', count:niketuCount, color:'var(--pink)'}
+  ];
+  document.getElementById('wip-summary').innerHTML = workers.map(function(w){
+    return '<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:8px 4px;text-align:center;">'
+      +'<div style="font-family:var(--disp);font-size:24px;font-weight:800;color:'+w.color+';">'+w.count+'</div>'
+      +'<div style="font-size:9px;color:var(--m2);text-transform:uppercase;line-height:1.3;">'+w.icon+'<br>'+w.name+'</div>'
+      +'</div>';
+  }).join('');
 
-  // Waiting bucket
-  const waiting=cars.filter(c=>!c.stage||c.stage==='waiting');
-  document.getElementById('wip-waiting').innerHTML=waiting.length?
-    waiting.map(c=>`<div class="wait-card">
-      <div>
-        <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--accent);">${c.regno}</div>
-        <div style="font-size:11px;color:var(--m1);">${c.model||''} · 📥 In: ${fmt(c.date)}</div>
-        <div style="font-size:11px;color:var(--red);margin-top:2px;">⏰ Waiting — assign dent or &amp; start date</div>
-      </div>
-      <button class="ca-btn wip" style="flex:0;padding:7px 11px;font-size:11px;" onclick="openStageModal('${c.id}')">🔧 Start</button>
-    </div>`).join(''):`<div class="empty" style="padding:12px 0;"><div class="ei">✅</div><p style="font-size:13px;">No cars waiting</p></div>`;
+  function carCard(car){
+    var stageLabels = (car.workType==='repair') ? RP_LABELS : BS_LABELS;
+    var stageName = stageLabels[car.stage] || getStageLabel(car.stage);
+    var p = car.parts||[];
+    var pend = p.filter(function(x){ return x.before!=='yes'||x.ri!=='yes'||x.received!=='yes'||x.bill!=='yes'; }).length;
+    return '<div class="wip-card" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
+      +'<div>'
+      +'<div style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">'+car.regno+'</div>'
+      +'<div style="font-size:11px;color:var(--m1);">'+(car.model||'')+(car.customer?' · '+car.customer:'')+'</div>'
+      +'<div style="font-size:10px;color:var(--m2);margin-top:2px;">'+getStageIcon(car.stage)+' '+stageName+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">'
+      +(pend?'<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);">⚠ '+pend+' pending</span>':'')
+      +'<button onclick="workerStageBtn(\'' + car.id + '\')" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--body);">🔧 Stage</button>'
+      +'</div>'
+      +'</div>';
+  }
 
-  // Other stage buckets
-  [
-    {elId:'wip-dent',key:'wip-denting'},
-    {elId:'wip-paint',key:'wip-painting'},
-    {elId:'wip-fit',key:'wip-fitting'},
-    {elId:'wip-ready',key:'ready+delivered'}
-  ].forEach(({elId,key})=>{
-    const filtered=key==='ready+delivered'?cars.filter(c=>c.stage==='ready'||c.stage==='delivered'):cars.filter(c=>c.stage===key);
-    document.getElementById(elId).innerHTML=filtered.length?filtered.map(c=>{
-      const pend=(c.parts||[]).filter(x=>x.received!=='yes').length;
-      const stage=c.stage||'waiting';
-      return`<div class="wip-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-          <div>
-            <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px;">
-              <span style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">${c.regno}</span>
-              <span class="pipe-tag ${STAGE_CLASS[stage]}">${STAGE_ICONS[stage]} ${STAGE_LABELS[stage]}</span>
-            </div>
-            <div style="font-size:11px;color:var(--m1);">${c.model||''} ${c.customer?'· '+c.customer:''}</div>
-            <div style="font-size:11px;color:var(--m1);margin-top:3px;">
-              📥 ${fmt(c.date)} ${c.dentDate?'· 🔨 '+fmt(c.dentDate):''} ${c.paintDate?'· 🎨 '+fmt(c.paintDate):''}
-            </div>
-            <div style="font-size:11px;color:var(--m1);">
-              ${c.mechanic?'🔧 '+c.mechanic:''}${c.dentor?(c.mechanic?' · ':'')+'🔨 '+c.dentor:''}${c.painter?' · 🎨 '+c.painter:''}${c.fitter?' · 🔩 '+c.fitter:''}${c.helper?' · 🙋 '+c.helper:''}${c.panels?' · <strong style="color:var(--purple);">'+c.panels+' panels</strong>':''}
-            </div>
-            ${pend?`<div style="font-size:11px;color:var(--accent);margin-top:3px;">⏳ ${pend} parts awaited</div>`:''}
-          </div>
-          <button class="ca-btn wip" style="flex:0;padding:6px 10px;font-size:11px;white-space:nowrap;" onclick="openStageModal('${c.id}')">🔧 Stage</button>
-        </div>
-      </div>`;
-    }).join(''):`<div class="empty" style="padding:12px 0;"><div class="ei">—</div><p style="font-size:13px;">No cars here</p></div>`;
+  // Group by person
+  var PERSON_STAGES = {
+    'IRFAN (Body Shop)': ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'],
+    'BHAVIN (Body Shop)': ['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'],
+    'PRIYA (Body Shop)': ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'],
+    'NIKETU (Mechanical)': ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered']
+  };
+  var PERSON_COLORS = {'IRFAN (Body Shop)':'var(--blue)','BHAVIN (Body Shop)':'var(--orange)','PRIYA (Body Shop)':'var(--green)','NIKETU (Mechanical)':'var(--pink)'};
+
+  Object.keys(PERSON_STAGES).forEach(function(person){
+    var personCars = cars.filter(function(car){ return PERSON_STAGES[person].indexOf(car.stage)!==-1; });
+    var el = document.getElementById('wip-'+person.split(' ')[0].toLowerCase());
+    if(!el) return;
+    if(!personCars.length){ el.innerHTML='<div style="color:var(--m2);font-size:12px;padding:6px 0;">No cars</div>'; return; }
+    el.innerHTML = personCars.map(carCard).join('');
+  });
+
+  // Clear old sections
+  ['waiting','est','mech','dent','paint','fit','ready'].forEach(function(s){
+    var el=document.getElementById('wip-'+s); if(el) el.innerHTML='';
   });
 }
-
-// ════════════════════════════════════
-// MECHANIC REPORT
-// ════════════════════════════════════
-const WORK_TYPE_LABELS={'body-shop':'Body Shop','repair':'Repair / Mechanical','both':'Body Shop + Repair','glass':'Glass Work','electrical':'Electrical','other':'Other'};
 
 function renderMechanicReport(){
   var body=document.getElementById('mreport-body');
@@ -1543,7 +1627,7 @@ function renderDaily(){
     return`<div class="daily-car">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
         <div style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">${car.regno}</div>
-        <span class="pipe-tag ${STAGE_CLASS[stage]}">${STAGE_ICONS[stage]} ${STAGE_LABELS[stage]}</span>
+        <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${getStageIcon(stage)} ${getStageLabel(stage)}</span>
       </div>
       <div style="font-size:11px;color:var(--m1);margin-bottom:4px;">${car.model||''} · ${car.customer||''} · Claim: ${car.claim||'—'}</div>
       <div class="dc-row"><span class="k">📥 Inward</span><span class="v">${fmt(car.date)}</span></div>
@@ -1570,11 +1654,15 @@ function renderDaily(){
 // ════════════════════════════════════
 function updateSidebar(){
   document.getElementById('sb-cars').textContent=cars.length;
-  document.getElementById('sb-wait').textContent=cars.filter(c=>!c.stage||c.stage==='waiting').length;
-  document.getElementById('sb-est').textContent=cars.filter(c=>c.stage==='estimation').length;
-  document.getElementById('sb-mech').textContent=cars.filter(c=>c.stage==='wip-mechanic').length;
-  document.getElementById('sb-dent').textContent=cars.filter(c=>c.stage==='wip-denting').length;
-  document.getElementById('sb-paint').textContent=cars.filter(c=>c.stage==='wip-painting').length;
+  // IRFAN stages
+  document.getElementById('sb-wait').textContent=cars.filter(c=>['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'].indexOf(c.stage)!==-1).length;
+  // Estimation (both)
+  document.getElementById('sb-est').textContent=cars.filter(c=>c.stage==='rp-estimation').length;
+  // NIKETU mechanical
+  document.getElementById('sb-mech').textContent=cars.filter(c=>['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'].indexOf(c.stage)!==-1).length;
+  // BHAVIN denting/painting
+  document.getElementById('sb-dent').textContent=cars.filter(c=>c.stage==='bs-denting').length;
+  document.getElementById('sb-paint').textContent=cars.filter(c=>c.stage==='bs-painting').length;
   document.getElementById('sb-fit').textContent=cars.filter(c=>c.stage==='wip-fitting').length;
   document.getElementById('sb-ready').textContent=cars.filter(c=>c.stage==='ready'||c.stage==='delivered').length;
 }
@@ -2158,6 +2246,7 @@ function workerAdvanceStage(carId, newStage) {
   showToast('✅ ' + car.regno + ' moved to ' + stageName, '#10b981');
 }
 
+function workerStageBtn(id){ openStageModal(id); }
 function closeWorkerDetail(){ closeModal('workerDetailModal'); }
 function workerViewDetails(carId) {
   var car = cars.find(function(c){ return c.id === carId; });
