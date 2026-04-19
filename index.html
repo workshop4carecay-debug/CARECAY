@@ -1112,7 +1112,7 @@ function editCarOpen(id){
   editingCarId=id;
   document.getElementById('addCarTitle').textContent='✏ Edit Car';
   document.getElementById('addCarBtn').textContent='Save Changes';
-  ['regno','model','customer','insco','claim'].forEach(f=>document.getElementById('car-'+f).value=car[f]||'');
+  ['regno','model','customer','insco','claim','ref'].forEach(f=>document.getElementById('car-'+f).value=car[f]||'');
   ['dentor','painter','mechanic','fitter','helper'].forEach(f=>document.getElementById('car-'+f).value=car[f]||'');
   document.getElementById('car-work-type').value=car.workType||'body-shop';
   document.getElementById('car-date').value=car.date||'';
@@ -1129,7 +1129,7 @@ function saveCar(){
   if(editingCarId){
     const car=cars.find(c=>c.id===editingCarId);
     if(car){
-      ['model','customer','insco','claim'].forEach(f=>car[f]=document.getElementById('car-'+f).value.trim());
+      ['model','customer','insco','claim','ref'].forEach(f=>car[f]=document.getElementById('car-'+f).value.trim());
       ['dentor','painter','mechanic','fitter','helper'].forEach(f=>car[f]=document.getElementById('car-'+f).value);
       car.workType=document.getElementById('car-work-type').value;
       car.regno=regno;
@@ -1142,6 +1142,7 @@ function saveCar(){
   }else{
     cars.push({
       id:'car-'+Date.now(),regno,
+      ref:document.getElementById('car-ref').value.trim(),
       model:document.getElementById('car-model').value.trim(),
       customer:document.getElementById('car-customer').value.trim(),
       insco:document.getElementById('car-insco').value.trim(),
@@ -1967,91 +1968,179 @@ function showWorkerSelect() {
 function renderWorkerView() {
   var container = document.getElementById('worker-cars-list');
   if(!container) return;
-  
-  var workerStages = currentWorker ? WORKER_MAP[currentWorker] : [];
-  if(!workerStages.length) { container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m2);">No stages assigned</div>'; return; }
-  
-  // Filter cars that are in this worker's stages
+
+  // BOSS VIEW — show all cars with full stage overview
+  if(!currentWorker) {
+    renderBossView(container);
+    return;
+  }
+
+  var workerStages = WORKER_MAP[currentWorker] || [];
+
+  // Filter: cars currently AT one of this worker's stages
   var myCars = cars.filter(function(car) {
-    return workerStages.indexOf(car.stage || 'bs-inward') !== -1;
-  });
-  
-  // Also show cars that are WAITING for this worker (previous stage done)
-  var waitingCars = cars.filter(function(car) {
     var stage = car.stage || 'bs-inward';
+    return workerStages.indexOf(stage) !== -1;
+  });
+
+  // Also: cars WAITING to come to this worker (previous worker just finished)
+  var incomingCars = cars.filter(function(car) {
+    var stage = car.stage || 'bs-inward';
+    if(workerStages.indexOf(stage) !== -1) return false; // already in myCars
     var stageList = (car.workType === 'repair') ? RP_STAGES : BS_STAGES;
     var idx = stageList.indexOf(stage);
     if(idx < 0) return false;
-    // Check if previous stage was last stage of previous worker
-    var prevStage = idx > 0 ? stageList[idx-1] : null;
-    if(!prevStage) return false;
-    return workerStages.indexOf(stage) === -1 && workerStages.indexOf(prevStage) !== -1;
+    var nextStageForCar = idx + 1 < stageList.length ? stageList[idx+1] : null;
+    return nextStageForCar && workerStages.indexOf(nextStageForCar) !== -1;
   });
-  
+
   var pending = myCars;
   
+  // Header
+  var html = '';
+
+  // Show incoming cars (coming to me next)
+  if(incomingCars.length) {
+    html += '<div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:10px 14px;margin-bottom:12px;">';
+    html += '<div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">⏳ Coming to you next (' + incomingCars.length + ')</div>';
+    incomingCars.forEach(function(car){
+      html += '<div style="font-size:13px;padding:4px 0;border-bottom:1px solid rgba(59,130,246,.15);">';
+      html += '<strong style="color:var(--accent);">' + car.regno + '</strong>';
+      html += '<span style="color:var(--m1);"> · ' + (car.model||'') + (car.customer?' · '+car.customer:'') + '</span>';
+      html += '<span style="color:var(--blue);font-size:11px;"> · Currently: ' + getStageLabel(car.stage) + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
   if(!pending.length) {
-    container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:48px;margin-bottom:12px;">✅</div><div style="color:var(--green);font-size:18px;font-weight:700;">All done!</div><div style="color:var(--m2);font-size:13px;margin-top:6px;">No pending work right now</div></div>';
+    html += '<div style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:12px;">✅</div><div style="color:var(--green);font-size:18px;font-weight:700;">All done!</div><div style="color:var(--m2);font-size:13px;margin-top:6px;">No pending work right now</div></div>';
+    container.innerHTML = html;
     return;
   }
-  
-  var html = '<div style="margin-bottom:10px;font-size:13px;color:var(--m1);">📋 <strong style="color:var(--text);">' + pending.length + ' car(s)</strong> pending your work</div>';
-  
+
+  html += '<div style="font-size:12px;color:var(--m1);margin-bottom:10px;">🚗 <strong style="color:var(--text);">' + pending.length + ' car(s)</strong> at your stage</div>';
+
   pending.forEach(function(car) {
     var stage = car.stage || 'bs-inward';
     var stageList = (car.workType === 'repair') ? RP_STAGES : BS_STAGES;
     var stageLabels = (car.workType === 'repair') ? RP_LABELS : BS_LABELS;
     var stageName = stageLabels[stage] || getStageLabel(stage);
     var stageIcon = getStageIcon(stage);
-    
-    // Get next stage
-    var myLastStageIdx = -1;
-    var workerStages = WORKER_MAP[currentWorker] || [];
-    workerStages.forEach(function(s) {
-      var i = stageList.indexOf(s);
-      if(i > myLastStageIdx) myLastStageIdx = i;
-    });
+    var wStages = WORKER_MAP[currentWorker] || [];
     var currIdx = stageList.indexOf(stage);
-    var isLastMyStage = workerStages.indexOf(stage) === workerStages.length - 1;
     var nextStage = (currIdx + 1 < stageList.length) ? stageList[currIdx + 1] : null;
-    var nextStageName = nextStage ? (stageLabels[nextStage] || getStageLabel(nextStage)) : 'Done';
-    
+    var parts = car.parts || [];
+    var bPend = parts.filter(function(p){ return p.before !== 'yes'; }).length;
+    var riPend = parts.filter(function(p){ return p.ri !== 'yes'; }).length;
+    var aPend = parts.filter(function(p){ return p.received !== 'yes'; }).length;
+    var blPend = parts.filter(function(p){ return p.bill !== 'yes'; }).length;
+
+    // Full stage pipeline for this worker
+    var myPipeHtml = '<div style="display:flex;gap:3px;flex-wrap:wrap;padding:8px 14px;background:var(--s2);border-top:1px solid var(--border);">';
+    wStages.forEach(function(s) {
+      var sIdx = stageList.indexOf(s);
+      var isDone = sIdx < currIdx;
+      var isActive = s === stage;
+      var color = isDone ? 'var(--green)' : isActive ? 'var(--accent)' : 'var(--m2)';
+      var bg = isDone ? 'rgba(16,185,129,.12)' : isActive ? 'rgba(245,158,11,.15)' : 'var(--s3)';
+      var border = isDone ? 'rgba(16,185,129,.3)' : isActive ? 'rgba(245,158,11,.4)' : 'var(--border)';
+      myPipeHtml += '<span style="font-size:9px;font-weight:700;padding:3px 7px;border-radius:10px;border:1px solid '+border+';background:'+bg+';color:'+color+';white-space:nowrap;">';
+      myPipeHtml += (isDone?'✅ ':isActive?'▶ ':'○ ') + (stageLabels[s]||s);
+      myPipeHtml += '</span>';
+    });
+    myPipeHtml += '</div>';
+
     html += '<div class="worker-car-card">';
-    html += '<div class="worker-car-hdr">';
-    html += '<div>';
-    html += '<div style="font-family:var(--disp);font-size:18px;font-weight:800;color:var(--accent);">' + car.regno + '</div>';
-    html += '<div style="font-size:12px;color:var(--m1);margin-top:2px;">' + (car.model||'') + (car.customer?' · '+car.customer:'') + (car.ref?' · Ref: '+car.ref:'') + '</div>';
-    html += '<div style="font-size:11px;color:var(--m2);margin-top:2px;">In: ' + (car.date||'—') + '</div>';
+    // Header
+    html += '<div class="worker-car-hdr" style="flex-wrap:wrap;gap:6px;">';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-family:var(--disp);font-size:20px;font-weight:800;color:var(--accent);letter-spacing:2px;">' + car.regno + '</div>';
+    html += '<div style="font-size:12px;color:var(--m1);margin-top:2px;">' + (car.model||'—') + (car.customer?' · '+car.customer:'') + (car.ref?' · <span style="color:var(--blue);">Ref: '+car.ref+'</span>':'') + '</div>';
+    html += '<div style="font-size:11px;color:var(--m2);margin-top:2px;">📥 In: ' + (car.date||'—') + (car.insco?' · 🏢 '+car.insco:'') + (car.claim?' · Claim: '+car.claim:'') + '</div>';
     html += '</div>';
-    html += '<div style="text-align:right;">';
     html += '<div class="worker-stage-badge">' + stageIcon + ' ' + stageName + '</div>';
     html += '</div>';
-    html += '</div>';
-    
-    // Parts summary
-    var parts = car.parts || [];
+
+    // My stage pipeline
+    html += myPipeHtml;
+
+    // Pending tasks summary
     if(parts.length) {
-      html += '<div style="padding:8px 14px;background:var(--s2);border-top:1px solid var(--border);font-size:12px;color:var(--m1);">';
-      html += '📦 ' + parts.length + ' parts — ';
-      var pending_before = parts.filter(function(p){ return p.before !== 'yes'; }).length;
-      var pending_ri = parts.filter(function(p){ return p.ri !== 'yes'; }).length;
-      if(pending_before) html += '<span style="color:var(--red);">' + pending_before + ' before photos pending</span> · ';
-      if(pending_ri) html += '<span style="color:var(--accent);">' + pending_ri + ' RI pending</span>';
+      html += '<div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;">';
+      html += '<span style="font-size:10px;font-weight:700;color:var(--m2);">PARTS:</span>';
+      html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.3);">📦 '+parts.length+' total</span>';
+      if(bPend) html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);">📸 '+bPend+' before pending</span>';
+      if(riPend) html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(245,158,11,.1);color:var(--accent);border:1px solid rgba(245,158,11,.3);">🔍 '+riPend+' RI pending</span>';
+      if(aPend) html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(249,115,22,.1);color:var(--orange);border:1px solid rgba(249,115,22,.3);">⏳ '+aPend+' parts awaited</span>';
+      if(blPend) html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,.1);color:var(--purple);border:1px solid rgba(139,92,246,.3);">🧾 '+blPend+' bills pending</span>';
+      if(!bPend && !riPend && !aPend && !blPend) html += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.3);">✅ All complete</span>';
       html += '</div>';
     }
-    
-    // Action button
+
+    // Action buttons
     html += '<div style="padding:10px 14px;display:flex;gap:8px;border-top:1px solid var(--border);">';
-    if(nextStage && workerStages.indexOf(stage) !== -1) {
-      html += '<button class="worker-next-btn" onclick="workerAdvanceStage(\'' + car.id + '\',\'' + nextStage + '\')" style="flex:1;">✅ Done → Move to: ' + (stageLabels[nextStage]||getStageLabel(nextStage)) + '</button>';
+    if(nextStage && wStages.indexOf(stage) !== -1) {
+      html += '<button class="worker-next-btn" onclick="workerAdvanceStage(\'' + car.id + '\',\'' + nextStage + '\')" style="flex:1;">✅ Done → ' + (stageLabels[nextStage]||getStageLabel(nextStage)) + '</button>';
     } else {
-      html += '<div class="worker-done-badge" style="flex:1;text-align:center;">✅ Stage complete — passed to next person</div>';
+      html += '<div class="worker-done-badge" style="flex:1;text-align:center;">✅ Passed to next person</div>';
     }
-    html += '<button onclick="workerViewDetails(\'' + car.id + '\')" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer;">👁 Details</button>';
+    html += '<button onclick="workerViewDetails(\'' + car.id + '\')" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer;font-family:var(--body);">👁 Details</button>';
     html += '</div>';
     html += '</div>';
   });
-  
+
+  container.innerHTML = html;
+}
+
+// ── BOSS VIEW — full overview of all cars + who is responsible ──
+function renderBossView(container) {
+  if(!cars.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m2);">No cars added yet.</div>';
+    return;
+  }
+  var html = '<div style="margin-bottom:12px;font-size:13px;color:var(--m1);">👑 Boss View — <strong style="color:var(--text);">'+cars.length+' cars</strong></div>';
+
+  // Group by responsible worker
+  var workerGroups = {'IRFAN':[],'BHAVIN':[],'PRIYA':[],'NIKETU':[],'OTHER':[]};
+  cars.forEach(function(car){
+    var stage = car.stage || 'bs-inward';
+    var found = false;
+    for(var w in WORKER_MAP){
+      if(WORKER_MAP[w].indexOf(stage) !== -1){ workerGroups[w].push(car); found=true; break; }
+    }
+    if(!found) workerGroups['OTHER'].push(car);
+  });
+
+  var workerColors = {'IRFAN':'var(--blue)','BHAVIN':'var(--orange)','PRIYA':'var(--green)','NIKETU':'var(--pink)','OTHER':'var(--m2)'};
+  var workerIcons = {'IRFAN':'📋','BHAVIN':'🔨','PRIYA':'🧾','NIKETU':'🔧','OTHER':'❓'};
+
+  Object.keys(workerGroups).forEach(function(w){
+    var wCars = workerGroups[w];
+    if(!wCars.length) return;
+    html += '<div style="margin-bottom:14px;">';
+    html += '<div style="font-family:var(--disp);font-size:13px;font-weight:700;color:'+workerColors[w]+';letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;padding:6px 10px;background:var(--s2);border-radius:8px;border-left:3px solid '+workerColors[w]+';">';
+    html += workerIcons[w]+' '+w+' <span style="font-size:11px;color:var(--m1);font-weight:400;">— '+wCars.length+' car(s) pending</span></div>';
+    wCars.forEach(function(car){
+      var stage = car.stage || 'bs-inward';
+      var stageLabels = (car.workType==='repair') ? RP_LABELS : BS_LABELS;
+      var parts = car.parts||[];
+      var pendCount = parts.filter(function(p){ return p.before!=='yes'||p.ri!=='yes'||p.received!=='yes'||p.bill!=='yes'; }).length;
+      html += '<div style="background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">';
+      html += '<div>';
+      html += '<span style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">'+car.regno+'</span>';
+      html += '<span style="font-size:11px;color:var(--m1);margin-left:8px;">'+(car.model||'')+(car.customer?' · '+car.customer:'')+'</span>';
+      if(car.ref) html += '<span style="font-size:10px;color:var(--blue);margin-left:6px;">Ref: '+car.ref+'</span>';
+      html += '<div style="font-size:10px;color:var(--m2);margin-top:2px;">'+getStageIcon(stage)+' '+(stageLabels[stage]||getStageLabel(stage))+'</div>';
+      html += '</div>';
+      html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
+      if(pendCount) html += '<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);">⚠ '+pendCount+' pending</span>';
+      html += '<button onclick="openStageModal(\'' + car.id + '\')" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">🔧 Stage</button>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
   container.innerHTML = html;
 }
 
@@ -2069,18 +2158,81 @@ function workerAdvanceStage(carId, newStage) {
   showToast('✅ ' + car.regno + ' moved to ' + stageName, '#10b981');
 }
 
+function closeWorkerDetail(){ closeModal('workerDetailModal'); }
 function workerViewDetails(carId) {
-  // Show car details in a simple modal
   var car = cars.find(function(c){ return c.id === carId; });
   if(!car) return;
   var parts = car.parts || [];
-  var msg = car.regno + ' — ' + (car.model||'') + '\n';
-  msg += 'Customer: ' + (car.customer||'—') + '\n';
-  msg += 'Stage: ' + getStageLabel(car.stage) + '\n';
-  msg += 'Parts: ' + parts.length + '\n';
-  if(car.claim) msg += 'Claim: ' + car.claim + '\n';
-  if(car.ref) msg += 'Ref: ' + car.ref + '\n';
-  alert(msg);
+  var stageList = (car.workType === 'repair') ? RP_STAGES : BS_STAGES;
+  var stageLabels = (car.workType === 'repair') ? RP_LABELS : BS_LABELS;
+  var currIdx = stageList.indexOf(car.stage || stageList[0]);
+
+  var m = document.getElementById('workerDetailModal');
+  if(!m) {
+    var div = document.createElement('div');
+    div.id = 'workerDetailModal';
+    div.className = 'mov';
+    div.innerHTML = '<div class="modal"><div class="mdrag"></div><div id="wdm-body"></div><div class="mfooter"><button class="mbtn cancel" onclick="closeWorkerDetail()">Close</button></div></div>';
+    document.body.appendChild(div);
+    m = div;
+  }
+
+  var html = '';
+  // Car header
+  html += '<div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:12px;">';
+  html += '<div style="font-family:var(--disp);font-size:24px;font-weight:900;color:var(--accent);letter-spacing:2px;">'+car.regno+'</div>';
+  html += '<div style="font-size:13px;color:var(--m1);margin-top:3px;">'+(car.model||'—')+(car.customer?' · '+car.customer:'')+'</div>';
+  if(car.ref) html += '<div style="font-size:12px;color:var(--blue);margin-top:2px;">Ref: '+car.ref+'</div>';
+  html += '<div style="font-size:12px;color:var(--m1);margin-top:2px;">🏢 '+(car.insco||'—')+(car.claim?' · Claim: '+car.claim:'')+'</div>';
+  html += '<div style="font-size:12px;color:var(--m2);margin-top:2px;">📥 Inward: '+(car.date||'—')+'</div>';
+  if(car.dentor||car.painter||car.mechanic) {
+    html += '<div style="font-size:12px;color:var(--m2);margin-top:2px;">';
+    if(car.mechanic) html += '🔧 '+car.mechanic+' ';
+    if(car.dentor) html += '🔨 '+car.dentor+' ';
+    if(car.painter) html += '🎨 '+car.painter;
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // Full stage checklist
+  html += '<div style="font-family:var(--disp);font-size:12px;color:var(--accent);letter-spacing:1px;margin-bottom:8px;">📋 FULL STAGE CHECKLIST</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">';
+  stageList.forEach(function(s, i) {
+    var isDone = i < currIdx;
+    var isActive = i === currIdx;
+    var isFuture = i > currIdx;
+    // Find responsible worker
+    var resp = 'OTHER';
+    for(var w in WORKER_MAP){ if(WORKER_MAP[w].indexOf(s) !== -1){ resp=w; break; } }
+    var workerColors2 = {'IRFAN':'var(--blue)','BHAVIN':'var(--orange)','PRIYA':'var(--green)','NIKETU':'var(--pink)','OTHER':'var(--m2)'};
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:'+(isActive?'rgba(245,158,11,.1)':isDone?'rgba(16,185,129,.05)':'var(--s2)')+';border:1px solid '+(isActive?'rgba(245,158,11,.3)':isDone?'rgba(16,185,129,.2)':'var(--border)')+';">';
+    html += '<span style="font-size:14px;">'+(isDone?'✅':isActive?'▶':'○')+'</span>';
+    html += '<span style="flex:1;font-size:12px;color:'+(isActive?'var(--accent)':isDone?'var(--green)':'var(--m1)')+';font-weight:'+(isActive?'700':'400')+';">'+(stageLabels[s]||s)+'</span>';
+    html += '<span style="font-size:9px;font-weight:700;color:'+workerColors2[resp]+';background:var(--s3);padding:2px 6px;border-radius:8px;">'+resp+'</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Parts
+  if(parts.length) {
+    html += '<div style="font-family:var(--disp);font-size:12px;color:var(--accent);letter-spacing:1px;margin-bottom:6px;">🔩 PARTS ('+parts.length+')</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:3px;">';
+    parts.forEach(function(p){
+      html += '<div style="padding:6px 10px;background:var(--s2);border-radius:6px;border:1px solid var(--border);font-size:12px;">';
+      html += '<div style="font-weight:600;color:var(--text);">'+p.name+'</div>';
+      html += '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;">';
+      html += '<span class="schip '+(p.before==='yes'?'sy':'sn')+'">📸 Before: '+(p.before||'pending')+'</span>';
+      html += '<span class="schip '+(p.ri==='yes'?'sy':'sn')+'">🔍 RI: '+(p.ri||'pending')+'</span>';
+      html += '<span class="schip '+(p.received==='yes'?'sy':'sp')+'">📦 Parts: '+(p.received||'pending')+'</span>';
+      html += '<span class="schip '+(p.bill==='yes'?'sy':'sp')+'">🧾 Bill: '+(p.bill||'pending')+'</span>';
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('wdm-body').innerHTML = html;
+  openModal('workerDetailModal');
 }
 
 // Show worker select after login
