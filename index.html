@@ -1486,8 +1486,7 @@ async function pullSilent() {
     });
     if(!res.ok){ _isPulling=false; return false; }
     var fileData = await res.json();
-    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/
-/g,''))));
+    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
     var data = JSON.parse(decoded);
     if(data && data.cars && Array.isArray(data.cars) && data.ts > lastSyncTs) {
       // Server has newer data — update local WITHOUT triggering push
