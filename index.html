@@ -1509,9 +1509,10 @@ async function pullSilent() {
 
 async function pullSync() {
   setSyncStatus('busy','📥 Loading…');
+  lastSyncTs = 0; // force pull regardless of timestamp
   var ok = await pullSilent();
   if(ok) showToast('✅ '+cars.length+' cars loaded!','#10b981');
-  else showToast('No new data on server','#f97316');
+  else showToast('No data found — Push from another device first','#f97316');
 }
 
 async function connectSync() {
