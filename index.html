@@ -431,8 +431,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
     </div>
     <div id="daily-body"></div>
   </div>
-  <!-- SYNC -->
-  <div<div id="tab-worker" class="tp">
+  <div id="tab-worker" class="tp">
   <div class="ptitle">My Work <span id="worker-name-title" style="color:var(--accent);"></span></div>
   <div id="worker-filter-bar" style="display:flex;gap:8px;padding:0 14px 10px;flex-wrap:wrap;"></div>
   <div id="worker-cars-list" style="padding:0 14px 80px;"></div>
@@ -2027,11 +2026,11 @@ function renderWorkerView() {
     // Action button
     html += '<div style="padding:10px 14px;display:flex;gap:8px;border-top:1px solid var(--border);">';
     if(nextStage && workerStages.indexOf(stage) !== -1) {
-      html += '<button class="worker-next-btn" onclick="workerAdvanceStage('' + car.id + '','' + nextStage + '')" style="flex:1;">✅ Done → Move to: ' + (stageLabels[nextStage]||getStageLabel(nextStage)) + '</button>';
+      html += '<button class="worker-next-btn" onclick="workerAdvanceStage(\'' + car.id + '\',\'' + nextStage + '\')" style="flex:1;">✅ Done → Move to: ' + (stageLabels[nextStage]||getStageLabel(nextStage)) + '</button>';
     } else {
       html += '<div class="worker-done-badge" style="flex:1;text-align:center;">✅ Stage complete — passed to next person</div>';
     }
-    html += '<button onclick="workerViewDetails('' + car.id + '')" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer;">👁 Details</button>';
+    html += '<button onclick="workerViewDetails(\'' + car.id + '\')" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer;">👁 Details</button>';
     html += '</div>';
     html += '</div>';
   });
