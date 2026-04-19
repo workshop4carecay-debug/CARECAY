@@ -1415,21 +1415,14 @@ function exportAll(){
 // syncTimer and syncCode already declared above
 syncCode   = 'CARECAY';
 var lastSyncTs = 0;
-window._localChangeTs = 0;
-window._pushTimer = null;
-window._lastPulledSha = null;
-window._lastPushSha = null;
+var _isPushing = false;  // prevent pull during push
+var _isPulling = false;  // prevent push during pull
 
-// GitHub repo details
 var GH_USER  = 'workshop4carecay-debug';
 var GH_REPO  = 'CARECAY';
 var GH_FILE  = 'data.json';
-var GH_TOKEN = ''; // Will be set by user — see instructions in Sync tab
-
-// Read URL — public, no auth needed
-var GH_READ  = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE;
-// Write URL — needs token
-var GH_WRITE = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE;
+var GH_TOKEN = '';
+var GH_API   = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE;
 
 function setSyncStatus(type, msg) {
   var dot=document.getElementById('sdot');
@@ -1443,108 +1436,83 @@ function setSyncStatus(type, msg) {
   if(last&&type==='on') last.textContent='Synced: '+new Date().toLocaleTimeString('en-IN');
 }
 
-function getToken(){
-  return localStorage.getItem('gh_token') || GH_TOKEN;
-}
+function getToken(){ return localStorage.getItem('gh_token') || GH_TOKEN; }
 
+// PUSH — send local data to GitHub
 async function pushSync() {
   var token = getToken();
-  if(!token){ showToast('Enter GitHub token in Sync tab first','#ef4444'); return; }
+  if(!token){ showToast('Enter GitHub token first','#ef4444'); return; }
+  if(_isPushing || _isPulling) return; // prevent overlap
+  _isPushing = true;
   setSyncStatus('busy','📤 Saving…');
-  var payload = {cars:cars, ts:Date.now(), v:4};
-  var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   try {
-    // Always fetch current SHA from GitHub before pushing
-    var sha = null;
-    try {
-      var shaRes = await fetch(GH_WRITE, {
-        headers: {
-          'Authorization': 'token ' + token,
-          'Accept': 'application/vnd.github+json'
-        }
-      });
-      if(shaRes.ok) {
-        var shaData = await shaRes.json();
-        sha = shaData.sha;
-        localStorage.setItem('gh_sha', sha);
-      }
-    } catch(e) { sha = localStorage.getItem('gh_sha') || null; }
-
-    var body = {
-      message: 'Update workshop data',
-      content: content,
-      branch: 'main'
-    };
-    if(sha) body.sha = sha;
-    var res = await fetch(GH_WRITE, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'token ' + token,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github+json'
-      },
-      body: JSON.stringify(body)
+    // Get current SHA first
+    var getRes = await fetch(GH_API, {
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json'}
     });
-    if(!res.ok){
-      var err = await res.json();
-      throw new Error(err.message || 'HTTP '+res.status);
-    }
+    var sha = getRes.ok ? (await getRes.json()).sha : null;
+    
+    var payload = {cars:cars, ts:Date.now(), v:4};
+    var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    var body = {message:'Update workshop data', content:content, branch:'main'};
+    if(sha) body.sha = sha;
+    
+    var res = await fetch(GH_API, {
+      method:'PUT',
+      headers:{'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+      body:JSON.stringify(body)
+    });
+    if(!res.ok){ var e=await res.json(); throw new Error(e.message); }
     var data = await res.json();
-    if(data.content && data.content.sha){
-      localStorage.setItem('gh_sha', data.content.sha);
-      window._lastPushSha   = data.content.sha;
-      window._lastPulledSha = data.content.sha;
-    }
+    if(data.content && data.content.sha) localStorage.setItem('gh_sha', data.content.sha);
     lastSyncTs = payload.ts;
-    window._localChangeTs = payload.ts;
-    window._lastPushTs = payload.ts;
-    setSyncStatus('on','🟢 Saved — all devices will sync in 5s');
-    showToast('✅ Saved! All devices update in 5 seconds','#10b981');
+    setSyncStatus('on','🟢 Saved — '+new Date().toLocaleTimeString('en-IN'));
+    showToast('✅ Saved!','#10b981');
   } catch(e) {
-    setSyncStatus('err','❌ '+e.message);
+    setSyncStatus('err','❌ Save failed: '+e.message);
     showToast('Save failed: '+e.message,'#ef4444');
-    console.error('pushSync:', e);
   }
+  _isPushing = false;
 }
 
+// PULL — get latest data from GitHub (silent, no toast unless changed)
 async function pullSilent() {
+  var token = getToken();
+  if(!token || _isPushing) return false;
+  _isPulling = true;
   try {
-    var token = getToken();
-    var headers = {'Accept':'application/vnd.github+json','Cache-Control':'no-cache'};
-    if(token) headers['Authorization'] = 'token ' + token;
-    var res = await fetch(GH_READ, {headers: headers});
-    if(!res.ok) return false;
+    var res = await fetch(GH_API+'?t='+Date.now(), {
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json','Cache-Control':'no-cache,no-store'}
+    });
+    if(!res.ok){ _isPulling=false; return false; }
     var fileData = await res.json();
-    // GitHub API returns base64 encoded content
-    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
+    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/
+/g,''))));
     var data = JSON.parse(decoded);
-    if(data && data.cars && Array.isArray(data.cars)) {
-      var serverStr = JSON.stringify(data.cars);
-      var localStr  = JSON.stringify(cars);
-      if(serverStr !== localStr) {
-        // Server has different data - always update local
-        // But only if server data is newer than our last push
-        if(data.ts > (window._lastPushTs || 0)) {
-          cars = data.cars;
-          window._lastPushTs = data.ts;
-          persist(); renderCars(); updateSidebar();
-          var el=document.getElementById('sync-last');
-          if(el) el.textContent='Synced: '+new Date().toLocaleTimeString('en-IN');
-          showToast('🔄 Updated!','#10b981');
-        }
-      }
-      setSyncStatus('on','🟢 Live — auto-syncing every 5s');
+    if(data && data.cars && Array.isArray(data.cars) && data.ts > lastSyncTs) {
+      // Server has newer data — update local WITHOUT triggering push
+      lastSyncTs = data.ts;
+      cars = data.cars;
+      persist();
+      renderCars();
+      updateSidebar();
+      setSyncStatus('on','🟢 Live — '+new Date().toLocaleTimeString('en-IN'));
+      var el=document.getElementById('sync-last');
+      if(el) el.textContent='Synced: '+new Date().toLocaleTimeString('en-IN');
+      _isPulling = false;
       return true;
     }
-    return false;
-  } catch(e) { return false; }
+    setSyncStatus('on','🟢 Live — auto-syncing every 5s');
+  } catch(e) {}
+  _isPulling = false;
+  return false;
 }
 
 async function pullSync() {
   setSyncStatus('busy','📥 Loading…');
   var ok = await pullSilent();
   if(ok) showToast('✅ '+cars.length+' cars loaded!','#10b981');
-  else showToast('No data yet — Push first','#f97316');
+  else showToast('No new data on server','#f97316');
 }
 
 async function connectSync() {
@@ -1555,18 +1523,27 @@ async function connectSync() {
     showToast('✅ Token saved!','#10b981');
   }
   setSyncStatus('busy','🔍 Connecting…');
-  // Always pull first to get latest data
+  lastSyncTs = 0; // reset so we always pull fresh on connect
   var ok = await pullSilent();
   if(ok){ showToast('✅ '+cars.length+' cars loaded!','#10b981'); }
   else if(cars.length > 0){ await pushSync(); }
-  else { setSyncStatus('on','🟢 Ready — tap ⬆ Push to upload cars'); }
+  else { setSyncStatus('on','🟢 Ready — tap ⬆ Push to upload'); }
   startAutoSync();
 }
 
 function startAutoSync() {
   if(syncTimer) clearInterval(syncTimer);
-  setSyncStatus('on','🟢 Live — auto-syncing every 5s');
   syncTimer = setInterval(function(){ pullSilent(); }, 5000);
+  setSyncStatus('on','🟢 Live — auto-syncing every 5s');
+}
+
+// Called after every user change — push after short delay
+function syncIfConnected() {
+  if(!getToken() || _isPulling) return;
+  clearTimeout(window._pushTimer);
+  window._pushTimer = setTimeout(function(){
+    if(!_isPulling) pushSync();
+  }, 2000);
 }
 
 function saveToken(){
@@ -1580,30 +1557,11 @@ function saveToken(){
   inp.value='';
 }
 
-// Restore token on load
 document.addEventListener('DOMContentLoaded', function(){
   var t = localStorage.getItem('gh_token');
   var status = document.getElementById('token-status');
   if(t && status) status.textContent = '✅ Token saved — ready to sync';
 });
-
-function syncIfConnected() {
-  if(!getToken()) return;
-  clearTimeout(window._pushTimer);
-  window._pushTimer = setTimeout(function(){ pushSync(); }, 1500);
-}
-
-// Force all connected devices to pull immediately after any change
-function notifyOthers() {
-  if (!syncCode) return;
-  // Touch the server record with new timestamp so others detect change
-  fetch(fbPath(syncCode) + '/ts.json', {
-    method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(Date.now())
-  }).catch(function(){});
-}
-
 
 
 // PARTS IMPORT
