@@ -1508,11 +1508,44 @@ async function pullSilent() {
 }
 
 async function pullSync() {
+  var token = getToken();
+  if(!token){ showToast('Enter token first!','#ef4444'); return; }
   setSyncStatus('busy','📥 Loading…');
-  lastSyncTs = 0; // force pull regardless of timestamp
-  var ok = await pullSilent();
-  if(ok) showToast('✅ '+cars.length+' cars loaded!','#10b981');
-  else showToast('No data found — Push from another device first','#f97316');
+  lastSyncTs = 0;
+  try {
+    var res = await fetch(GH_API+'?t='+Date.now(), {
+      headers:{
+        'Authorization':'token '+token,
+        'Accept':'application/vnd.github+json',
+        'Cache-Control':'no-cache'
+      }
+    });
+    if(!res.ok){
+      showToast('Pull error: HTTP '+res.status,'#ef4444');
+      setSyncStatus('err','❌ Error '+res.status);
+      return;
+    }
+    var fileData = await res.json();
+    if(!fileData.content){
+      showToast('No content in response','#ef4444');
+      return;
+    }
+    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
+    var data = JSON.parse(decoded);
+    if(data && data.cars && Array.isArray(data.cars) && data.cars.length > 0){
+      cars = data.cars;
+      lastSyncTs = data.ts || Date.now();
+      persist(); renderCars(); updateSidebar();
+      setSyncStatus('on','🟢 Loaded '+cars.length+' cars');
+      showToast('✅ '+cars.length+' cars loaded!','#10b981');
+    } else {
+      showToast('Server has no cars — Push from laptop first','#f97316');
+      setSyncStatus('err','No cars on server');
+    }
+  } catch(e) {
+    showToast('Pull failed: '+e.message,'#ef4444');
+    setSyncStatus('err','❌ '+e.message);
+  }
 }
 
 async function connectSync() {
