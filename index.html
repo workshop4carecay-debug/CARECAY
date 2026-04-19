@@ -770,6 +770,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 // TABS
 // ════════════════════════════════════
 const TABS=['cars','wip','pending','bills','invoice','mreport','dreport','preport','daily','sync','worker'];
+function goTab(t){
+  TABS.forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('on',x===t);
+    const b=document.getElementById('bn-'+x),d=document.getElementById('dn-'+x);
+    if(b)b.classList.toggle('on',x===t);
+    if(d)d.classList.toggle('on',x===t);
+  });
+  if(t==='pending')renderPending();
+  if(t==='bills')renderBillsVendors();
+  if(t==='daily')renderDaily();
+  if(t==='invoice')renderInvoiceTab();
+  if(t==='wip')renderWIP();
+  if(t==='mreport')renderMechanicReport();
+  if(t==='dreport')renderDentingReport();
+  if(t==='preport')renderPaintingReport();
+}
+
 
 // ════════════════════════════════════
 // WORKER SYSTEM
