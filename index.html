@@ -1477,17 +1477,14 @@ async function pushSync() {
 
 // PULL — get latest data from GitHub (silent, no toast unless changed)
 async function pullSilent() {
-  var token = getToken();
-  if(!token || _isPushing) return false;
+  if(_isPushing) return false;
   _isPulling = true;
   try {
-    var res = await fetch(GH_API+'?t='+Date.now(), {
-      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json','Cache-Control':'no-cache,no-store'}
-    });
+    // Use raw URL for reading - works on iPhone Safari without CORS issues
+    var rawUrl = 'https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?t='+Date.now();
+    var res = await fetch(rawUrl);
     if(!res.ok){ _isPulling=false; return false; }
-    var fileData = await res.json();
-    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
-    var data = JSON.parse(decoded);
+    var data = await res.json();
     if(data && data.cars && Array.isArray(data.cars) && data.ts > lastSyncTs) {
       // Server has newer data — update local WITHOUT triggering push
       lastSyncTs = data.ts;
@@ -1508,30 +1505,18 @@ async function pullSilent() {
 }
 
 async function pullSync() {
-  var token = getToken();
-  if(!token){ showToast('Enter token first!','#ef4444'); return; }
   setSyncStatus('busy','📥 Loading…');
   lastSyncTs = 0;
+  // Use raw URL - works on ALL devices including iPhone Safari (no CORS issues)
+  var rawUrl = 'https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?t='+Date.now();
   try {
-    var res = await fetch(GH_API+'?t='+Date.now(), {
-      headers:{
-        'Authorization':'token '+token,
-        'Accept':'application/vnd.github+json',
-        'Cache-Control':'no-cache'
-      }
-    });
+    var res = await fetch(rawUrl);
     if(!res.ok){
       showToast('Pull error: HTTP '+res.status,'#ef4444');
       setSyncStatus('err','❌ Error '+res.status);
       return;
     }
-    var fileData = await res.json();
-    if(!fileData.content){
-      showToast('No content in response','#ef4444');
-      return;
-    }
-    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
-    var data = JSON.parse(decoded);
+    var data = await res.json();
     if(data && data.cars && Array.isArray(data.cars) && data.cars.length > 0){
       cars = data.cars;
       lastSyncTs = data.ts || Date.now();
@@ -1539,7 +1524,7 @@ async function pullSync() {
       setSyncStatus('on','🟢 Loaded '+cars.length+' cars');
       showToast('✅ '+cars.length+' cars loaded!','#10b981');
     } else {
-      showToast('Server has no cars — Push from laptop first','#f97316');
+      showToast('No cars on server — Push from laptop first','#f97316');
       setSyncStatus('err','No cars on server');
     }
   } catch(e) {
