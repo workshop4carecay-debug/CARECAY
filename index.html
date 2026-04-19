@@ -332,9 +332,9 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
     <div class="rrow"><span class="rl">📋 IRFAN</span><span class="rv" id="sb-wait" style="color:var(--red);">0</span></div>
     <div class="rrow"><span class="rl">🔧 NIKETU (Mech)</span><span class="rv" id="sb-est" style="color:var(--pink);">0</span></div>
     <div class="rrow"><span class="rl">🔨 BHAVIN</span><span class="rv" id="sb-mech" style="color:var(--pink);">0</span></div>
-    <div class="rrow"><span class="rl">🔨 Denting</span><span class="rv" id="sb-dent" style="color:var(--orange);">0</span></div>
-    <div class="rrow"><span class="rl">🎨 Painting</span><span class="rv" id="sb-paint" style="color:var(--purple);">0</span></div>
-    <div class="rrow"><span class="rl">🔩 Fitting</span><span class="rv" id="sb-fit" style="color:var(--blue);">0</span></div>
+    <div class="rrow"><span class="rl">🧾 PRIYA</span><span class="rv" id="sb-dent" style="color:var(--orange);">0</span></div>
+    <div class="rrow"><span class="rl">✅ Ready</span><span class="rv" id="sb-paint" style="color:var(--purple);">0</span></div>
+    <div class="rrow"><span class="rl">🚗 Delivered</span><span class="rv" id="sb-fit" style="color:var(--blue);">0</span></div>
     <div class="rrow"><span class="rl">✅ Ready/Done</span><span class="rv" id="sb-ready" style="color:var(--green);">0</span></div>
   </div>
   <div class="dsn">
@@ -1654,17 +1654,18 @@ function renderDaily(){
 // ════════════════════════════════════
 function updateSidebar(){
   document.getElementById('sb-cars').textContent=cars.length;
-  // IRFAN stages
+  // IRFAN — all body shop inward/insurance stages
   document.getElementById('sb-wait').textContent=cars.filter(c=>['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'].indexOf(c.stage)!==-1).length;
-  // Estimation (both)
-  document.getElementById('sb-est').textContent=cars.filter(c=>c.stage==='rp-estimation').length;
-  // NIKETU mechanical
-  document.getElementById('sb-mech').textContent=cars.filter(c=>['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'].indexOf(c.stage)!==-1).length;
-  // BHAVIN denting/painting
-  document.getElementById('sb-dent').textContent=cars.filter(c=>c.stage==='bs-denting').length;
-  document.getElementById('sb-paint').textContent=cars.filter(c=>c.stage==='bs-painting').length;
-  document.getElementById('sb-fit').textContent=cars.filter(c=>c.stage==='wip-fitting').length;
-  document.getElementById('sb-ready').textContent=cars.filter(c=>c.stage==='ready'||c.stage==='delivered').length;
+  // NIKETU — all mechanical stages
+  document.getElementById('sb-est').textContent=cars.filter(c=>['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'].indexOf(c.stage)!==-1).length;
+  // BHAVIN — all body shop floor stages
+  document.getElementById('sb-mech').textContent=cars.filter(c=>['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'].indexOf(c.stage)!==-1).length;
+  // PRIYA — all billing stages
+  document.getElementById('sb-dent').textContent=cars.filter(c=>['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received'].indexOf(c.stage)!==-1).length;
+  // Ready/Delivered
+  document.getElementById('sb-paint').textContent=cars.filter(c=>c.stage==='bs-ready'||c.stage==='rp-ready').length;
+  document.getElementById('sb-fit').textContent=cars.filter(c=>c.stage==='bs-delivered'||c.stage==='rp-delivered').length;
+  document.getElementById('sb-ready').textContent=cars.filter(c=>['bs-ready','bs-delivered','rp-ready','rp-delivered'].indexOf(c.stage)!==-1).length;
 }
 
 // ════════════════════════════════════
