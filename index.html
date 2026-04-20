@@ -3387,10 +3387,75 @@ function scCopySyncId() {
 }
 
 // ── GLOBAL SEARCH ──
+
+// Live filter — reorders All Cars list as user types in search bar
+function liveFilterCars(q) {
+  if (!q || q.length === 0) {
+    // Clear — restore normal order
+    searchFilterId = null;
+    const btn = document.getElementById('search-clear-btn');
+    if(btn) btn.style.display = 'none';
+    renderCars();
+    return;
+  }
+  const el = document.getElementById('carsList');
+  if(!el) return;
+  // Sort: matching cars on top, others below (dimmed)
+  const matched = (cars||[]).filter(c =>
+    c.regno.includes(q) ||
+    (c.model||'').toUpperCase().includes(q) ||
+    (c.customer||'').toUpperCase().includes(q)
+  );
+  const rest = (cars||[]).filter(c =>
+    !c.regno.includes(q) &&
+    !(c.model||'').toUpperCase().includes(q) &&
+    !(c.customer||'').toUpperCase().includes(q)
+  );
+  // Temporarily render reordered — matched on top highlighted, rest dimmed
+  const tempOrder = [...matched, ...rest];
+  // Use renderCars logic but with custom order
+  if(!tempOrder.length) return;
+  el.innerHTML = tempOrder.map(car => {
+    const isMatch = matched.some(m => m.id === car.id);
+    const p=car.parts||[];
+    const bPend=p.filter(x=>x.before!=='yes').length;
+    const rPend=p.filter(x=>x.ri!=='yes').length;
+    const aPend=p.filter(x=>x.received!=='yes').length;
+    const blPend=p.filter(x=>x.bill!=='yes').length;
+    const done=p.filter(x=>x.before==='yes'&&x.ri==='yes'&&x.received==='yes'&&x.bill==='yes').length;
+    const hasDmg=p.some(x=>x.damaged==='yes');
+    const stage=car.stage||'bs-inward';
+    const stageLabels=(car.workType==='repair')?RP_LABELS:BS_LABELS;
+    const stageName=stageLabels[stage]||getStageLabel(stage);
+    const highlightStyle = isMatch 
+      ? 'border:2px solid var(--accent);box-shadow:0 0 14px rgba(245,158,11,0.25);'
+      : 'opacity:0.35;pointer-events:none;';
+    return `<div class="car-card" style="${highlightStyle}">
+      <div class="car-hdr" onclick="toggleParts('cp-${car.id}')">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="car-reg">${car.regno}</div>
+            <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${getStageIcon(stage)} ${stageName}</span>
+          </div>
+          <div class="car-sub">${car.model||''} ${car.customer?'· '+car.customer:''} ${car.insco?'· '+car.insco:''}</div>
+        </div>
+        <span style="color:var(--m2);font-size:20px;" id="arr-${car.id}">›</span>
+      </div>
+      <div class="car-parts" id="cp-${car.id}" style="display:none;"></div>
+    </div>`;
+  }).join('');
+}
+
 function globalSearch(query, resultsId) {
   const results = document.getElementById(resultsId || 'search-results');
-  if (!query || query.length < 2) { results.style.display='none'; return; }
-  const q = query.toUpperCase();
+  const q = (query||'').toUpperCase().trim();
+
+  // Live filter All Cars list as user types (global bar only)
+  if (!resultsId || resultsId === 'search-results') {
+    liveFilterCars(q);
+  }
+
+  if (!q || q.length < 2) { results.style.display='none'; return; }
   const matches = (cars||[]).filter(c =>
     c.regno.includes(q) ||
     (c.model||'').toUpperCase().includes(q) ||
