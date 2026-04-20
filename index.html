@@ -3476,6 +3476,13 @@ function searchSelectCar(id, fromStatus) {
   }
 }
 
+
+function clearCarSearch() {
+  const btn = document.getElementById('search-clear-btn');
+  if(btn) btn.style.display = 'none';
+  renderCars();
+}
+
 function searchSelectRecord(reg) {
   document.getElementById('search-results').style.display='none';
   document.getElementById('global-search').value='';
