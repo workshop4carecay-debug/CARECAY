@@ -937,7 +937,7 @@ let cars=JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   }catch(e){}
 }());
 
-let currentCarId=null,editingCarId=null,stageCarId=null;
+let currentCarId=null,editingCarId=null,stageCarId=null,searchFilterId=null;
 let syncCode='',syncTimer=null,syncLastPush=null;
 
 // ════════════════════════════════════
@@ -1173,8 +1173,10 @@ function fmt(d){if(!d)return'—';const p=d.split('-');return p.length===3?`${p[
 // ════════════════════════════════════
 function renderCars(){
   const el=document.getElementById('carsList');
-  if(!cars.length){el.innerHTML=`<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>`;return;}
-  el.innerHTML=cars.map(car=>{
+  // Apply search filter if active
+  const displayCars = searchFilterId ? cars.filter(c=>c.id===searchFilterId) : cars;
+  if(!displayCars.length){el.innerHTML=`<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>`;return;}
+  el.innerHTML=displayCars.map(car=>{
     const p=car.parts||[];
     const bPend=p.filter(x=>x.before!=='yes').length;
     const rPend=p.filter(x=>x.ri!=='yes').length;
@@ -3478,6 +3480,7 @@ function searchSelectCar(id, fromStatus) {
 
 
 function clearCarSearch() {
+  searchFilterId = null;
   const btn = document.getElementById('search-clear-btn');
   if(btn) btn.style.display = 'none';
   renderCars();
