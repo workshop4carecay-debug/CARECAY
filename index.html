@@ -3399,12 +3399,13 @@ function globalSearch(query, resultsId) {
     results.style.display='block'; return;
   }
 
+  const isFromStatus = (resultsId === 'sc-local-results');
   let html = '';
   if (matches.length) {
     html += '<div style="font-size:10px;color:var(--accent);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">🚗 Cars in App</div>';
     html += matches.map(c => {
       const stageLabel = (c.stage||'').replace('bs-','').replace('rp-','').replace(/-/g,' ');
-      return `<div onclick="searchSelectCar('${c.id}')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+      return `<div onclick="searchSelectCar('${c.id}', ${isFromStatus})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
         <div>
           <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--accent);">${c.regno}</div>
           <div style="font-size:11px;color:var(--m1);">${c.model||''} ${c.customer?'· '+c.customer:''}</div>
@@ -3430,18 +3431,49 @@ function globalSearch(query, resultsId) {
   results.style.display = 'block';
 }
 
-function searchSelectCar(id) {
+function searchSelectCar(id, fromStatus) {
+  // Clear all search UI
   document.getElementById('search-results').style.display='none';
   document.getElementById('global-search').value='';
   const ls=document.getElementById('sc-local-search'); if(ls) ls.value='';
   const lr=document.getElementById('sc-local-results'); if(lr) lr.style.display='none';
-  // Go to status card tab, select this car
-  goTab('status');
-  switchStatusView('generate');
-  setTimeout(()=>{
-    const sel=document.getElementById('sc-car-select');
-    if(sel){ sel.value=id; scAutoFill(); }
-  },200);
+
+  if (fromStatus) {
+    // Called from inside Status Card tab — go to status card generate view
+    goTab('status');
+    switchStatusView('generate');
+    setTimeout(()=>{
+      const sel=document.getElementById('sc-car-select');
+      if(sel){ sel.value=id; scAutoFill(); }
+    },200);
+  } else {
+    // Called from global search bar — stay on All Cars tab, scroll to & expand car
+    goTab('cars');
+    setTimeout(()=>{
+      // Find car card and expand it
+      const car = (cars||[]).find(c=>c.id===id);
+      if(!car) return;
+      // Scroll to car card
+      const cardEl = document.querySelector('.car-card');
+      // Expand the parts panel for this car
+      const panel = document.getElementById('cp-'+id);
+      if(panel){ panel.style.display='block'; }
+      const arr = document.getElementById('arr-'+id);
+      if(arr){ arr.style.transform='rotate(90deg)'; }
+      // Scroll to it
+      // scroll handled by card highlight below
+      if(hdr){ hdr.scrollIntoView({behavior:'smooth', block:'center'}); }
+      // Highlight briefly
+      const card = document.querySelector('.car-card:has(#cp-'+id+')') ||
+                   Array.from(document.querySelectorAll('.car-card')).find(el=>el.innerHTML.includes('cp-'+id));
+      if(card){
+        card.style.border='2px solid var(--accent)';
+        card.style.boxShadow='0 0 20px rgba(245,158,11,0.3)';
+        card.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(()=>{ card.style.border=''; card.style.boxShadow=''; },2500);
+      }
+    },200);
+  }
 }
 
 function searchSelectRecord(reg) {
@@ -3449,6 +3481,7 @@ function searchSelectRecord(reg) {
   document.getElementById('global-search').value='';
   const ls=document.getElementById('sc-local-search'); if(ls) ls.value='';
   const lr=document.getElementById('sc-local-results'); if(lr) lr.style.display='none';
+  // Records always go to Status Card → Records view
   goTab('status');
   switchStatusView('records');
   setTimeout(()=>{ scRenderRecords(''); scToggleRec(reg); },200);
