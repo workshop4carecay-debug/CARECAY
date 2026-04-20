@@ -1173,8 +1173,15 @@ function fmt(d){if(!d)return'—';const p=d.split('-');return p.length===3?`${p[
 // ════════════════════════════════════
 function renderCars(){
   const el=document.getElementById('carsList');
-  // Apply search filter if active
-  const displayCars = searchFilterId ? cars.filter(c=>c.id===searchFilterId) : cars;
+  // Apply search filter — matched car on TOP, rest below
+  let displayCars;
+  if(searchFilterId) {
+    const matched = cars.filter(c=>c.id===searchFilterId);
+    const rest = cars.filter(c=>c.id!==searchFilterId);
+    displayCars = [...matched, ...rest];
+  } else {
+    displayCars = cars;
+  }
   if(!displayCars.length){el.innerHTML=`<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>`;return;}
   el.innerHTML=displayCars.map(car=>{
     const p=car.parts||[];
