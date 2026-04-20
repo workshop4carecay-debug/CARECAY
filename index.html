@@ -867,8 +867,8 @@ function goTab(t){
 var WORKER_MAP = {
   'IRFAN':  ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'],
   'BHAVIN': ['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'],
-  'PRIYA':  ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'],
-  'NIKETU': ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered']
+  'PRIYA':  ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'],
+  'NIKETU': ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing']
 };
 
 var WORKER_LABELS = {
@@ -1309,7 +1309,7 @@ function renderWIP(){
   var irfanCount = cars.filter(function(x){ return ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'].indexOf(x.stage)!==-1; }).length;
   var bhavinCount = cars.filter(function(x){ return ['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'].indexOf(x.stage)!==-1; }).length;
   var priyaCount  = cars.filter(function(x){ return ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'].indexOf(x.stage)!==-1; }).length;
-  var niketuCount = cars.filter(function(x){ return ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'].indexOf(x.stage)!==-1; }).length;
+  var niketuCount = cars.filter(function(x){ return ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing'].indexOf(x.stage)!==-1; }).length;
   var workers = [
     {name:'IRFAN', icon:'📋', count:irfanCount, color:'var(--blue)'},
     {name:'BHAVIN', icon:'🔨', count:bhavinCount, color:'var(--orange)'},
@@ -1346,7 +1346,7 @@ function renderWIP(){
     'IRFAN (Body Shop)': ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'],
     'BHAVIN (Body Shop)': ['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'],
     'PRIYA (Body Shop)': ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'],
-    'NIKETU (Mechanical)': ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered']
+    'NIKETU (Mechanical)': ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing']
   };
   var PERSON_COLORS = {'IRFAN (Body Shop)':'var(--blue)','BHAVIN (Body Shop)':'var(--orange)','PRIYA (Body Shop)':'var(--green)','NIKETU (Mechanical)':'var(--pink)'};
 
@@ -1657,11 +1657,11 @@ function updateSidebar(){
   // IRFAN — all body shop inward/insurance stages
   document.getElementById('sb-wait').textContent=cars.filter(c=>['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'].indexOf(c.stage)!==-1).length;
   // NIKETU — all mechanical stages
-  document.getElementById('sb-est').textContent=cars.filter(c=>['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'].indexOf(c.stage)!==-1).length;
+  document.getElementById('sb-est').textContent=cars.filter(c=>['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing'].indexOf(c.stage)!==-1).length;
   // BHAVIN — all body shop floor stages
   document.getElementById('sb-mech').textContent=cars.filter(c=>['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'].indexOf(c.stage)!==-1).length;
   // PRIYA — all billing stages
-  document.getElementById('sb-dent').textContent=cars.filter(c=>['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received'].indexOf(c.stage)!==-1).length;
+  document.getElementById('sb-dent').textContent=cars.filter(c=>['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'].indexOf(c.stage)!==-1).length;
   // Ready/Delivered
   document.getElementById('sb-paint').textContent=cars.filter(c=>c.stage==='bs-ready'||c.stage==='rp-ready').length;
   document.getElementById('sb-fit').textContent=cars.filter(c=>c.stage==='bs-delivered'||c.stage==='rp-delivered').length;
