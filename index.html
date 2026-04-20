@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Carecay Workshop">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Carecay Multibrand Workshop</title>
+<!-- v6.1 NIKETU-PRIYA-HANDOVER-FIX -->
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -2067,8 +2068,11 @@ function renderWorkerView() {
   var workerStages = WORKER_MAP[currentWorker] || [];
 
   // Filter: cars currently AT one of this worker's stages
+  var PRIYA_RP = ['rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'];
   var myCars = cars.filter(function(car) {
     var stage = car.stage || 'bs-inward';
+    // Safety: rp-billing+ always belongs to PRIYA, never NIKETU
+    if(currentWorker === 'NIKETU' && PRIYA_RP.indexOf(stage) !== -1) return false;
     return workerStages.indexOf(stage) !== -1;
   });
 
