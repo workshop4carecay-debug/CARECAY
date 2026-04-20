@@ -251,13 +251,60 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
 </div>
 
 <div id="lock-overlay">
-  <div id="lock-box">
-    <div style="font-size:44px;margin-bottom:8px;">🔧</div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;color:#f59e0b;letter-spacing:3px;">CARECAY</div>
-    <div style="font-size:11px;color:rgba(255,255,255,.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:24px;">Multibrand Workshop</div>
-    <input id="lock-inp" type="password" placeholder="Enter password" maxlength="30" onkeydown="if(event.key==='Enter')doLockCheck()">
-    <button id="lock-btn" onclick="doLockCheck()">🔓 ENTER WORKSHOP</button>
-    <div id="lock-err">❌ Wrong password. Try again.</div>
+  <div id="lock-box" style="width:360px;max-width:92vw;">
+
+    <!-- LOGIN VIEW -->
+    <div id="lock-view-login">
+      <div style="font-size:40px;margin-bottom:6px;">🔧</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;color:#f59e0b;letter-spacing:3px;">CARECAY</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;">Multibrand Workshop</div>
+
+      <!-- User Selection -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Select Your Role</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <button onclick="lockSelectUser('MANAGER')" id="lu-MANAGER" class="lu-btn" style="background:#1a1f2e;border:2px solid rgba(245,158,11,.4);border-radius:10px;padding:10px 6px;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;transition:all .15s;">👑<br>MANAGER</button>
+          <button onclick="lockSelectUser('IRFAN')"   id="lu-IRFAN"   class="lu-btn" style="background:#1a1f2e;border:2px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 6px;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;transition:all .15s;">📋<br>IRFAN</button>
+          <button onclick="lockSelectUser('BHAVIN')"  id="lu-BHAVIN"  class="lu-btn" style="background:#1a1f2e;border:2px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 6px;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;transition:all .15s;">🔨<br>BHAVIN</button>
+          <button onclick="lockSelectUser('PRIYA')"   id="lu-PRIYA"   class="lu-btn" style="background:#1a1f2e;border:2px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 6px;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;transition:all .15s;">🧾<br>PRIYA</button>
+          <button onclick="lockSelectUser('NIKETU')"  id="lu-NIKETU"  class="lu-btn" style="background:#1a1f2e;border:2px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 6px;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;transition:all .15s;">🔧<br>NIKETU</button>
+        </div>
+      </div>
+
+      <div id="lock-user-label" style="font-size:12px;color:rgba(245,158,11,.7);margin-bottom:8px;display:none;">Logging in as: <strong id="lock-user-name"></strong></div>
+      <input id="lock-inp" type="password" placeholder="Enter password" maxlength="30" onkeydown="if(event.key==='Enter')doLockCheck()" style="display:none;">
+      <button id="lock-btn" onclick="doLockCheck()" style="display:none;">🔓 ENTER WORKSHOP</button>
+      <div id="lock-err">❌ Wrong password. Try again.</div>
+      <button onclick="showForgotView()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:12px;cursor:pointer;margin-top:10px;text-decoration:underline;font-family:'Barlow',sans-serif;">Forgot password?</button>
+    </div>
+
+    <!-- FORGOT PASSWORD VIEW -->
+    <div id="lock-view-forgot" style="display:none;">
+      <div style="font-size:32px;margin-bottom:8px;">🔑</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:#f59e0b;letter-spacing:2px;margin-bottom:6px;">RESET PASSWORD</div>
+      <div id="forgot-user-label" style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px;"></div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:8px;text-align:left;">Security Question:</div>
+      <div id="forgot-question" style="background:#1a1f2e;border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 12px;font-size:13px;color:#f59e0b;margin-bottom:10px;text-align:left;"></div>
+      <input id="forgot-answer" type="text" placeholder="Your answer..." maxlength="50"
+        style="width:100%;background:#0d1018;border:2px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:14px;text-align:center;padding:11px;outline:none;margin-bottom:10px;box-sizing:border-box;font-family:'Barlow',sans-serif;"
+        onkeydown="if(event.key==='Enter')checkSecurityAnswer()">
+      <button onclick="checkSecurityAnswer()" style="width:100%;background:#f59e0b;border:none;border-radius:10px;color:#000;font-size:16px;font-weight:800;padding:12px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">✅ VERIFY</button>
+      <div id="forgot-err" style="display:none;margin-top:8px;color:#ef4444;font-size:12px;font-weight:600;">❌ Wrong answer. Try again.</div>
+      <button onclick="showLoginView()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:12px;cursor:pointer;margin-top:10px;text-decoration:underline;font-family:'Barlow',sans-serif;">← Back to login</button>
+    </div>
+
+    <!-- SET NEW PASSWORD VIEW -->
+    <div id="lock-view-newpass" style="display:none;">
+      <div style="font-size:32px;margin-bottom:8px;">🔐</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:#10b981;letter-spacing:2px;margin-bottom:16px;">SET NEW PASSWORD</div>
+      <input id="new-pass-inp" type="password" placeholder="Enter new password" maxlength="30"
+        style="width:100%;background:#0d1018;border:2px solid rgba(16,185,129,.3);border-radius:10px;color:#fff;font-size:16px;font-weight:600;text-align:center;padding:12px;outline:none;margin-bottom:10px;box-sizing:border-box;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">
+      <input id="new-pass-confirm" type="password" placeholder="Confirm new password" maxlength="30"
+        style="width:100%;background:#0d1018;border:2px solid rgba(16,185,129,.3);border-radius:10px;color:#fff;font-size:16px;font-weight:600;text-align:center;padding:12px;outline:none;margin-bottom:10px;box-sizing:border-box;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">
+      <button onclick="saveNewPassword()" style="width:100%;background:#10b981;border:none;border-radius:10px;color:#000;font-size:16px;font-weight:800;padding:12px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">💾 SAVE PASSWORD</button>
+      <div id="newpass-err" style="display:none;margin-top:8px;color:#ef4444;font-size:12px;font-weight:600;"></div>
+    </div>
+
   </div>
 </div>
 
@@ -314,6 +361,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
 <div class="hdr">
   <div class="logo">Carecay <em>Workshop</em> <span style="font-size:10px;background:var(--accent);color:#000;border-radius:3px;padding:1px 5px;margin-left:3px;vertical-align:middle;font-style:normal;">v4</span></div>
   <div class="hdr-r"><span id="worker-badge" onclick="showWorkerSelect()" style="display:none;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;align-items:center;gap:4px;"></span>
+    <button onclick="logoutUser()" title="Logout" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--red);cursor:pointer;font-family:var(--body);">🔒 Logout</button>
     <span id="sync-indicator" title="Sync status" style="font-size:11px;color:var(--m2);cursor:pointer;" onclick="goTab('sync')"><span class="sync-dot" id="sdot"></span><span id="slbl">Offline</span></span>
     <button class="ibtn" onclick="openAddCar()">🚗 +</button>
     <button class="ibtn" onclick="exportAll()">⬇</button>
@@ -450,7 +498,9 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
   <div id="worker-cars-list" style="padding:0 14px 80px;"></div>
 </div>
 <div class="tp" id="tab-sync">
-    <div class="ptitle">Device <span>Sync</span></div>
+    <div class="ptitle">Device <span>Sync</span>
+      <button onclick="showChangePassModal()" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:5px 12px;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--body);">🔐 Change Password</button>
+    </div>
     <div class="sync-panel">
 
       <div id="sync-status-box" class="ban bo" style="display:flex;margin-bottom:14px;">🔄 Real-time sync via GitHub — changes appear on all devices in 5 seconds</div>
@@ -2134,29 +2184,260 @@ document.querySelectorAll('.mov').forEach(o=>o.addEventListener('click',e=>{if(e
 // ════════════════════════════════════
 // LOCK SCREEN
 // ════════════════════════════════════
+
+// ════════════════════════════════════
+// SECURITY SYSTEM
+// ════════════════════════════════════
+
+var SEC_KEY = 'carecay-security';
+var currentLockUser = 'MANAGER'; // default selected user
+
+// Default passwords and security questions
+var DEFAULT_PASSWORDS = {
+  MANAGER: 'carecay2025',
+  IRFAN:   'irfan123',
+  BHAVIN:  'bhavin123',
+  PRIYA:   'priya123',
+  NIKETU:  'niketu123'
+};
+
+// Simple hash function (XOR + base64 for basic obfuscation)
+function secHash(str) {
+  var h = 0;
+  for (var i = 0; i < str.length; i++) {
+    h = ((h << 5) - h) + str.charCodeAt(i);
+    h |= 0;
+  }
+  return btoa(String(Math.abs(h)));
+}
+
+function secLoad() {
+  try {
+    var d = localStorage.getItem(SEC_KEY);
+    return d ? JSON.parse(d) : {};
+  } catch(e) { return {}; }
+}
+
+function secSave(data) {
+  try { localStorage.setItem(SEC_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function getPassword(user) {
+  var data = secLoad();
+  return data[user] ? data[user].pass : DEFAULT_PASSWORDS[user] || 'carecay2025';
+}
+
+function getSecQuestion(user) {
+  var data = secLoad();
+  return data[user] ? data[user].question : '';
+}
+
+function getSecAnswer(user) {
+  var data = secLoad();
+  return data[user] ? data[user].answer : '';
+}
+
+// Select user on login screen
+function lockSelectUser(user) {
+  currentLockUser = user;
+  // Highlight selected button
+  ['MANAGER','IRFAN','BHAVIN','PRIYA','NIKETU'].forEach(function(u) {
+    var btn = document.getElementById('lu-'+u);
+    if(btn) btn.style.border = u===user ? '2px solid #f59e0b' : '2px solid rgba(255,255,255,.1)';
+  });
+  // Show password input
+  var inp = document.getElementById('lock-inp');
+  var btn2 = document.getElementById('lock-btn');
+  var lbl = document.getElementById('lock-user-label');
+  var nameEl = document.getElementById('lock-user-name');
+  if(inp){ inp.style.display='block'; inp.value=''; inp.focus(); }
+  if(btn2){ btn2.style.display='block'; }
+  if(lbl){ lbl.style.display='block'; }
+  if(nameEl){ nameEl.textContent = user; }
+}
+
+function showLoginView() {
+  document.getElementById('lock-view-login').style.display='block';
+  document.getElementById('lock-view-forgot').style.display='none';
+  document.getElementById('lock-view-newpass').style.display='none';
+}
+
+function showForgotView() {
+  if(!currentLockUser){ alert('Please select your role first.'); return; }
+  var q = getSecQuestion(currentLockUser);
+  if(!q){
+    alert('No security question set for ' + currentLockUser + '.\nPlease contact Manager to reset your password.');
+    return;
+  }
+  document.getElementById('forgot-question').textContent = q;
+  document.getElementById('forgot-user-label').textContent = 'Resetting password for: ' + currentLockUser;
+  document.getElementById('forgot-answer').value='';
+  document.getElementById('forgot-err').style.display='none';
+  document.getElementById('lock-view-login').style.display='none';
+  document.getElementById('lock-view-forgot').style.display='block';
+}
+
+function checkSecurityAnswer() {
+  var ans = (document.getElementById('forgot-answer').value||'').trim().toLowerCase();
+  var correct = (getSecAnswer(currentLockUser)||'').trim().toLowerCase();
+  if(!correct){ alert('No security answer set. Contact Manager.'); return; }
+  if(ans === correct) {
+    // Show new password view
+    document.getElementById('lock-view-forgot').style.display='none';
+    document.getElementById('lock-view-newpass').style.display='block';
+    document.getElementById('new-pass-inp').value='';
+    document.getElementById('new-pass-confirm').value='';
+    document.getElementById('newpass-err').style.display='none';
+  } else {
+    var err = document.getElementById('forgot-err');
+    err.style.display='block';
+    document.getElementById('forgot-answer').value='';
+    setTimeout(function(){ err.style.display='none'; }, 2000);
+  }
+}
+
+function saveNewPassword() {
+  var np = document.getElementById('new-pass-inp').value.trim();
+  var nc = document.getElementById('new-pass-confirm').value.trim();
+  var errEl = document.getElementById('newpass-err');
+  if(!np || np.length < 4) {
+    errEl.textContent='Password must be at least 4 characters.';
+    errEl.style.display='block'; return;
+  }
+  if(np !== nc) {
+    errEl.textContent='Passwords do not match!';
+    errEl.style.display='block'; return;
+  }
+  // Save new password
+  var data = secLoad();
+  if(!data[currentLockUser]) data[currentLockUser]={};
+  data[currentLockUser].pass = np;
+  secSave(data);
+  // Show success and return to login
+  errEl.style.cssText='display:block;color:#10b981;';
+  errEl.textContent='✅ Password changed! Please login.';
+  setTimeout(function(){ showLoginView(); }, 1500);
+}
+
 function doLockCheck(){
-  var inp=document.getElementById('lock-inp');
-  var err=document.getElementById('lock-err');
-  var overlay=document.getElementById('lock-overlay');
-  if(!inp) return;
-  if(inp.value.trim()==='carecay2025'){
+  var inp = document.getElementById('lock-inp');
+  var err = document.getElementById('lock-err');
+  var overlay = document.getElementById('lock-overlay');
+  if(!inp || !currentLockUser) return;
+  var entered = inp.value.trim();
+  var correct = getPassword(currentLockUser);
+  if(entered === correct){
     sessionStorage.setItem('cc-ok','1');
+    sessionStorage.setItem('cc-login-user', currentLockUser);
     overlay.style.display='none';
-    setTimeout(function(){ showWorkerSelectAfterLogin(); }, 400);
+    // Auto-select worker based on login
+    if(currentLockUser === 'MANAGER') {
+      selectWorker(null);
+    } else {
+      selectWorker(currentLockUser);
+    }
   } else {
     err.style.display='block';
     inp.value='';
     inp.focus();
-    setTimeout(function(){err.style.display='none';},2000);
+    setTimeout(function(){ err.style.display='none'; }, 2000);
   }
 }
+
+// Change Password from settings
+function showChangePassModal() {
+  document.getElementById('cp-current').value='';
+  document.getElementById('cp-new').value='';
+  document.getElementById('cp-confirm').value='';
+  document.getElementById('cp-answer').value='';
+  document.getElementById('cp-msg').style.display='none';
+  // Pre-select current logged in user
+  var loggedUser = sessionStorage.getItem('cc-login-user') || 'MANAGER';
+  var sel = document.getElementById('cp-user-sel');
+  if(sel) sel.value = loggedUser;
+  // Only manager can change all; others can only change their own
+  if(loggedUser !== 'MANAGER') {
+    // Disable select for non-managers
+    if(sel) { sel.value = loggedUser; sel.disabled = true; }
+  } else {
+    if(sel) sel.disabled = false;
+  }
+  cpLoadUser();
+  openModal('changePassModal');
+}
+
+function cpLoadUser() {
+  var user = document.getElementById('cp-user-sel').value;
+  var q = getSecQuestion(user);
+  var qSel = document.getElementById('cp-question');
+  if(qSel && q) {
+    // Set existing question
+    for(var i=0; i<qSel.options.length; i++) {
+      if(qSel.options[i].value === q) { qSel.selectedIndex = i; break; }
+    }
+  }
+}
+
+function saveChangePassword() {
+  var user = document.getElementById('cp-user-sel').value;
+  var current = document.getElementById('cp-current').value.trim();
+  var newPass = document.getElementById('cp-new').value.trim();
+  var confirm = document.getElementById('cp-confirm').value.trim();
+  var question = document.getElementById('cp-question').value;
+  var answer = document.getElementById('cp-answer').value.trim();
+  var msgEl = document.getElementById('cp-msg');
+
+  function showMsg(txt, color) {
+    msgEl.textContent = txt;
+    msgEl.style.cssText = 'display:block;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;margin-bottom:10px;background:'+
+      (color==='green'?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)')+';color:'+(color==='green'?'#10b981':'#ef4444')+
+      ';border:1px solid '+(color==='green'?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)')+';';
+  }
+
+  // Verify current password
+  if(current !== getPassword(user)) {
+    showMsg('❌ Current password is wrong!', 'red'); return;
+  }
+  if(!newPass || newPass.length < 4) {
+    showMsg('❌ New password must be at least 4 characters.', 'red'); return;
+  }
+  if(newPass !== confirm) {
+    showMsg('❌ New passwords do not match!', 'red'); return;
+  }
+
+  // Save
+  var data = secLoad();
+  if(!data[user]) data[user] = {};
+  data[user].pass = newPass;
+  if(question) data[user].question = question;
+  if(answer) data[user].answer = answer.toLowerCase();
+  secSave(data);
+
+  showMsg('✅ Password saved successfully!', 'green');
+  setTimeout(function(){ closeModal('changePassModal'); }, 1500);
+}
+
+// Init lock screen
 (function(){
-  var overlay=document.getElementById('lock-overlay');
+  var overlay = document.getElementById('lock-overlay');
   if(!overlay) return;
-  if(sessionStorage.getItem('cc-ok')==='1'){ setTimeout(function(){ showWorkerSelectAfterLogin(); }, 400); return; }
+  if(sessionStorage.getItem('cc-ok')==='1'){
+    overlay.style.display='none';
+    var savedUser = sessionStorage.getItem('cc-login-user') || null;
+    setTimeout(function(){
+      if(savedUser && savedUser !== 'MANAGER') {
+        selectWorker(savedUser);
+      } else {
+        showWorkerSelectAfterLogin();
+      }
+    }, 400);
+    return;
+  }
   overlay.style.display='flex';
-  setTimeout(function(){var i=document.getElementById('lock-inp');if(i)i.focus();},300);
+  // Pre-select Manager by default
+  lockSelectUser('MANAGER');
 })();
+
 
 // ════════════════════════════════════
 // WORKER FUNCTIONS
@@ -2472,7 +2753,22 @@ function workerViewDetails(carId) {
 }
 
 // Show worker select after login
+
+function logoutUser() {
+  if(!confirm('Are you sure you want to logout?')) return;
+  sessionStorage.removeItem('cc-ok');
+  sessionStorage.removeItem('cc-login-user');
+  sessionStorage.removeItem('cc-worker');
+  location.reload();
+}
 function showWorkerSelectAfterLogin() {
+  var loginUser = sessionStorage.getItem('cc-login-user');
+  // If logged in as a specific worker, auto-select them
+  if(loginUser && loginUser !== 'MANAGER') {
+    selectWorker(loginUser);
+    return;
+  }
+  // Manager — check if already selected
   var saved = sessionStorage.getItem('cc-worker');
   if(saved !== null) {
     selectWorker(saved === '' ? null : saved);
@@ -3604,5 +3900,52 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="mov" id="changePassModal">
+  <div class="modal">
+    <div class="mdrag"></div>
+    <div class="mtitle">🔐 Change Password</div>
+
+    <div class="ff">
+      <label class="fl">Select User</label>
+      <select class="fsel" id="cp-user-sel" onchange="cpLoadUser()">
+        <option value="MANAGER">👑 Manager</option>
+        <option value="IRFAN">📋 Irfan</option>
+        <option value="BHAVIN">🔨 Bhavin</option>
+        <option value="PRIYA">🧾 Priya</option>
+        <option value="NIKETU">🔧 Niketu</option>
+      </select>
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;margin-bottom:8px;">🔑 CURRENT PASSWORD</div>
+      <input class="fi" id="cp-current" type="password" placeholder="Enter current password">
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--green);font-weight:700;letter-spacing:1px;margin-bottom:8px;">🔐 NEW PASSWORD</div>
+      <input class="fi" id="cp-new" type="password" placeholder="Enter new password" style="margin-bottom:8px;">
+      <input class="fi" id="cp-confirm" type="password" placeholder="Confirm new password">
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--blue);font-weight:700;letter-spacing:1px;margin-bottom:8px;">❓ SECURITY QUESTION (for forgot password)</div>
+      <select class="fsel" id="cp-question" style="margin-bottom:8px;">
+        <option value="">— Select a security question —</option>
+        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+        <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+        <option value="What city were you born in?">What city were you born in?</option>
+        <option value="What is your favourite colour?">What is your favourite colour?</option>
+        <option value="What is the name of your workshop?">What is the name of your workshop?</option>
+        <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+      </select>
+      <input class="fi" id="cp-answer" type="text" placeholder="Your answer (remembered for reset)">
+    </div>
+    <div id="cp-msg" style="display:none;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;margin-bottom:10px;"></div>
+    <div class="mfooter">
+      <button class="mbtn cancel" onclick="closeModal('changePassModal')">Cancel</button>
+      <button class="mbtn save" onclick="saveChangePassword()">💾 Save Password</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
