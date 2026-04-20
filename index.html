@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15
 .bni .ic{font-size:17px;line-height:1;}
 .bni.on{color:var(--accent);}
 /* SIDEBAR */
-.dsb{display:none;position:fixed;top:54px;left:0;bottom:0;width:230px;background:var(--s1);border-right:1px solid var(--border);flex-direction:column;overflow-y:auto;z-index:100;}
+.dsb{display:none;position:fixed;top:100px;left:0;bottom:0;width:230px;background:var(--s1);border-right:1px solid var(--border);flex-direction:column;overflow-y:auto;z-index:100;}
 .dss{padding:12px;border-bottom:1px solid var(--border);}
 .dsl{font-family:var(--disp);font-size:10px;letter-spacing:2px;color:var(--m2);text-transform:uppercase;margin-bottom:8px;}
 .dsn{padding:12px;border-bottom:1px solid var(--border);flex:1;}
@@ -51,7 +51,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15
 .dni.on{background:var(--adim);color:var(--accent);border-left:3px solid var(--accent);}
 .dni .ic{font-size:15px;}
 /* CONTENT */
-.ca{position:fixed;top:54px;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.ca{position:fixed;top:100px;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .tp{display:none;padding:14px 14px 28px;}
 .tp.on{display:block;}
 .ptitle{font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
@@ -320,6 +320,20 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
   </div>
 </div>
 
+<!-- GLOBAL SEARCH BAR -->
+<div style="position:fixed;top:54px;left:0;right:0;z-index:150;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 12px;">
+  <div style="position:relative;max-width:100%;">
+    <input id="global-search" 
+      placeholder="🔍 Search Reg No, Car Name, Customer..." 
+      oninput="globalSearch(this.value)"
+      style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px 8px 36px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .15s;"
+      onfocus="this.style.borderColor='var(--accent)'"
+      onblur="this.style.borderColor='var(--border)'">
+    <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;">🔍</span>
+    <div id="search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--s1);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,.5);"></div>
+  </div>
+</div>
+
 <!-- SIDEBAR -->
 <div class="dsb">
   <div class="dss">
@@ -500,12 +514,16 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
     </div>
   </div>
 
-  <!-- SEARCH BAR (global) -->
+  <!-- LOCAL SEARCH BAR inside Status Card tab -->
   <div style="position:relative;margin-bottom:14px;">
-    <input id="global-search" class="fi" placeholder="🔍 Search by Reg No, Car Name or Customer..." 
-      oninput="globalSearch(this.value)"
-      style="padding-left:16px;font-size:14px;font-weight:400;text-transform:none;letter-spacing:0;">
-    <div id="search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--s1);border:1px solid var(--border);border-radius:0 0 10px 10px;z-index:100;max-height:300px;overflow-y:auto;"></div>
+    <input id="sc-local-search"
+      placeholder="🔍 Search Reg No, Car Name, Customer..."
+      oninput="globalSearch(this.value, 'sc-local-results')"
+      style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;padding:8px 12px 8px 36px;font-family:'Barlow',sans-serif;outline:none;transition:border-color .15s;"
+      onfocus="this.style.borderColor='var(--accent)'"
+      onblur="this.style.borderColor='var(--border)'">
+    <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;">🔍</span>
+    <div id="sc-local-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--s1);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;z-index:200;max-height:320px;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,.5);"></div>
   </div>
 
   <!-- GENERATE VIEW -->
@@ -3360,8 +3378,8 @@ function scCopySyncId() {
 }
 
 // ── GLOBAL SEARCH ──
-function globalSearch(query) {
-  const results = document.getElementById('search-results');
+function globalSearch(query, resultsId) {
+  const results = document.getElementById(resultsId || 'search-results');
   if (!query || query.length < 2) { results.style.display='none'; return; }
   const q = query.toUpperCase();
   const matches = (cars||[]).filter(c =>
@@ -3415,6 +3433,8 @@ function globalSearch(query) {
 function searchSelectCar(id) {
   document.getElementById('search-results').style.display='none';
   document.getElementById('global-search').value='';
+  const ls=document.getElementById('sc-local-search'); if(ls) ls.value='';
+  const lr=document.getElementById('sc-local-results'); if(lr) lr.style.display='none';
   // Go to status card tab, select this car
   goTab('status');
   switchStatusView('generate');
@@ -3427,6 +3447,8 @@ function searchSelectCar(id) {
 function searchSelectRecord(reg) {
   document.getElementById('search-results').style.display='none';
   document.getElementById('global-search').value='';
+  const ls=document.getElementById('sc-local-search'); if(ls) ls.value='';
+  const lr=document.getElementById('sc-local-results'); if(lr) lr.style.display='none';
   goTab('status');
   switchStatusView('records');
   setTimeout(()=>{ scRenderRecords(''); scToggleRec(reg); },200);
@@ -3434,9 +3456,10 @@ function searchSelectRecord(reg) {
 
 // Hide search on outside click
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('#global-search') && !e.target.closest('#search-results')) {
-    const r=document.getElementById('search-results');
-    if(r) r.style.display='none';
+  if (!e.target.closest('#global-search') && !e.target.closest('#search-results') &&
+      !e.target.closest('#sc-local-search') && !e.target.closest('#sc-local-results')) {
+    const r1=document.getElementById('search-results'); if(r1) r1.style.display='none';
+    const r2=document.getElementById('sc-local-results'); if(r2) r2.style.display='none';
   }
 });
 
