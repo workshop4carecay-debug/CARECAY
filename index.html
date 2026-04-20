@@ -351,6 +351,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
     <button class="dni"    id="dn-daily"   onclick="goTab('daily')"  ><span class="ic">📊</span> Daily Report</button>
     <button class="dni"    id="dn-worker"  onclick="goTab('worker');renderWorkerView()" style="background:rgba(245,158,11,.1);border-left:3px solid var(--accent);"><span class="ic">👷</span> My Work</button>
     <button class="dni"    id="dn-sync"    onclick="goTab('sync')"   ><span class="ic">🔗</span> Device Sync</button>
+    <button class="dni"    id="dn-status"  onclick="goTab('status')" ><span class="ic">📲</span> Status Card</button>
   </div>
 </div>
 
@@ -488,6 +489,109 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
       </div>
     </div>
   </div>
+
+<!-- STATUS CARD TAB -->
+<div class="tp" id="tab-status">
+  <div class="ptitle" style="font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+    Status <span style="color:var(--accent);">Card</span>
+    <div style="display:flex;gap:8px;">
+      <button onclick="switchStatusView('generate')" id="sv-gen-btn" class="ibtn p" style="font-size:12px;padding:5px 12px;">⚡ Generate</button>
+      <button onclick="switchStatusView('records')" id="sv-rec-btn" class="ibtn" style="font-size:12px;padding:5px 12px;">📋 Records</button>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR (global) -->
+  <div style="position:relative;margin-bottom:14px;">
+    <input id="global-search" class="fi" placeholder="🔍 Search by Reg No, Car Name or Customer..." 
+      oninput="globalSearch(this.value)"
+      style="padding-left:16px;font-size:14px;font-weight:400;text-transform:none;letter-spacing:0;">
+    <div id="search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--s1);border:1px solid var(--border);border-radius:0 0 10px 10px;z-index:100;max-height:300px;overflow-y:auto;"></div>
+  </div>
+
+  <!-- GENERATE VIEW -->
+  <div id="sv-generate">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:16px;">
+          <div style="font-family:var(--disp);font-size:13px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);">📋 Select Car</div>
+          
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+            <label style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;font-weight:600;">Select from existing cars</label>
+            <select class="fsel" id="sc-car-select" onchange="scAutoFill()">
+              <option value="">— Select a Car —</option>
+            </select>
+          </div>
+          <div style="text-align:center;font-size:12px;color:var(--m2);margin-bottom:10px;">— OR type manually —</div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+            <label style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;font-weight:600;">Car Reg. No. *</label>
+            <input class="fi" id="sc-regno" placeholder="GJ05BX4321" style="text-transform:uppercase;font-weight:700;letter-spacing:1px;">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+            <label style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;font-weight:600;">Car Model</label>
+            <input class="fi" id="sc-model" placeholder="e.g. Maruti Swift VXI" style="text-transform:none;font-weight:400;letter-spacing:0;">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+            <label style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;font-weight:600;">Customer Name</label>
+            <input class="fi" id="sc-cust" placeholder="e.g. Rajesh Patel" style="text-transform:none;font-weight:400;letter-spacing:0;">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+            <label style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;font-weight:600;">Work Type</label>
+            <select class="fsel" id="sc-worktype" onchange="scFillStages()">
+              <option value="bs">🔩 Body Shop</option>
+              <option value="rp">🔧 Mechanical</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+            <label style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;font-weight:600;">Current Stage *</label>
+            <select class="fsel" id="sc-stage"></select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:14px;">
+            <label style="font-size:11px;color:var(--m1);text-transform:uppercase;letter-spacing:.8px;font-weight:600;">Est. Delivery Date</label>
+            <input type="date" class="fi" id="sc-estdate" style="text-transform:none;font-weight:400;letter-spacing:0;">
+          </div>
+          <button onclick="scGenerate()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--disp);letter-spacing:2px;">⚡ GENERATE CARD</button>
+          <button id="sc-dl-btn" onclick="scDownload()" style="display:none;width:100%;background:var(--green);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--body);margin-top:8px;align-items:center;justify-content:center;gap:6px;">📲 Download for WhatsApp</button>
+          <button id="sc-cp-btn" onclick="scCopyImg()" style="display:none;width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--body);margin-top:8px;align-items:center;justify-content:center;gap:6px;">📋 Copy Image → Paste in WhatsApp</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;justify-content:center;">
+        <div id="sc-placeholder" style="background:var(--s1);border:2px dashed var(--border);border-radius:12px;width:100%;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--m2);">
+          <div style="font-size:40px;">🖼️</div>
+          <p style="font-size:13px;text-align:center;">Select a car and click<br><strong style="color:var(--accent);">Generate Card</strong></p>
+        </div>
+        <canvas id="sc-canvas" width="1080" height="1080" style="display:none;border-radius:12px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.6);"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECORDS VIEW -->
+  <div id="sv-records" style="display:none;">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+      <input style="flex:1;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:9px 12px;font-family:var(--body);outline:none;" 
+        placeholder="🔍 Filter records..." oninput="scRenderRecords(this.value)">
+      <span id="sc-rec-count" style="font-size:12px;color:var(--m2);"></span>
+      <button onclick="scExportCSV()" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--body);">⬇ Export CSV</button>
+      <button onclick="scSyncSetup()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--body);">🔗 Sync</button>
+    </div>
+    <div id="sc-records-list"></div>
+  </div>
+
+  <!-- SYNC MINI PANEL (hidden by default) -->
+  <div id="sc-sync-panel" style="display:none;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:14px;">
+    <div style="font-family:var(--disp);font-size:13px;color:var(--accent);letter-spacing:1px;margin-bottom:10px;">🔗 SYNC ACROSS DEVICES</div>
+    <div id="sc-sync-status" style="font-size:12px;padding:7px 12px;border-radius:6px;font-weight:600;margin-bottom:10px;background:rgba(90,100,128,.1);color:var(--m2);border:1px solid var(--border);">⚫ Not connected</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input id="sc-blob-inp" class="fi" placeholder="Enter or paste Sync ID..." style="flex:1;font-size:13px;text-transform:none;font-weight:400;letter-spacing:0;">
+      <button onclick="scCopySyncId()" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer;font-family:var(--body);">📋</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <button onclick="scCreateBlob()" style="background:var(--green);color:#000;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--body);">🆕 Create</button>
+      <button onclick="scConnectBlob()" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--body);">🔗 Connect</button>
+      <button onclick="scPullBlob()" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--body);">⬇ Pull</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <!-- BOTTOM NAV -->
@@ -497,6 +601,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
   <button class="bni"    id="bn-pending" onclick="goTab('pending')"><span class="ic">⏳</span>Pending</button>
   <button class="bni"    id="bn-mreport" onclick="goTab('mreport')"><span class="ic">🔧</span>Mechanic</button>
   <button class="bni"    id="bn-sync"    onclick="goTab('sync')"   ><span class="ic">🔗</span>Sync</button>
+  <button class="bni"    id="bn-status"  onclick="goTab('status')" ><span class="ic">📲</span>Status</button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -841,7 +946,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ════════════════════════════════════
 // TABS
 // ════════════════════════════════════
-const TABS=['cars','wip','pending','bills','invoice','mreport','dreport','preport','daily','sync','worker'];
+const TABS=['cars','wip','pending','bills','invoice','mreport','dreport','preport','daily','sync','worker','status'];
 function goTab(t){
   TABS.forEach(x=>{
     document.getElementById('tab-'+x).classList.toggle('on',x===t);
@@ -1211,6 +1316,16 @@ function saveCar(){
   const regno=document.getElementById('car-regno').value.trim().toUpperCase();
   if(!regno){showToast('Car Reg No. required!','#ef4444');return;}
   const stage=document.getElementById('car-stage').value;
+  // ── DUPLICATE CHECK ──
+  if(!editingCarId){
+    const dup=cars.find(c=>c.regno===regno);
+    if(dup){
+      closeModal('addCarModal');
+      showToast('⚠ '+regno+' already exists! Opening to edit.','#f97316');
+      setTimeout(()=>editCarOpen(dup.id),400);
+      return;
+    }
+  }
   if(editingCarId){
     const car=cars.find(c=>c.id===editingCarId);
     if(car){
@@ -2338,6 +2453,1016 @@ function showWorkerSelectAfterLogin() {
     document.getElementById('worker-overlay').style.display = 'flex';
   }
 }
+
+
+// ═══════════════════════════════════════
+// STATUS CARD — STAGE DATA
+// ═══════════════════════════════════════
+const BS = [
+  {id:'bs-inward',    n:1,  t:24, lbl:`Car Inward & Receive Photos`,     ico:'📥',
+   msg:`Your vehicle has been received at Carecay Workshop. Our team has recorded all details and taken photos for our records. We will keep you updated at every step.`,
+   nxt:`Job Card will be created for your vehicle.`},
+  {id:'bs-jobcard',   n:2,  t:24, lbl:`Job Card Created`,                 ico:'📋',
+   msg:`A detailed job card has been created for your vehicle. All repair requirements have been documented and assigned to our expert team.`,
+   nxt:`Insurance claim intimation will be initiated.`},
+  {id:'bs-claim',     n:3,  t:24, lbl:`Claim Intimation Process`,         ico:'📄',
+   msg:`Your insurance claim has been initiated. We are coordinating with the insurance company on your behalf to ensure a smooth and quick process.`,
+   nxt:`Survey will be scheduled at your earliest.`},
+  {id:'bs-survey-pend',n:4, t:24, lbl:`Survey Pending`,                   ico:'🔍',
+   msg:`Your vehicle is awaiting the insurance surveyor visit. We will notify you immediately once the survey is completed.`,
+   nxt:`Survey will be completed and documents submitted.`},
+  {id:'bs-survey-done',n:5, t:24, lbl:`Survey Completed`,                 ico:'✅',
+   msg:`The insurance survey has been completed successfully. All required documents have been submitted to the insurance company.`,
+   nxt:`Awaiting insurance approval.`},
+  {id:'bs-ins-approval',n:6,t:24, lbl:`Waiting for Insurance Approval`,   ico:'🏢',
+   msg:`We have submitted all documents and are awaiting approval from the insurance company. This typically takes a few working days.`,
+   nxt:`Parts will be ordered upon approval.`},
+  {id:'bs-ins-received',n:7,t:24, lbl:`Insurance Approval Received`,      ico:'✅',
+   msg:`Great news! The insurance company has approved the claim. We are now moving forward with the repair process without delay.`,
+   nxt:`Your approval will be taken before proceeding.`},
+  {id:'bs-cust-approval',n:8,t:24,lbl:`Waiting for Customer Approval`,    ico:'👤',
+   msg:`We have shared the repair estimate with you. Please review and approve at your earliest so we can begin the repair work immediately.`,
+   nxt:`Parts will be ordered after your approval.`},
+  {id:'bs-parts-ordered',n:9,t:24,lbl:`Parts Ordered`,                    ico:'🛒',
+   msg:`All required parts have been ordered from our trusted vendors. Our team is ready and will begin work immediately upon arrival.`,
+   nxt:`Waiting for parts to arrive at workshop.`},
+  {id:'bs-waiting-parts',n:10,t:24,lbl:`Waiting for Parts`,               ico:'⏳',
+   msg:`We are waiting for the ordered parts to arrive. Our technicians are prepared to begin work the moment parts are received.`,
+   nxt:`Work will begin immediately after parts arrive.`},
+  {id:'bs-parts-received',n:11,t:24,lbl:`Parts Received`,                 ico:'📦',
+   msg:`All parts have arrived and been verified by our team. The repair process will now begin on your vehicle without delay.`,
+   nxt:`Denting work will begin on your vehicle.`},
+  {id:'bs-denting',   n:12, t:24, lbl:`WIP — Denting`,                   ico:'🔨',
+   msg:`Your vehicle is currently undergoing denting work. Our skilled technicians are carefully restoring all body panels to their original shape.`,
+   nxt:`Painting process will follow after denting.`},
+  {id:'bs-painting',  n:13, t:24, lbl:`WIP — Painting`,                  ico:'🎨',
+   msg:`Your vehicle is in the painting stage. Our expert painters are applying high-quality paint that perfectly matches your vehicle original colour.`,
+   nxt:`Fitting and assembly will follow painting.`},
+  {id:'bs-fitting',   n:14, t:24, lbl:`WIP — Fitting`,                   ico:'🔩',
+   msg:`All painted panels are being carefully fitted back onto your vehicle. Our team is ensuring perfect alignment and a flawless finish.`,
+   nxt:`Polish and finishing work will be done next.`},
+  {id:'bs-polish',    n:15, t:24, lbl:`WIP — Polish`,                    ico:'✨',
+   msg:`Your vehicle is receiving professional polish and finishing treatment to ensure a showroom-quality appearance before delivery.`,
+   nxt:`Vehicle will be washed and prepared for delivery.`},
+  {id:'bs-washing',   n:16, t:24, lbl:`Car Washing`,                     ico:'🚿',
+   msg:`Repair work is complete! Your vehicle is being thoroughly cleaned and detailed so it is spotless and ready for final inspection.`,
+   nxt:`Billing and final paperwork will be completed.`},
+  {id:'bs-performa-pend',n:17,t:24,lbl:`Performa Invoice Pending`,       ico:'📃',
+   msg:`All repair work is complete. We are preparing the Performa Invoice to submit to the insurance company for final settlement.`,
+   nxt:`Performa will be sent to insurance company.`},
+  {id:'bs-performa-ready',n:18,t:24,lbl:`Performa Invoice Ready`,        ico:'📃',
+   msg:`The Performa Invoice has been prepared and shared with the insurance company. We are awaiting their final liability statement.`,
+   nxt:`Waiting for insurance liability letter.`},
+  {id:'bs-ins-liability',n:19,t:24,lbl:`Waiting for Insurance Liability`, ico:'📊',
+   msg:`We are awaiting the final liability confirmation from the insurance company. Your final invoice will be prepared immediately upon receipt.`,
+   nxt:`Final invoice will be prepared upon liability receipt.`},
+  {id:'bs-billing',   n:20, t:24, lbl:`Billing Process`,                 ico:'🧾',
+   msg:`Your final invoice is being carefully prepared. All repair costs, insurance settlement and applicable charges are being calculated accurately.`,
+   nxt:`Payment and vehicle handover coming up.`},
+  {id:'bs-pay-pending',n:21,t:24, lbl:`Payment Pending`,                 ico:'💳',
+   msg:`Your vehicle is ready and the invoice has been prepared. Kindly arrange payment at your earliest convenience so we can hand over your vehicle.`,
+   nxt:`Vehicle will be handed over upon payment.`},
+  {id:'bs-pay-received',n:22,t:24,lbl:`Payment Received`,                ico:'💰',
+   msg:`Thank you! Payment has been received. Your vehicle is ready for delivery. Please visit Carecay Workshop at your convenience for handover.`,
+   nxt:`Visit us to collect your vehicle!`},
+  {id:'bs-ready',     n:23, t:24, lbl:`Ready for Delivery`,              ico:'🚗',
+   msg:`🎉 Wonderful news! Your vehicle repair is complete and it is ready for delivery. Please visit Carecay Workshop to collect your car.`,
+   nxt:`Visit us to collect your vehicle!`},
+  {id:'bs-delivered', n:24, t:24, lbl:`Delivered`,                       ico:'🎉',
+   msg:`✅ Your vehicle has been successfully delivered. Thank you for trusting Carecay Workshop. We hope to serve you again!`,
+   nxt:`Thank you for choosing Carecay Workshop!`},
+];
+
+const RP = [
+  {id:'rp-inward',    n:1,  t:13, lbl:`Car Inward & Receive Photos`,     ico:'📥',
+   msg:`Your vehicle has been received at Carecay Workshop for mechanical repair. Our technicians have completed an initial inspection and all details are recorded.`,
+   nxt:`A detailed job card will be created.`},
+  {id:'rp-jobcard',   n:2,  t:13, lbl:`Job Card Created`,                ico:'📋',
+   msg:`A detailed job card has been prepared documenting all mechanical issues. Our expert mechanics will be working on your vehicle shortly.`,
+   nxt:`A thorough repair estimate will be prepared.`},
+  {id:'rp-estimation',n:3,  t:13, lbl:`Estimation`,                      ico:'📊',
+   msg:`Our technicians have completed a thorough inspection. A detailed repair estimate has been prepared and will be shared with you shortly.`,
+   nxt:`Waiting for your approval to proceed.`},
+  {id:'rp-cust-approval',n:4,t:13,lbl:`Waiting for Customer Approval`,   ico:'👤',
+   msg:`We have shared the repair estimate with you. Please review and approve so our mechanics can begin the repair work without delay.`,
+   nxt:`Parts will be ordered after your approval.`},
+  {id:'rp-waiting-parts',n:5,t:13,lbl:`Waiting for Parts`,               ico:'⏳',
+   msg:`Required spare parts have been ordered and we are awaiting their arrival. Our mechanics are ready to begin work immediately upon receipt.`,
+   nxt:`Repair work begins immediately after parts arrive.`},
+  {id:'rp-parts-received',n:6,t:13,lbl:`Parts Received`,                 ico:'📦',
+   msg:`All required spare parts have arrived and been verified. Our mechanics have begun the repair work on your vehicle.`,
+   nxt:`Mechanical repair work is underway.`},
+  {id:'rp-mechanical',n:7,  t:13, lbl:`WIP — Mechanic`,                  ico:'🔧',
+   msg:`Your vehicle is currently undergoing mechanical repairs. Our experienced mechanics are working carefully to restore it to perfect working condition.`,
+   nxt:`Vehicle will be washed after repairs are complete.`},
+  {id:'rp-washing',   n:8,  t:13, lbl:`Car Washing`,                     ico:'🚿',
+   msg:`All mechanical repairs are complete! Your vehicle is being thoroughly washed and cleaned before the final billing and handover process.`,
+   nxt:`Billing and final paperwork will be completed.`},
+  {id:'rp-billing',   n:9,  t:13, lbl:`Billing Process`,                 ico:'🧾',
+   msg:`Repair work is complete and your final invoice is being prepared. All costs and charges are being calculated accurately for your review.`,
+   nxt:`Payment and vehicle handover.`},
+  {id:'rp-pay-pending',n:10,t:13, lbl:`Payment Pending`,                 ico:'💳',
+   msg:`Your vehicle is ready and the invoice has been prepared. Kindly arrange payment at your earliest so we can hand over your vehicle.`,
+   nxt:`Vehicle handed over upon payment.`},
+  {id:'rp-pay-received',n:11,t:13,lbl:`Payment Received`,                ico:'💰',
+   msg:`Thank you! Payment has been received. Your vehicle is ready for collection. Please visit us at your convenience.`,
+   nxt:`Visit us to collect your vehicle!`},
+  {id:'rp-ready',     n:12, t:13, lbl:`Ready for Delivery`,              ico:'🚗',
+   msg:`🎉 Your vehicle mechanical repairs are complete and it is ready for delivery! Please visit Carecay Workshop to collect your car.`,
+   nxt:`Visit us to collect your vehicle!`},
+  {id:'rp-delivered', n:13, t:13, lbl:`Delivered`,                       ico:'🎉',
+   msg:`✅ Your vehicle has been successfully delivered. Thank you for choosing Carecay Workshop for your mechanical repairs. Drive safe!`,
+   nxt:`Thank you for choosing Carecay Workshop!`},
+];
+
+
+// ═══════════════════════════════════════
+// STATUS CARD — DRAW ENGINE
+// ═══════════════════════════════════════
+function drawCard(reg, model, cust, stage, date, wt) {
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  const W = 1080, H = 1080;
+  ctx.clearRect(0, 0, W, H);
+
+  // BG
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#080b11'); bg.addColorStop(.5, '#0d1018'); bg.addColorStop(1, '#060810');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(245,158,11,0.035)'; ctx.lineWidth = 1;
+  for (let x=0;x<W;x+=54){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<H;y+=54){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // Top bar
+  const tb = ctx.createLinearGradient(0,0,W,0);
+  tb.addColorStop(0,'#d97706'); tb.addColorStop(.5,'#f59e0b'); tb.addColorStop(1,'#d97706');
+  ctx.fillStyle = tb; ctx.fillRect(0, 0, W, 10);
+
+  // ── HEADER ──
+  ctx.fillStyle = 'rgba(245,158,11,0.07)';
+  rrect(ctx, 30, 20, W-60, 128, 16); ctx.fill();
+  ctx.strokeStyle = 'rgba(245,158,11,0.22)'; ctx.lineWidth = 1.5;
+  rrect(ctx, 30, 20, W-60, 128, 16); ctx.stroke();
+  ctx.fillStyle = '#f59e0b'; ctx.fillRect(30, 20, 6, 128);
+
+  // Logo
+  // Header text — no logo
+  ctx.font = '900 64px "Barlow Condensed",sans-serif';
+  ctx.fillStyle = '#f59e0b'; ctx.textAlign = 'left';
+  ctx.fillText('CARECAY', 55, 100);
+  ctx.font = '600 26px "Barlow Condensed",sans-serif';
+  ctx.fillStyle = '#e8eaf0';
+  ctx.fillText('MULTIBRAND WORKSHOP', 55, 132);
+
+  // Date top right
+  ctx.font = '500 19px "Barlow",sans-serif';
+  ctx.fillStyle = '#5a6480'; ctx.textAlign = 'right';
+  const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  ctx.fillText(today, W-50, 96);
+  ctx.font = '600 17px "Barlow",sans-serif';
+  ctx.fillStyle = wt==='bs' ? '#f97316' : '#ec4899';
+  ctx.fillText(wt==='bs' ? '🔩 BODY SHOP' : '🔧 MECHANICAL', W-50, 122);
+
+  // ── CAR DETAILS ──
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  rrect(ctx, 30, 162, W-60, 110, 14); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  rrect(ctx, 30, 162, W-60, 110, 14); ctx.stroke();
+
+  ctx.font = '900 66px "Barlow Condensed",sans-serif';
+  ctx.fillStyle = '#f59e0b'; ctx.textAlign = 'left';
+  ctx.fillText(reg, 60, 232);
+  ctx.font = '500 24px "Barlow",sans-serif';
+  ctx.fillStyle = '#8492b0';
+  ctx.fillText(model.toUpperCase(), 60, 260);
+  if (cust) {
+    ctx.font = '400 20px "Barlow",sans-serif';
+    ctx.fillStyle = '#5a6480';
+    ctx.fillText('Dear ' + cust, 60, 284);
+  }
+
+  // ── PROGRESS SECTION ──
+  const pct = Math.round((stage.n / stage.t) * 100);
+  const pY = 286;
+
+  // Progress bg box
+  ctx.fillStyle = 'rgba(245,158,11,0.05)';
+  rrect(ctx, 30, pY, W-60, 106, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(245,158,11,0.12)'; ctx.lineWidth = 1;
+  rrect(ctx, 30, pY, W-60, 106, 12); ctx.stroke();
+
+  // Big % text - HIGHLIGHTED
+  ctx.font = '900 56px "Barlow Condensed",sans-serif';
+  const pctGrad = ctx.createLinearGradient(50, pY, 50, pY+80);
+  pctGrad.addColorStop(0, '#fbbf24'); pctGrad.addColorStop(1, '#f59e0b');
+  ctx.fillStyle = pctGrad; ctx.textAlign = 'left';
+  ctx.fillText(pct + '%', 60, pY + 64);
+
+  // "COMPLETE" label
+  // COMPLETE label below the %
+  ctx.font = '700 22px "Barlow Condensed",sans-serif';
+  ctx.fillStyle = '#8492b0';
+  ctx.fillText('COMPLETED', 60, pY + 84);
+
+  // Step label
+  ctx.font = '600 20px "Barlow Condensed",sans-serif';
+  ctx.fillStyle = '#5a6480';
+  ctx.textAlign = 'right';
+  ctx.fillText('STEP ' + stage.n + ' OF ' + stage.t, W-60, pY + 30);
+
+  // Progress bar track
+  const bX = 60, bY = pY + 88, bW = W-120, bH = 12;
+  ctx.fillStyle = '#1a1f2e';
+  rrect(ctx, bX, bY, bW, bH, 7); ctx.fill();
+
+  // Filled
+  const fillW = Math.max(Math.round(bW * stage.n / stage.t), 20);
+  const fg = ctx.createLinearGradient(bX, 0, bX+fillW, 0);
+  fg.addColorStop(0, '#d97706'); fg.addColorStop(.5, '#f59e0b'); fg.addColorStop(1, '#fbbf24');
+  ctx.fillStyle = fg; rrect(ctx, bX, bY, fillW, bH, 7); ctx.fill();
+
+  // Glow dot at end
+  ctx.beginPath();
+  ctx.arc(bX + fillW, bY + bH/2, 10, 0, Math.PI*2);
+  ctx.fillStyle = '#fbbf24'; ctx.fill();
+  ctx.beginPath();
+  ctx.arc(bX + fillW, bY + bH/2, 6, 0, Math.PI*2);
+  ctx.fillStyle = '#fff'; ctx.fill();
+
+  // ── CURRENT STAGE ──
+  const sY = 404;
+  const sGrad = ctx.createLinearGradient(30, sY, W-30, sY);
+  sGrad.addColorStop(0, 'rgba(245,158,11,0.18)'); sGrad.addColorStop(1, 'rgba(245,158,11,0.04)');
+  ctx.fillStyle = sGrad; rrect(ctx, 30, sY, W-60, 96, 14); ctx.fill();
+  ctx.strokeStyle = 'rgba(245,158,11,0.4)'; ctx.lineWidth = 2;
+  rrect(ctx, 30, sY, W-60, 96, 14); ctx.stroke();
+  ctx.fillStyle = '#f59e0b'; rrect(ctx, 30, sY, 7, 96, [14,0,0,14]); ctx.fill();
+
+  ctx.font = '700 18px "Barlow",sans-serif'; ctx.fillStyle = '#f59e0b'; ctx.textAlign = 'left';
+  ctx.fillText('CURRENT STATUS', 60, sY + 28);
+  ctx.font = '800 38px "Barlow Condensed",sans-serif'; ctx.fillStyle = '#ffffff';
+  ctx.fillText(stage.ico + '  ' + stage.lbl.toUpperCase(), 60, sY + 74);
+
+  // ── MESSAGE ──
+  const mY = 512;
+  ctx.fillStyle = 'rgba(255,255,255,0.028)';
+  rrect(ctx, 30, mY, W-60, 176, 14); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  rrect(ctx, 30, mY, W-60, 176, 14); ctx.stroke();
+
+  ctx.font = '600 17px "Barlow",sans-serif'; ctx.fillStyle = '#5a6480'; ctx.textAlign = 'left';
+  ctx.fillText('MESSAGE FROM CARECAY WORKSHOP', 60, mY + 26);
+  ctx.font = '400 21px "Barlow",sans-serif'; ctx.fillStyle = '#c8cad4';
+  wrapText(ctx, stage.msg, 60, mY + 55, W-120, 30);
+
+  // ── NEXT STEP + DELIVERY ──
+  const nY = 702;
+  // Next step
+  ctx.fillStyle = 'rgba(59,130,246,0.09)';
+  rrect(ctx, 30, nY, 494, 96, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(59,130,246,0.28)'; ctx.lineWidth = 1;
+  rrect(ctx, 30, nY, 494, 96, 12); ctx.stroke();
+  ctx.font = '700 16px "Barlow",sans-serif'; ctx.fillStyle = '#3b82f6'; ctx.textAlign = 'left';
+  ctx.fillText('⏭  NEXT STEP', 56, nY + 28);
+  ctx.font = '400 20px "Barlow",sans-serif'; ctx.fillStyle = '#8492b0';
+  wrapText(ctx, stage.nxt, 56, nY + 56, 444, 26);
+
+  // Est delivery
+  ctx.fillStyle = 'rgba(16,185,129,0.09)';
+  rrect(ctx, 556, nY, 494, 96, 12); ctx.fill();
+  ctx.strokeStyle = 'rgba(16,185,129,0.28)'; ctx.lineWidth = 1;
+  rrect(ctx, 556, nY, 494, 96, 12); ctx.stroke();
+  ctx.font = '700 16px "Barlow",sans-serif'; ctx.fillStyle = '#10b981'; ctx.textAlign = 'left';
+  ctx.fillText('📅  EST. DELIVERY DATE', 582, nY + 28);
+  if (date) {
+    const d = new Date(date);
+    const fmt = d.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'long',year:'numeric'});
+    ctx.font = '800 26px "Barlow Condensed",sans-serif'; ctx.fillStyle = '#10b981';
+    ctx.fillText(fmt.toUpperCase(), 582, nY + 72);
+  } else {
+    ctx.font = '500 22px "Barlow",sans-serif'; ctx.fillStyle = '#5a6480';
+    ctx.fillText('To be confirmed', 582, nY + 72);
+  }
+
+  // ── FOOTER ──
+  ctx.fillStyle = 'rgba(245,158,11,0.06)'; ctx.fillRect(0, H-72, W, 72);
+  ctx.strokeStyle = 'rgba(245,158,11,0.18)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,H-72); ctx.lineTo(W,H-72); ctx.stroke();
+
+  // No footer logo
+
+  ctx.font = '700 20px "Barlow Condensed",sans-serif'; ctx.fillStyle = '#f59e0b';
+  ctx.textAlign = 'center';
+  ctx.fillText('CARECAY MULTIBRAND WORKSHOP', W/2, H-14);
+
+  // Bottom bar
+  ctx.fillStyle = '#f59e0b'; ctx.fillRect(0, H-8, W, 8);
+}
+
+function rrect(ctx, x, y, w, h, r) {
+  if (typeof r === 'number') r = [r,r,r,r];
+  ctx.beginPath();
+  ctx.moveTo(x+r[0],y); ctx.lineTo(x+w-r[1],y); ctx.quadraticCurveTo(x+w,y,x+w,y+r[1]);
+  ctx.lineTo(x+w,y+h-r[2]); ctx.quadraticCurveTo(x+w,y+h,x+w-r[2],y+h);
+  ctx.lineTo(x+r[3],y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r[3]);
+  ctx.lineTo(x,y+r[0]); ctx.quadraticCurveTo(x,y,x+r[0],y); ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxW, lineH) {
+  const words = text.split(' '); let line='', cy=y;
+  for (let i=0;i<words.length;i++) {
+    const test = line+words[i]+' ';
+    if (ctx.measureText(test).width > maxW && i>0) {
+      ctx.fillText(line.trim(),x,cy); line=words[i]+' '; cy+=lineH;
+    } else { line=test; }
+  }
+  ctx.fillText(line.trim(),x,cy);
+}
+
+
+// ═══════════════════════════════════════
+// STATUS CARD — RECORDS & SYNC
+// ═══════════════════════════════════════
+// ═══════════════════════════════════════
+// RECORDS SYSTEM
+// ═══════════════════════════════════════
+const BLOB_KEY = 'carecay-status-records';
+let records = {}; // { regNo: { reg, model, cust, wt, history:[{stage,pct,label,est,ts}] } }
+let blobId = null;
+
+// Load from localStorage on start
+function loadLocalRecords() {
+  try {
+    const d = localStorage.getItem(BLOB_KEY);
+    if (d) records = JSON.parse(d);
+  } catch(e) { records = {}; }
+  const bid = localStorage.getItem(BLOB_KEY+'-blobid');
+  if (bid) blobId = bid;
+}
+
+function saveLocalRecords() {
+  try { localStorage.setItem(BLOB_KEY, JSON.stringify(records)); } catch(e) {}
+}
+
+// Save a record when card is generated
+function saveRecord(reg, model, cust, stage, wt, estDate) {
+  if (!records[reg]) {
+    records[reg] = { reg, model, cust, wt, history: [] };
+  }
+  // Update latest info
+  records[reg].model = model;
+  records[reg].cust = cust;
+  records[reg].wt = wt;
+  // Add history entry
+  const pct = Math.round((stage.n / stage.t) * 100);
+  records[reg].history.unshift({
+    stage: stage.id,
+    label: stage.lbl,
+    pct,
+    est: estDate || '',
+    ts: new Date().toISOString()
+  });
+  // Keep max 50 history entries per car
+  if (records[reg].history.length > 50) records[reg].history = records[reg].history.slice(0, 50);
+  saveLocalRecords();
+  renderRecords();
+  // Auto push to shared
+  if (blobId) pushRecords();
+}
+
+// ── JSONBLOB SYNC (free, no auth, shared across devices) ──
+async function createBlob() {
+  try {
+    document.getElementById('sync-status').textContent = '⏳ Creating shared record...';
+    document.getElementById('sync-status').className = 'sync-status ss-off';
+    const res = await fetch('https://jsonblob.com/api/jsonBlob', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(records)
+    });
+    const loc = res.headers.get('Location');
+    if (loc) {
+      blobId = loc.split('/').pop();
+      localStorage.setItem(BLOB_KEY+'-blobid', blobId);
+      document.getElementById('blob-id-inp').value = blobId;
+      document.getElementById('sync-status').textContent = '✅ Shared! Copy the Sync ID and paste on other devices.';
+      document.getElementById('sync-status').className = 'sync-status ss-ok';
+      document.getElementById('sync-id-display').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('sync-status').textContent = '❌ Connection failed. Try again.';
+    document.getElementById('sync-status').className = 'sync-status ss-err';
+  }
+}
+
+async function pushRecords() {
+  if (!blobId) { createBlob(); return; }
+  try {
+    await fetch('https://jsonblob.com/api/jsonBlob/'+blobId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(records)
+    });
+    const el = document.getElementById('sync-status');
+    if (el) { el.textContent = '✅ Records synced — ' + new Date().toLocaleTimeString(); el.className = 'sync-status ss-ok'; }
+  } catch(e) {}
+}
+
+async function pullRecords() {
+  if (!blobId) {
+    alert('Enter a Sync ID first.');
+    return;
+  }
+  try {
+    document.getElementById('sync-status').textContent = '⏳ Pulling records...';
+    const res = await fetch('https://jsonblob.com/api/jsonBlob/'+blobId, {
+      headers: { 'Accept': 'application/json' }
+    });
+    const data = await res.json();
+    // Merge — keep all records, update with pulled
+    Object.assign(records, data);
+    saveLocalRecords();
+    renderRecords();
+    document.getElementById('sync-status').textContent = '✅ Records updated from shared — ' + new Date().toLocaleTimeString();
+    document.getElementById('sync-status').className = 'sync-status ss-ok';
+  } catch(e) {
+    document.getElementById('sync-status').textContent = '❌ Pull failed. Check your Sync ID.';
+    document.getElementById('sync-status').className = 'sync-status ss-err';
+  }
+}
+
+function connectWithId() {
+  const inp = document.getElementById('blob-id-inp').value.trim();
+  if (!inp) { alert('Please enter a Sync ID.'); return; }
+  blobId = inp;
+  localStorage.setItem(BLOB_KEY+'-blobid', blobId);
+  document.getElementById('sync-id-display').style.display = 'block';
+  pullRecords();
+}
+
+function copySyncId() {
+  const id = document.getElementById('blob-id-inp').value.trim();
+  if (id) {
+    navigator.clipboard.writeText(id).then(() => {
+      showToastMsg('✅ Sync ID copied! Paste on other devices.');
+    });
+  }
+}
+
+// ── RENDER RECORDS ──
+function renderRecords(filter) {
+  const container = document.getElementById('records-list');
+  const keys = Object.keys(records);
+  const query = (filter || document.getElementById('rec-search').value || '').toUpperCase();
+
+  // Update count
+  document.getElementById('rec-count').textContent = keys.length + ' car(s) on record';
+
+  if (!keys.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m2);"><div style="font-size:36px;margin-bottom:10px;">📋</div><p>No records yet.<br>Generate a status card to start tracking.</p></div>';
+    return;
+  }
+
+  // Filter
+  const filtered = keys.filter(k => {
+    const r = records[k];
+    return !query || k.includes(query) || (r.model||'').toUpperCase().includes(query) || (r.cust||'').toUpperCase().includes(query);
+  });
+
+  if (!filtered.length) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--m2);">No records match your search.</div>';
+    return;
+  }
+
+  // Sort by latest update
+  filtered.sort((a,b) => {
+    const ta = records[a].history[0]?.ts || '';
+    const tb = records[b].history[0]?.ts || '';
+    return tb.localeCompare(ta);
+  });
+
+  container.innerHTML = filtered.map(key => {
+    const r = records[key];
+    const latest = r.history[0] || {};
+    const pct = latest.pct || 0;
+    const label = latest.label || 'Unknown';
+    const ts = latest.ts ? new Date(latest.ts).toLocaleString('en-IN') : '—';
+    const est = latest.est ? new Date(latest.est).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'TBC';
+    const wColor = r.wt === 'bs' ? '#f97316' : '#ec4899';
+    const wLabel = r.wt === 'bs' ? '🔩 Body Shop' : '🔧 Mechanical';
+
+    // Progress bar
+    const barW = Math.round(pct);
+
+    // History rows
+    const histRows = r.history.map((h,i) => {
+      const hDate = new Date(h.ts).toLocaleString('en-IN');
+      const hEst = h.est ? new Date(h.est).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      return `<tr>
+        <td><span class="hist-pct">${h.pct}%</span></td>
+        <td><span class="hist-stage">${h.label}</span></td>
+        <td><span class="hist-del">${hEst}</span></td>
+        <td><span class="hist-date">${hDate}</span></td>
+        <td><button onclick="deleteHistEntry('${key}',${i})" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">✕</button></td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="rec-card">
+      <div class="rec-card-hdr" onclick="toggleRec('${key}')">
+        <div style="flex:1;">
+          <div class="rec-reg">${r.reg}</div>
+          <div class="rec-model">${r.model||'—'} ${r.cust ? '· ' + r.cust : ''} <span style="color:${wColor};font-size:10px;">${wLabel}</span></div>
+          <div style="font-size:11px;color:var(--m2);margin-top:2px;">Last update: ${ts}</div>
+          <!-- Mini progress bar -->
+          <div style="margin-top:6px;height:4px;background:var(--s2);border-radius:2px;width:100%;">
+            <div style="height:4px;width:${barW}%;background:var(--accent);border-radius:2px;"></div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div class="rec-pct">${pct}%</div>
+          <div class="rec-stage-tag">${label}</div>
+          <div style="font-size:11px;color:var(--green);margin-top:4px;">📅 ${est}</div>
+        </div>
+        <span style="color:var(--m2);font-size:18px;" id="arr-${key}">›</span>
+      </div>
+      <div class="rec-body" id="rec-body-${key}">
+        <div style="padding:10px 14px;background:var(--s2);display:flex;gap:8px;justify-content:flex-end;">
+          <button onclick="deleteRecord('${key}')" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif;">🗑 Delete Car</button>
+        </div>
+        <table class="hist-table">
+          <thead><tr><th>% Done</th><th>Stage</th><th>Est. Delivery</th><th>Date & Time</th><th></th></tr></thead>
+          <tbody>${histRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRec(key) {
+  const body = document.getElementById('rec-body-'+key);
+  const arr = document.getElementById('arr-'+key);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.rec-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('[id^="arr-"]').forEach(a => { a.style.transform=''; });
+  if (!isOpen) {
+    body.classList.add('open');
+    if (arr) arr.style.transform = 'rotate(90deg)';
+  }
+}
+
+function deleteRecord(key) {
+  if (!confirm('Delete all records for ' + key + '?')) return;
+  delete records[key];
+  saveLocalRecords();
+  renderRecords();
+  if (blobId) pushRecords();
+}
+
+function deleteHistEntry(key, idx) {
+  if (!records[key]) return;
+  records[key].history.splice(idx, 1);
+  if (!records[key].history.length) delete records[key];
+  saveLocalRecords();
+  renderRecords();
+  if (blobId) pushRecords();
+}
+
+function showToastMsg(msg) {
+  let t = document.getElementById('global-toast');
+  if (!t) { t = document.createElement('div'); t.id='global-toast'; t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.5);'; document.body.appendChild(t); }
+  t.textContent = msg; t.style.display='block';
+  setTimeout(()=>{ t.style.display='none'; }, 3000);
+}
+
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('on');
+  document.querySelector('[data-tab="'+tab+'"]').classList.add('on');
+  if (tab === 'records') renderRecords();
+}
+
+// Init
+loadLocalRecords();
+
+
+
+// Export records as CSV
+function exportRecords() {
+  const keys = Object.keys(records);
+  if (!keys.length) { alert('No records to export.'); return; }
+  const rows = [['Reg No','Model','Customer','Work Type','Stage','% Complete','Est. Delivery','Date & Time']];
+  keys.forEach(k => {
+    const r = records[k];
+    r.history.forEach(h => {
+      const est = h.est ? new Date(h.est).toLocaleDateString('en-IN') : '';
+      const ts = new Date(h.ts).toLocaleString('en-IN');
+      rows.push([r.reg, r.model||'', r.cust||'', r.wt==='bs'?'Body Shop':'Mechanical', h.label, h.pct+'%', est, ts]);
+    });
+  });
+  const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'Carecay-Records-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+
+// ═══════════════════════════════════════
+// STATUS CARD — APP FUNCTIONS
+// ═══════════════════════════════════════
+
+// Populate car select from main app cars array
+function scPopulateCars() {
+  const sel = document.getElementById('sc-car-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Select a Car —</option>';
+  (cars||[]).forEach(car => {
+    const opt = document.createElement('option');
+    opt.value = car.id;
+    opt.textContent = car.regno + (car.model ? ' — ' + car.model : '') + (car.customer ? ' (' + car.customer + ')' : '');
+    sel.appendChild(opt);
+  });
+}
+
+// Auto-fill fields when car selected from dropdown
+function scAutoFill() {
+  const id = document.getElementById('sc-car-select').value;
+  if (!id) return;
+  const car = (cars||[]).find(c => c.id === id);
+  if (!car) return;
+  document.getElementById('sc-regno').value = car.regno || '';
+  document.getElementById('sc-model').value = car.model || '';
+  document.getElementById('sc-cust').value = car.customer || '';
+  // Map car stage to BS/RP
+  const stage = car.stage || '';
+  if (stage.startsWith('rp-')) {
+    document.getElementById('sc-worktype').value = 'rp';
+  } else {
+    document.getElementById('sc-worktype').value = 'bs';
+  }
+  scFillStages();
+  // Set stage in dropdown
+  const stageEl = document.getElementById('sc-stage');
+  if (stageEl) {
+    for (let i=0; i<stageEl.options.length; i++) {
+      if (stageEl.options[i].value === stage) { stageEl.selectedIndex = i; break; }
+    }
+  }
+}
+
+function scFillStages() {
+  const wt = document.getElementById('sc-worktype').value;
+  const stages = wt === 'bs' ? BS : RP;
+  const sel = document.getElementById('sc-stage');
+  sel.innerHTML = stages.map(s =>
+    `<option value="${s.id}">${s.ico} Step ${s.n}/${s.t} — ${s.lbl}</option>`
+  ).join('');
+}
+
+function scGenerate() {
+  const reg = document.getElementById('sc-regno').value.trim().toUpperCase();
+  const model = document.getElementById('sc-model').value.trim();
+  const cust = document.getElementById('sc-cust').value.trim();
+  const wt = document.getElementById('sc-worktype').value;
+  const sid = document.getElementById('sc-stage').value;
+  const date = document.getElementById('sc-estdate').value;
+  if (!reg || !model) { showToast('Enter Car Reg No. and Model!', '#ef4444'); return; }
+  const stages = wt === 'bs' ? BS : RP;
+  const stage = stages.find(s => s.id === sid);
+  if (!stage) return;
+  // Use sc-canvas instead of cv
+  const origCv = document.getElementById('cv');
+  const scCv = document.getElementById('sc-canvas');
+  // Temporarily draw on sc-canvas
+  const realCanvas = { id: 'sc-canvas' };
+  drawCardOnCanvas(scCv, reg, model, cust, stage, date, wt);
+  document.getElementById('sc-placeholder').style.display = 'none';
+  scCv.style.display = 'block';
+  document.getElementById('sc-dl-btn').style.display = 'flex';
+  document.getElementById('sc-cp-btn').style.display = 'flex';
+  // Save record
+  scSaveRecord(reg, model, cust, stage, wt, date);
+  showToast('✅ Card generated & record saved!', '#10b981');
+}
+
+// Wrapper that draws on a specific canvas element
+function drawCardOnCanvas(canvas, reg, model, cust, stage, date, wt) {
+  // Temporarily override document.getElementById for 'cv'
+  const origGet = document.getElementById.bind(document);
+  const patchedGet = function(id) { if (id === 'cv') return canvas; return origGet(id); };
+  document.getElementById = patchedGet;
+  drawCard(reg, model, cust, stage, date, wt);
+  document.getElementById = origGet;
+}
+
+function scDownload() {
+  const cv = document.getElementById('sc-canvas');
+  const reg = document.getElementById('sc-regno').value.trim().toUpperCase() || 'STATUS';
+  const a = document.createElement('a');
+  a.download = 'Carecay-Status-' + reg + '.png';
+  a.href = cv.toDataURL('image/png', 1.0);
+  a.click();
+}
+
+async function scCopyImg() {
+  const cv = document.getElementById('sc-canvas');
+  try {
+    cv.toBlob(async blob => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+        showToast('✅ Copied! Open WhatsApp and paste.', '#10b981');
+      } catch(e) {
+        const url = cv.toDataURL('image/png');
+        const w = window.open();
+        w.document.write('<body style="margin:0;background:#000;"><img src="' + url + '" style="max-width:100%;"><p style="color:#fff;font-family:sans-serif;padding:10px;">Right-click → Copy Image → Paste in WhatsApp</p></body>');
+      }
+    }, 'image/png', 1.0);
+  } catch(e) { scDownload(); }
+}
+
+// Records functions wrapped with sc- prefix to avoid conflicts
+const SC_BLOB_KEY = 'carecay-status-records';
+let scRecords = {};
+let scBlobId = null;
+
+function scLoadRecords() {
+  try { const d = localStorage.getItem(SC_BLOB_KEY); if (d) scRecords = JSON.parse(d); } catch(e) { scRecords = {}; }
+  const bid = localStorage.getItem(SC_BLOB_KEY + '-blobid');
+  if (bid) { scBlobId = bid; document.getElementById('sc-blob-inp').value = bid; }
+}
+
+function scSaveLocalRecords() {
+  try { localStorage.setItem(SC_BLOB_KEY, JSON.stringify(scRecords)); } catch(e) {}
+}
+
+function scSaveRecord(reg, model, cust, stage, wt, estDate) {
+  if (!scRecords[reg]) scRecords[reg] = { reg, model, cust, wt, history: [] };
+  scRecords[reg].model = model; scRecords[reg].cust = cust; scRecords[reg].wt = wt;
+  const pct = Math.round((stage.n / stage.t) * 100);
+  scRecords[reg].history.unshift({ stage: stage.id, label: stage.lbl, pct, est: estDate||'', ts: new Date().toISOString() });
+  if (scRecords[reg].history.length > 50) scRecords[reg].history = scRecords[reg].history.slice(0,50);
+  scSaveLocalRecords();
+  if (scBlobId) scPushBlob();
+}
+
+function scRenderRecords(filter) {
+  const container = document.getElementById('sc-records-list');
+  if (!container) return;
+  const keys = Object.keys(scRecords);
+  const q = (filter||'').toUpperCase();
+  document.getElementById('sc-rec-count').textContent = keys.length + ' car(s)';
+  if (!keys.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--m2);"><div style="font-size:36px;margin-bottom:10px;">📋</div><p>No records yet. Generate a card to start.</p></div>';
+    return;
+  }
+  const filtered = q ? keys.filter(k => k.includes(q)||(scRecords[k].model||'').toUpperCase().includes(q)||(scRecords[k].cust||'').toUpperCase().includes(q)) : keys;
+  filtered.sort((a,b) => (scRecords[b].history[0]?.ts||'').localeCompare(scRecords[a].history[0]?.ts||''));
+  container.innerHTML = filtered.map(key => {
+    const r = scRecords[key];
+    const lat = r.history[0]||{};
+    const pct = lat.pct||0;
+    const ts = lat.ts ? new Date(lat.ts).toLocaleString('en-IN') : '—';
+    const est = lat.est ? new Date(lat.est).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'TBC';
+    const wc = r.wt==='bs'?'#f97316':'#ec4899';
+    const rows = r.history.map((h,i) => {
+      const hd = new Date(h.ts).toLocaleString('en-IN');
+      const he = h.est ? new Date(h.est).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      return `<tr>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);"><span style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">${h.pct}%</span></td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:12px;font-weight:600;">${h.label}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:11px;color:var(--green);">${he}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:11px;color:var(--m2);">${hd}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);"><button onclick="scDelHist('${key}',${i})" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">✕</button></td>
+      </tr>`;
+    }).join('');
+    return `<div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;">
+      <div onclick="scToggleRec('${key}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-family:var(--disp);font-size:20px;font-weight:800;color:var(--accent);letter-spacing:2px;">${r.reg}</div>
+          <div style="font-size:12px;color:var(--m1);">${r.model||'—'} ${r.cust?'· '+r.cust:''} <span style="color:${wc};font-size:10px;">${r.wt==='bs'?'🔩 Body Shop':'🔧 Mechanical'}</span></div>
+          <div style="font-size:11px;color:var(--m2);margin-top:2px;">Last: ${ts}</div>
+          <div style="margin-top:5px;height:4px;background:var(--s2);border-radius:2px;"><div style="height:4px;width:${pct}%;background:var(--accent);border-radius:2px;"></div></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--disp);font-size:22px;font-weight:900;color:var(--accent);">${pct}%</div>
+          <div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${lat.label||''}</div>
+          <div style="font-size:11px;color:var(--green);margin-top:4px;">📅 ${est}</div>
+        </div>
+        <span id="sc-arr-${key}" style="color:var(--m2);font-size:18px;">›</span>
+      </div>
+      <div id="sc-body-${key}" style="display:none;border-top:1px solid var(--border);">
+        <div style="padding:8px 12px;background:var(--s2);display:flex;justify-content:flex-end;">
+          <button onclick="scDelRec('${key}')" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:var(--body);">🗑 Delete</button>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr style="background:var(--s2);">
+            <th style="padding:7px 12px;text-align:left;font-size:10px;color:var(--m1);text-transform:uppercase;border-bottom:1px solid var(--border);">%</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;color:var(--m1);text-transform:uppercase;border-bottom:1px solid var(--border);">Stage</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;color:var(--m1);text-transform:uppercase;border-bottom:1px solid var(--border);">Est. Delivery</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;color:var(--m1);text-transform:uppercase;border-bottom:1px solid var(--border);">Date & Time</th>
+            <th style="border-bottom:1px solid var(--border);"></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function scToggleRec(key) {
+  const body = document.getElementById('sc-body-'+key);
+  const arr = document.getElementById('sc-arr-'+key);
+  const isOpen = body.style.display !== 'none';
+  document.querySelectorAll('[id^="sc-body-"]').forEach(b => b.style.display='none');
+  document.querySelectorAll('[id^="sc-arr-"]').forEach(a => a.style.transform='');
+  if (!isOpen) { body.style.display='block'; if(arr) arr.style.transform='rotate(90deg)'; }
+}
+
+function scDelRec(key) {
+  if (!confirm('Delete all records for '+key+'?')) return;
+  delete scRecords[key]; scSaveLocalRecords(); scRenderRecords();
+  if (scBlobId) scPushBlob();
+}
+
+function scDelHist(key, idx) {
+  if (!scRecords[key]) return;
+  scRecords[key].history.splice(idx,1);
+  if (!scRecords[key].history.length) delete scRecords[key];
+  scSaveLocalRecords(); scRenderRecords();
+  if (scBlobId) scPushBlob();
+}
+
+function scExportCSV() {
+  const keys = Object.keys(scRecords);
+  if (!keys.length) { showToast('No records to export','#ef4444'); return; }
+  const rows = [['Reg No','Model','Customer','Work Type','Stage','% Complete','Est. Delivery','Date & Time']];
+  keys.forEach(k => {
+    const r = scRecords[k];
+    r.history.forEach(h => {
+      const est = h.est ? new Date(h.est).toLocaleDateString('en-IN') : '';
+      const ts = new Date(h.ts).toLocaleString('en-IN');
+      rows.push([r.reg,r.model||'',r.cust||'',r.wt==='bs'?'Body Shop':'Mechanical',h.label,h.pct+'%',est,ts]);
+    });
+  });
+  const csv = rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='Carecay-Records-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+function scSyncSetup() {
+  const p = document.getElementById('sc-sync-panel');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+}
+
+async function scCreateBlob() {
+  try {
+    document.getElementById('sc-sync-status').textContent='⏳ Creating...';
+    const res = await fetch('https://jsonblob.com/api/jsonBlob',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(scRecords)});
+    const loc = res.headers.get('Location');
+    if(loc){ scBlobId=loc.split('/').pop(); localStorage.setItem(SC_BLOB_KEY+'-blobid',scBlobId); document.getElementById('sc-blob-inp').value=scBlobId; document.getElementById('sc-sync-status').textContent='✅ Created! Copy Sync ID and paste on other devices.'; }
+  } catch(e){ document.getElementById('sc-sync-status').textContent='❌ Failed. Try again.'; }
+}
+
+async function scConnectBlob() {
+  scBlobId = document.getElementById('sc-blob-inp').value.trim();
+  if(!scBlobId){showToast('Enter Sync ID','#ef4444');return;}
+  localStorage.setItem(SC_BLOB_KEY+'-blobid',scBlobId);
+  scPullBlob();
+}
+
+async function scPullBlob() {
+  if(!scBlobId) return;
+  try{
+    document.getElementById('sc-sync-status').textContent='⏳ Pulling...';
+    const res=await fetch('https://jsonblob.com/api/jsonBlob/'+scBlobId,{headers:{'Accept':'application/json'}});
+    const data=await res.json();
+    Object.assign(scRecords,data); scSaveLocalRecords(); scRenderRecords();
+    document.getElementById('sc-sync-status').textContent='✅ Updated — '+new Date().toLocaleTimeString();
+  }catch(e){document.getElementById('sc-sync-status').textContent='❌ Failed. Check Sync ID.';}
+}
+
+async function scPushBlob() {
+  if(!scBlobId) return;
+  try{ await fetch('https://jsonblob.com/api/jsonBlob/'+scBlobId,{method:'PUT',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(scRecords)}); }catch(e){}
+}
+
+function scCopySyncId() {
+  const id=document.getElementById('sc-blob-inp').value.trim();
+  if(id){ navigator.clipboard.writeText(id).then(()=>showToast('✅ Sync ID copied!','#10b981')); }
+}
+
+// ── GLOBAL SEARCH ──
+function globalSearch(query) {
+  const results = document.getElementById('search-results');
+  if (!query || query.length < 2) { results.style.display='none'; return; }
+  const q = query.toUpperCase();
+  const matches = (cars||[]).filter(c =>
+    c.regno.includes(q) ||
+    (c.model||'').toUpperCase().includes(q) ||
+    (c.customer||'').toUpperCase().includes(q)
+  ).slice(0,8);
+  // Also search sc records
+  const recMatches = Object.values(scRecords).filter(r =>
+    r.reg.includes(q) ||
+    (r.model||'').toUpperCase().includes(q) ||
+    (r.cust||'').toUpperCase().includes(q)
+  ).slice(0,4);
+
+  if (!matches.length && !recMatches.length) {
+    results.innerHTML='<div style="padding:12px;color:var(--m2);font-size:13px;">No results found.</div>';
+    results.style.display='block'; return;
+  }
+
+  let html = '';
+  if (matches.length) {
+    html += '<div style="font-size:10px;color:var(--accent);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">🚗 Cars in App</div>';
+    html += matches.map(c => {
+      const stageLabel = (c.stage||'').replace('bs-','').replace('rp-','').replace(/-/g,' ');
+      return `<div onclick="searchSelectCar('${c.id}')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+        <div>
+          <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--accent);">${c.regno}</div>
+          <div style="font-size:11px;color:var(--m1);">${c.model||''} ${c.customer?'· '+c.customer:''}</div>
+        </div>
+        <div style="font-size:10px;color:var(--m2);text-transform:uppercase;">${stageLabel}</div>
+      </div>`;
+    }).join('');
+  }
+  if (recMatches.length) {
+    html += '<div style="font-size:10px;color:var(--blue);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">📋 Status Records</div>';
+    html += recMatches.map(r => {
+      const lat = r.history[0]||{};
+      return `<div onclick="searchSelectRecord('${r.reg}')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+        <div>
+          <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--blue);">${r.reg}</div>
+          <div style="font-size:11px;color:var(--m1);">${r.model||''} ${r.cust?'· '+r.cust:''}</div>
+        </div>
+        <div style="font-size:10px;color:var(--accent);font-weight:700;">${lat.pct||0}% · ${lat.label||''}</div>
+      </div>`;
+    }).join('');
+  }
+  results.innerHTML = html;
+  results.style.display = 'block';
+}
+
+function searchSelectCar(id) {
+  document.getElementById('search-results').style.display='none';
+  document.getElementById('global-search').value='';
+  // Go to status card tab, select this car
+  goTab('status');
+  switchStatusView('generate');
+  setTimeout(()=>{
+    const sel=document.getElementById('sc-car-select');
+    if(sel){ sel.value=id; scAutoFill(); }
+  },200);
+}
+
+function searchSelectRecord(reg) {
+  document.getElementById('search-results').style.display='none';
+  document.getElementById('global-search').value='';
+  goTab('status');
+  switchStatusView('records');
+  setTimeout(()=>{ scRenderRecords(''); scToggleRec(reg); },200);
+}
+
+// Hide search on outside click
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#global-search') && !e.target.closest('#search-results')) {
+    const r=document.getElementById('search-results');
+    if(r) r.style.display='none';
+  }
+});
+
+function switchStatusView(view) {
+  document.getElementById('sv-generate').style.display = view==='generate' ? 'block' : 'none';
+  document.getElementById('sv-records').style.display  = view==='records'  ? 'block' : 'none';
+  document.getElementById('sv-gen-btn').className = view==='generate' ? 'ibtn p' : 'ibtn';
+  document.getElementById('sv-rec-btn').className = view==='records'  ? 'ibtn p' : 'ibtn';
+  if (view==='records') scRenderRecords('');
+}
+
+// Init status card when tab opens
+const _origGoTab = goTab;
+goTab = function(t) {
+  _origGoTab(t);
+  if (t==='status') {
+    scPopulateCars();
+    scFillStages();
+    scLoadRecords();
+  }
+};
+
+// Load records on startup
+document.addEventListener('DOMContentLoaded', function() {
+  scLoadRecords();
+});
 
 </script>
 </body>
