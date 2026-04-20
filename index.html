@@ -3456,32 +3456,33 @@ function searchSelectCar(id, fromStatus) {
       if(sel){ sel.value=id; scAutoFill(); }
     },200);
   } else {
-    // Called from global search bar — stay on All Cars tab, scroll to & expand car
+    // Global search — go to All Cars, matched car at TOP
+    searchFilterId = id;
     goTab('cars');
+    renderCars();
+    // Expand the matched car's parts panel
     setTimeout(()=>{
-      // Find car card and expand it
-      const car = (cars||[]).find(c=>c.id===id);
-      if(!car) return;
-      // Scroll to car card
-      const cardEl = document.querySelector('.car-card');
-      // Expand the parts panel for this car
       const panel = document.getElementById('cp-'+id);
       if(panel){ panel.style.display='block'; }
       const arr = document.getElementById('arr-'+id);
       if(arr){ arr.style.transform='rotate(90deg)'; }
-      // Scroll to it
-      // scroll handled by card highlight below
-      if(hdr){ hdr.scrollIntoView({behavior:'smooth', block:'center'}); }
-      // Highlight briefly
-      const card = document.querySelector('.car-card:has(#cp-'+id+')') ||
-                   Array.from(document.querySelectorAll('.car-card')).find(el=>el.innerHTML.includes('cp-'+id));
-      if(card){
-        card.style.border='2px solid var(--accent)';
-        card.style.boxShadow='0 0 20px rgba(245,158,11,0.3)';
-        card.scrollIntoView({behavior:'smooth',block:'center'});
-        setTimeout(()=>{ card.style.border=''; card.style.boxShadow=''; },2500);
-      }
-    },200);
+      // Scroll to top of list
+      const el = document.getElementById('carsList');
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 100);
+    // Show amber banner
+    const car = (cars||[]).find(x=>x.id===id);
+    const el = document.getElementById('carsList');
+    let clearBtn = document.getElementById('search-clear-btn');
+    if(!clearBtn){
+      clearBtn = document.createElement('div');
+      clearBtn.id = 'search-clear-btn';
+      clearBtn.style.cssText = 'background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:13px;';
+      if(el && el.parentNode) el.parentNode.insertBefore(clearBtn, el);
+    }
+    clearBtn.style.display = 'flex';
+    clearBtn.innerHTML = '<span style="color:var(--accent);">🔍 <strong>'+(car?car.regno:'')+'</strong>'+(car&&car.model?' — '+car.model:'')+(car&&car.customer?' · '+car.customer:'')+'</span>'+
+      '<button onclick="clearCarSearch()" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:4px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--body);">✕ Show All</button>';
   }
 }
 
