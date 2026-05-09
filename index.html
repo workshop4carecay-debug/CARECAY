@@ -411,6 +411,8 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
     <button class="dni"    id="dn-dreport" onclick="goTab('dreport')"><span class="ic">🔨</span> Denting Report</button>
     <button class="dni"    id="dn-preport" onclick="goTab('preport')"><span class="ic">🎨</span> Painting Report</button>
     <button class="dni"    id="dn-daily"   onclick="goTab('daily')"  ><span class="ic">📊</span> Daily Report</button>
+    <button class="dni"    id="dn-inward-rpt" onclick="goTab('inward-rpt')"><span class="ic">🚗</span> Inward Report</button>
+    <button class="dni"    id="dn-pay-rpt" onclick="goTab('pay-rpt')"><span class="ic">💳</span> Payment Report</button>
     <button class="dni"    id="dn-worker"  onclick="goTab('worker');renderWorkerView()" style="background:rgba(245,158,11,.1);border-left:3px solid var(--accent);"><span class="ic">👷</span> My Work</button>
     <button class="dni"    id="dn-sync"    onclick="goTab('sync')"   ><span class="ic">🔗</span> Device Sync</button>
     <button class="dni"    id="dn-status"  onclick="goTab('status')" ><span class="ic">📲</span> Status Card</button>
@@ -491,6 +493,20 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
       <button class="ibtn" onclick="exportAll()" style="font-size:13px;padding:6px 12px;">⬇</button>
     </div>
     <div id="daily-body"></div>
+  </div>
+  <!-- INWARD REPORT -->
+  <div class="tp" id="tab-inward-rpt">
+    <div class="ptitle">Inward <span>Vehicle Report</span>
+      <button class="ibtn" onclick="exportInwardCSV()" style="font-size:13px;padding:6px 12px;">📥 Export CSV</button>
+    </div>
+    <div id="inward-rpt-body" style="padding:0 14px 80px;"></div>
+  </div>
+  <!-- PAYMENT REPORT -->
+  <div class="tp" id="tab-pay-rpt">
+    <div class="ptitle">Payment <span>Pending Report</span>
+      <button class="ibtn" onclick="exportPayCSV()" style="font-size:13px;padding:6px 12px;">📥 Export CSV</button>
+    </div>
+    <div id="pay-rpt-body" style="padding:0 14px 80px;"></div>
   </div>
   <div id="tab-worker" class="tp">
   <div class="ptitle">My Work <span id="worker-name-title" style="color:var(--accent);"></span></div>
@@ -728,6 +744,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
             <option value="bs-ins-received">✅ Insurance Approval Received</option>
             <option value="bs-cust-approval">👤 Waiting for Customer Approval</option>
             <option value="bs-parts-ordered">🛒 Parts Ordered</option>
+            <option value="bs-waiting-work">⏳ Waiting for Work Start</option>
           </optgroup>
           <optgroup label="── BODY SHOP — BHAVIN ──">
             <option value="bs-waiting-parts">⏳ Waiting for Parts</option>
@@ -753,6 +770,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
             <option value="rp-jobcard">📋 Job Card Created</option>
             <option value="rp-estimation">📊 Estimation</option>
             <option value="rp-cust-approval">👤 Waiting for Customer Approval</option>
+            <option value="rp-waiting-work">⏳ Waiting for Work Start</option>
             <option value="rp-waiting-parts">⏳ Waiting for Parts</option>
             <option value="rp-parts-received">📦 Parts Received</option>
             <option value="rp-mechanical">🔧 WIP - Mechanic</option>
@@ -794,6 +812,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
             <option value="bs-ins-received">✅ Insurance Approval Received</option>
             <option value="bs-cust-approval">👤 Waiting for Customer Approval</option>
             <option value="bs-parts-ordered">🛒 Parts Ordered</option>
+            <option value="bs-waiting-work">⏳ Waiting for Work Start</option>
           </optgroup>
           <optgroup label="── BODY SHOP — BHAVIN ──">
             <option value="bs-waiting-parts">⏳ Waiting for Parts</option>
@@ -819,6 +838,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
             <option value="rp-jobcard">📋 Job Card Created</option>
             <option value="rp-estimation">📊 Estimation</option>
             <option value="rp-cust-approval">👤 Waiting for Customer Approval</option>
+            <option value="rp-waiting-work">⏳ Waiting for Work Start</option>
             <option value="rp-waiting-parts">⏳ Waiting for Parts</option>
             <option value="rp-parts-received">📦 Parts Received</option>
             <option value="rp-mechanical">🔧 WIP - Mechanic</option>
@@ -1014,10 +1034,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ════════════════════════════════════
 // TABS
 // ════════════════════════════════════
-const TABS=['cars','wip','pending','bills','invoice','mreport','dreport','preport','daily','sync','worker','status'];
+const TABS=['cars','wip','pending','bills','invoice','mreport','dreport','preport','daily','inward-rpt','pay-rpt','sync','worker','status'];
 function goTab(t){
   TABS.forEach(x=>{
-    document.getElementById('tab-'+x).classList.toggle('on',x===t);
+    const el=document.getElementById('tab-'+x);
+    if(el)el.classList.toggle('on',x===t);
     const b=document.getElementById('bn-'+x),d=document.getElementById('dn-'+x);
     if(b)b.classList.toggle('on',x===t);
     if(d)d.classList.toggle('on',x===t);
@@ -1030,6 +1051,8 @@ function goTab(t){
   if(t==='mreport')renderMechanicReport();
   if(t==='dreport')renderDentingReport();
   if(t==='preport')renderPaintingReport();
+  if(t==='inward-rpt')renderInwardReport();
+  if(t==='pay-rpt')renderPayReport();
 }
 
 
@@ -1039,10 +1062,10 @@ function goTab(t){
 
 // Body Shop stages per worker
 var WORKER_MAP = {
-  'IRFAN':  ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered'],
+  'IRFAN':  ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered','bs-waiting-work'],
   'BHAVIN': ['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'],
   'PRIYA':  ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'],
-  'NIKETU': ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing']
+  'NIKETU': ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-work','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing']
 };
 
 var WORKER_LABELS = {
@@ -1053,7 +1076,7 @@ var WORKER_LABELS = {
 };
 
 // Full stage list (Body Shop)
-var BS_STAGES = ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered','bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing','bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'];
+var BS_STAGES = ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered','bs-waiting-work','bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing','bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'];
 
 var BS_LABELS = {
   'bs-inward':'Car Inward & Receive Photos',
@@ -1065,6 +1088,7 @@ var BS_LABELS = {
   'bs-ins-received':'Insurance Approval Received',
   'bs-cust-approval':'Waiting for Customer Approval',
   'bs-parts-ordered':'Parts Ordered',
+  'bs-waiting-work':'Waiting for Work Start',
   'bs-waiting-parts':'Waiting for Parts',
   'bs-parts-received':'Parts Received',
   'bs-denting':'WIP - Denting',
@@ -1083,13 +1107,14 @@ var BS_LABELS = {
 };
 
 // Repair stages (NIKETU)
-var RP_STAGES = ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'];
+var RP_STAGES = ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-work','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'];
 
 var RP_LABELS = {
   'rp-inward':'Car Inward & Receive Photos',
   'rp-jobcard':'Job Card Created',
   'rp-estimation':'Estimation',
   'rp-cust-approval':'Waiting for Customer Approval',
+  'rp-waiting-work':'Waiting for Work Start',
   'rp-waiting-parts':'Waiting for Parts',
   'rp-parts-received':'Parts Received',
   'rp-mechanical':'WIP - Mechanic',
@@ -1118,6 +1143,7 @@ function getStageIcon(s){
   if(s.includes('ins-approval')||s.includes('ins-received')) return '🏢';
   if(s.includes('cust-approval')) return '👤';
   if(s.includes('parts-ordered')) return '🛒';
+  if(s.includes('waiting-work')) return '⏳';
   if(s.includes('waiting-parts')) return '⏳';
   if(s.includes('parts-received')) return '📦';
   if(s.includes('denting')) return '🔨';
@@ -1801,47 +1827,92 @@ function saveInvoice(carId){
 // DAILY REPORT
 // ════════════════════════════════════
 function renderDaily(){
-  const body=document.getElementById('daily-body');
-  if(!cars.length){body.innerHTML=`<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>`;return;}
-  const sc={};STAGES.forEach(s=>sc[s]=0);
-  cars.forEach(c=>{const st=c.stage||'waiting';if(sc[st]!==undefined)sc[st]++;});
-  let html=`<div class="rc" style="margin-bottom:14px;">
-    <div class="rch">📊 Fleet — ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
-    <div style="padding:12px 14px;">
-      <div class="rrow"><span class="rl">Total Cars</span><span class="rv" style="color:var(--blue);">${cars.length}</span></div>
-      ${STAGES.map(s=>`<div class="rrow"><span class="rl">${STAGE_ICONS[s]} ${STAGE_LABELS[s]}</span><span class="rv" style="color:${STAGE_COLORS[s]};">${sc[s]}</span></div>`).join('')}
+  var body=document.getElementById('daily-body');
+  if(!cars.length){body.innerHTML='<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>';return;}
+
+  var todayStr=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  var active=cars.filter(c=>c.stage&&c.stage!=='bs-delivered'&&c.stage!=='rp-delivered');
+
+  // Group by stage
+  var stageGroups={};
+  var ALL_STAGES=BS_STAGES.concat(RP_STAGES.filter(function(s){return BS_STAGES.indexOf(s)===-1;}));
+  active.forEach(function(c){
+    var st=c.stage||'waiting';
+    if(!stageGroups[st])stageGroups[st]={label:getStageIcon(st)+' '+getStageLabel(st),cars:[],order:ALL_STAGES.indexOf(st)};
+    stageGroups[st].cars.push(c);
+  });
+
+  var sortedStages=Object.keys(stageGroups).sort(function(a,b){return stageGroups[a].order-stageGroups[b].order;});
+
+  var stageCards=sortedStages.map(function(st){
+    var grp=stageGroups[st];
+    var isBS=st.startsWith('bs-'),isRP=st.startsWith('rp-');
+    var color=isBS?'var(--orange)':isRP?'var(--pink)':'var(--accent)';
+    var carRows=grp.cars.map(function(car){
+      var ps=car.payStatus||'pending';
+      var payColor=ps==='received'?'var(--green)':ps==='partial'?'var(--accent)':'var(--red)';
+      var payLabel=ps==='received'?'✅ Received':ps==='partial'?'💰 Partial':'⏳ Pending';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+            <span style="font-family:var(--disp);font-size:14px;font-weight:800;color:var(--accent);">${car.regno||'—'}</span>
+            <span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(245,158,11,.12);color:${color};border:1px solid rgba(245,158,11,.2);font-weight:700;">${{'body-shop':'Body Shop','repair':'Mechanical','both':'BS+Mech','glass':'Glass','electrical':'Electrical','other':'Other'}[car.workType||'body-shop']||'Body Shop'}</span>
+          </div>
+          <div style="font-size:12px;color:var(--m1);">${car.model||'—'} · ${car.customer||'—'}</div>
+          <div style="font-size:11px;color:var(--m2);">📥 ${fmt(car.date)||'—'} · Ref: ${car.refName||'—'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <span style="font-size:11px;font-weight:700;color:${payColor};">${payLabel}</span>
+          ${car.claim?`<div style="font-size:10px;color:var(--m2);">Claim: ${car.claim}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:10px;">
+      <div style="padding:9px 13px;background:var(--s2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:14px;font-weight:700;color:var(--text);">${grp.label}</div>
+        <span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;background:${color}22;color:${color};">${grp.cars.length} car${grp.cars.length>1?'s':''}</span>
+      </div>
+      ${carRows}
+    </div>`;
+  }).join('');
+
+  var sc={};ALL_STAGES.forEach(s=>sc[s]=0);
+  cars.forEach(c=>{if(sc[c.stage]!==undefined)sc[c.stage]++;});
+
+  body.innerHTML=`
+  <div style="background:linear-gradient(135deg,var(--blue-dark,#1e3a5f),var(--purple-dark,#3730a3));border-radius:var(--rs);padding:14px 16px;margin-bottom:14px;color:#fff;">
+    <div style="font-size:11px;opacity:.75;margin-bottom:3px;letter-spacing:.5px;">📅 DAILY WORK REPORT</div>
+    <div style="font-size:17px;font-weight:800;font-family:var(--disp);">${todayStr}</div>
+    <div style="font-size:12px;opacity:.8;margin-top:4px;">${active.length} active vehicles · ${sortedStages.length} stages in progress</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+    <div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--m1);margin-bottom:2px;">Total Active</div>
+      <div style="font-size:22px;font-weight:800;color:var(--blue);font-family:var(--disp);">${active.length}</div>
+    </div>
+    <div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--m1);margin-bottom:2px;">Body Shop</div>
+      <div style="font-size:22px;font-weight:800;color:var(--orange);font-family:var(--disp);">${active.filter(c=>c.workType==='body-shop'||!c.workType).length}</div>
+    </div>
+    <div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--m1);margin-bottom:2px;">Mechanical</div>
+      <div style="font-size:22px;font-weight:800;color:var(--pink);font-family:var(--disp);">${active.filter(c=>c.workType==='repair').length}</div>
+    </div>
+    <div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--m1);margin-bottom:2px;">Pay Pending</div>
+      <div style="font-size:22px;font-weight:800;color:var(--red);font-family:var(--disp);">${active.filter(c=>(c.payStatus||'pending')==='pending').length}</div>
     </div>
   </div>
-  <div class="rc"><div class="rch">🚗 Car-wise Status</div><div class="rcb">
-  ${cars.map(car=>{
-    const p=car.parts||[];
-    const bP=p.filter(x=>x.before!=='yes'),aP=p.filter(x=>x.received!=='yes');
-    const stage=car.stage||'waiting';
-    return`<div class="daily-car">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-        <div style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">${car.regno}</div>
-        <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${getStageIcon(stage)} ${getStageLabel(stage)}</span>
-      </div>
-      <div style="font-size:11px;color:var(--m1);margin-bottom:4px;">${car.model||''} · ${car.customer||''} · Claim: ${car.claim||'—'}</div>
-      <div class="dc-row"><span class="k">📥 Inward</span><span class="v">${fmt(car.date)}</span></div>
-      <div class="dc-row"><span class="k">🔨 Denting Date</span><span class="v">${fmt(car.dentDate)}</span></div>
-      <div class="dc-row"><span class="k">🎨 Painting Date</span><span class="v">${fmt(car.paintDate)}</span></div>
-      ${car.workType&&car.workType!=='body-shop'?`<div class="dc-row"><span class="k">🚗 For Work</span><span class="v" style="color:var(--pink);">${{'body-shop':'Body Shop','repair':'Repair/Mechanical','both':'Body Shop+Repair','glass':'Glass Work','electrical':'Electrical','other':'Other'}[car.workType]||car.workType}</span></div>`:''}
-      ${car.mechanic?`<div class="dc-row"><span class="k">🔧 Mechanic</span><span class="v">${car.mechanic}</span></div>`:''}
-      ${car.dentor?`<div class="dc-row"><span class="k">🔨 Dent or</span><span class="v">${car.dentor}</span></div>`:''}
-      ${car.fitter?`<div class="dc-row"><span class="k">🔩 Fitter</span><span class="v">${car.fitter}</span></div>`:''}
-      ${car.helper?`<div class="dc-row"><span class="k">🙋 Helper</span><span class="v">${car.helper}</span></div>`:''}
-      ${car.painter?`<div class="dc-row"><span class="k">🎨 Painter</span><span class="v">${car.painter}</span></div>`:''}
-      ${car.panels?`<div class="dc-row"><span class="k">Panels</span><span class="v" style="color:var(--purple);">${car.panels}</span></div>`:''}
-      ${bP.length?`<div class="dc-row"><span class="k">📸 Before Pending</span><span class="v" style="color:var(--red);">${bP.map(x=>x.name).join(', ')}</span></div>`:''}
-      ${aP.length?`<div class="dc-row"><span class="k">⏳ Parts Awaited</span><span class="v" style="color:var(--accent);">${aP.map(x=>x.name).join(', ')}</span></div>`:''}
-      ${!bP.length&&!aP.length?`<div class="dc-row"><span class="k" style="color:var(--green);">✅ All complete!</span><span class="v"></span></div>`:''}
-    </div>`;
-  }).join('')}
-  </div></div>`;
-  body.innerHTML=html;
-}
 
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <div style="font-size:13px;font-weight:700;color:var(--text);">Stage-wise Vehicle Status</div>
+    <button class="ibtn" onclick="exportAll()" style="font-size:12px;padding:5px 10px;">⬇ Export</button>
+  </div>
+
+  ${sortedStages.length===0?'<div class="empty"><div class="ei">✅</div><p>No active vehicles. Great work!</p></div>':stageCards}`;
+}
 // ════════════════════════════════════
 // SIDEBAR
 // ════════════════════════════════════
