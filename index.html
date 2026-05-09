@@ -1203,7 +1203,8 @@ function getNextWorker(stage){
 
 function goTab(t){
   TABS.forEach(x=>{
-    document.getElementById('tab-'+x).classList.toggle('on',x===t);
+    const el=document.getElementById('tab-'+x);
+    if(el)el.classList.toggle('on',x===t);
     const b=document.getElementById('bn-'+x),d=document.getElementById('dn-'+x);
     if(b)b.classList.toggle('on',x===t);
     if(d)d.classList.toggle('on',x===t);
@@ -1216,6 +1217,8 @@ function goTab(t){
   if(t==='mreport')renderMechanicReport();
   if(t==='dreport')renderDentingReport();
   if(t==='preport')renderPaintingReport();
+  if(t==='inward-rpt')renderInwardReport();
+  if(t==='pay-rpt')renderPayReport();
 }
 
 // ════════════════════════════════════
