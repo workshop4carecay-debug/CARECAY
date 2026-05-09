@@ -1828,15 +1828,15 @@ function saveInvoice(carId){
 // ════════════════════════════════════
 function renderDaily(){
   var body=document.getElementById('daily-body');
-  // Always reload from storage for fresh data
-  var all=JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  // Use live cars array (synced from GitHub)
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   if(!all.length){body.innerHTML='<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>';return;}
 
   var todayStr=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   var active=all.filter(function(c){return c.stage&&c.stage!=='bs-delivered'&&c.stage!=='rp-delivered';});
 
   // Search
-  var dailySearch=document.getElementById('daily-search')?document.getElementById('daily-search').value.toLowerCase():'';
+  var dailySearch=dailySearchVal.toLowerCase();
   var displayCars=active;
   if(dailySearch){
     displayCars=active.filter(function(c){
@@ -1925,22 +1925,86 @@ function renderDaily(){
 
   <div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:8px 12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;">
     <span style="font-size:13px;">🔍</span>
-    <input id="daily-search" type="text" class="fi" style="flex:1;padding:6px 10px;font-size:12px;" placeholder="Search stage, car name, reg no., customer, ref..." oninput="renderDaily()">
+    <input id="daily-search" type="text" class="fi" style="flex:1;padding:6px 10px;font-size:12px;" placeholder="Search stage, car name, reg no., customer, ref..." value="${dailySearchVal}" oninput="dailySearchVal=this.value;renderDailyResults()">
     <button class="ibtn" onclick="exportAll()" style="font-size:12px;padding:5px 10px;">⬇ Export</button>
   </div>
+  <div id="daily-results">
 
   ${displayCars.length===0?'<div class="empty"><div class="ei">🔍</div><p>No vehicles match your search.</p></div>':sortedStages.length===0?'<div class="empty"><div class="ei">✅</div><p>No active vehicles. Great work!</p></div>':stageCards}`;
+}
+
+function renderDailyResults(){
+  // Only re-render the results part, preserving search input focus
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  var active=all.filter(function(c){return c.stage&&c.stage!=='bs-delivered'&&c.stage!=='rp-delivered';});
+  var q=dailySearchVal.toLowerCase();
+  var displayCars=q?active.filter(function(c){
+    return (c.regno||'').toLowerCase().includes(q)
+      ||(c.model||'').toLowerCase().includes(q)
+      ||(c.customer||'').toLowerCase().includes(q)
+      ||(c.ref||'').toLowerCase().includes(q)
+      ||(getStageLabel(c.stage||'waiting')).toLowerCase().includes(q)
+      ||(getStageIcon(c.stage||'waiting')+' '+getStageLabel(c.stage||'waiting')).toLowerCase().includes(q);
+  }):active;
+  var resultsDiv=document.getElementById('daily-results');
+  if(!resultsDiv)return;
+  if(!displayCars.length){
+    resultsDiv.innerHTML='<div class="empty"><div class="ei">🔍</div><p>'+(q?'No vehicles match "'+q+'"':'No active vehicles.')+'</p></div>';
+    return;
+  }
+  var stageGroups={};
+  var ALL_STAGES=BS_STAGES.concat(RP_STAGES.filter(function(s){return BS_STAGES.indexOf(s)===-1;}));
+  displayCars.forEach(function(c){
+    var st=c.stage||'waiting';
+    if(!stageGroups[st])stageGroups[st]={label:getStageIcon(st)+' '+getStageLabel(st),cars:[],order:ALL_STAGES.indexOf(st)};
+    stageGroups[st].cars.push(c);
+  });
+  var sortedStages=Object.keys(stageGroups).sort(function(a,b){return stageGroups[a].order-stageGroups[b].order;});
+  var html2='';
+  sortedStages.forEach(function(st){
+    var grp=stageGroups[st];
+    var isBS=st.startsWith('bs-'),isRP=st.startsWith('rp-');
+    var color=isBS?'var(--orange)':isRP?'var(--pink)':'var(--accent)';
+    var carRows=grp.cars.map(function(car){
+      var inv=car.invoice||{};
+      var payCust=inv['pay-cust']||'pending';
+      var payIns=inv['pay-ins']||'pending';
+      var payColor=(payCust==='received'&&payIns==='received')?'var(--green)':(payCust==='received'||payIns==='received')?'var(--accent)':'var(--red)';
+      var payLabel=(payCust==='received'&&payIns==='received')?'✅ Paid':(payCust==='received'||payIns==='received')?'💰 Partial':'⏳ Pending';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);gap:8px;">'
+        +'<div style="flex:1;min-width:0;">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">'
+        +'<span style="font-family:var(--disp);font-size:14px;font-weight:800;color:var(--accent);">'+(car.regno||'—')+'</span>'
+        +'<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(245,158,11,.12);color:'+color+';border:1px solid rgba(245,158,11,.2);font-weight:700;">'+({'body-shop':'Body Shop','repair':'Mechanical','both':'BS+Mech','glass':'Glass','electrical':'Electrical','other':'Other'}[car.workType||'body-shop']||'Body Shop')+'</span>'
+        +'</div>'
+        +'<div style="font-size:12px;color:var(--m1);">'+(car.model||'—')+' · '+(car.customer||'—')+'</div>'
+        +'<div style="font-size:11px;color:var(--m2);">📥 '+(fmt(car.date)||'—')+' · Ref: '+(car.ref||'—')+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0;">'
+        +'<span style="font-size:11px;font-weight:700;color:'+payColor+';">'+payLabel+'</span>'
+        +(car.claim?'<div style="font-size:10px;color:var(--m2);">Claim: '+car.claim+'</div>':'')
+        +'</div></div>';
+    }).join('');
+    html2+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:10px;">'
+      +'<div style="padding:9px 13px;background:var(--s2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">'
+      +'<div style="font-size:14px;font-weight:700;color:var(--text);">'+grp.label+'</div>'
+      +'<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;background:'+color+'22;color:'+color+';">'+grp.cars.length+' car'+(grp.cars.length>1?'s':'')+'</span>'
+      +'</div>'+carRows+'</div>';
+  });
+  resultsDiv.innerHTML=html2;
 }
 
 // ════════════════════════════════════
 // INWARD VEHICLE REPORT
 // ════════════════════════════════════
 var irFilter={dateFrom:'',dateTo:'',workType:'',search:''};
+var dailySearchVal='';
 
 function renderInwardReport(){
   var body=document.getElementById('inward-rpt-body');
   if(!body)return;
-  var all=JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  // Use live cars array (synced from GitHub) falling back to localStorage
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   if(!all.length){body.innerHTML='<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>';return;}
 
   var filtered=all.slice();
@@ -2032,7 +2096,7 @@ function renderInwardReport(){
 }
 
 function exportInwardCSV(){
-  var all=JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   var filtered=all.slice();
   if(irFilter.workType) filtered=filtered.filter(function(c){return (c.workType||'body-shop')===irFilter.workType;});
   if(irFilter.dateFrom) filtered=filtered.filter(function(c){return c.date&&c.date>=irFilter.dateFrom;});
@@ -2054,7 +2118,7 @@ var payRptFilter={workType:'',search:''};
 function renderPayReport(){
   var body=document.getElementById('pay-rpt-body');
   if(!body)return;
-  var all=JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   if(!all.length){body.innerHTML='<div class="empty"><div class="ei">💳</div><p>No cars added yet.</p></div>';return;}
 
   // Payment pending = pay-cust not received OR pay-ins not received
@@ -2150,7 +2214,7 @@ function renderPayReport(){
 }
 
 function exportPayCSV(){
-  var all=JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   var pending=all.filter(function(c){var inv=c.invoice||{};return (inv['pay-cust']||'pending')!=='received'||(inv['pay-ins']||'pending')!=='received';});
   if(payRptFilter.workType) pending=pending.filter(function(c){return (c.workType||'body-shop')===payRptFilter.workType;});
   pending.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
