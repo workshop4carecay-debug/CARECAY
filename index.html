@@ -413,6 +413,7 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
     <button class="dni"    id="dn-daily"   onclick="goTab('daily')"  ><span class="ic">📊</span> Daily Report</button>
     <button class="dni"    id="dn-inward-rpt" onclick="goTab('inward-rpt')"><span class="ic">🚗</span> Inward Report</button>
     <button class="dni"    id="dn-pay-rpt" onclick="goTab('pay-rpt')"><span class="ic">💳</span> Payment Report</button>
+    <button class="dni"    id="dn-card-rpt" onclick="goTab('card-rpt')"><span class="ic">🪪</span> Card Pending</button>
     <button class="dni"    id="dn-worker"  onclick="goTab('worker');renderWorkerView()" style="background:rgba(245,158,11,.1);border-left:3px solid var(--accent);"><span class="ic">👷</span> My Work</button>
     <button class="dni"    id="dn-sync"    onclick="goTab('sync')"   ><span class="ic">🔗</span> Device Sync</button>
     <button class="dni"    id="dn-status"  onclick="goTab('status')" ><span class="ic">📲</span> Status Card</button>
@@ -500,6 +501,11 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
       <button class="ibtn" onclick="exportInwardCSV()" style="font-size:13px;padding:6px 12px;">📥 Export CSV</button>
     </div>
     <div id="inward-rpt-body" style="padding:0 14px 80px;"></div>
+  </div>
+  <!-- CARD PENDING -->
+  <div class="tp" id="tab-card-rpt">
+    <div class="ptitle">Status Card <span>Pending</span></div>
+    <div id="card-rpt-body" style="padding:0 14px 80px;"></div>
   </div>
   <!-- PAYMENT REPORT -->
   <div class="tp" id="tab-pay-rpt">
@@ -1034,7 +1040,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 // ════════════════════════════════════
 // TABS
 // ════════════════════════════════════
-const TABS=['cars','wip','pending','bills','invoice','mreport','dreport','preport','daily','inward-rpt','pay-rpt','sync','worker','status'];
+const TABS=['cars','wip','pending','bills','invoice','mreport','dreport','preport','daily','inward-rpt','pay-rpt','card-rpt','sync','worker','status'];
 function goTab(t){
   TABS.forEach(x=>{
     const el=document.getElementById('tab-'+x);
@@ -1053,6 +1059,7 @@ function goTab(t){
   if(t==='preport')renderPaintingReport();
   if(t==='inward-rpt')renderInwardReport();
   if(t==='pay-rpt')renderPayReport();
+  if(t==='card-rpt')renderCardReport();
 }
 
 
@@ -1219,6 +1226,7 @@ function goTab(t){
   if(t==='preport')renderPaintingReport();
   if(t==='inward-rpt')renderInwardReport();
   if(t==='pay-rpt')renderPayReport();
+  if(t==='card-rpt')renderCardReport();
 }
 
 // ════════════════════════════════════
@@ -1997,6 +2005,173 @@ function renderDailyResults(){
   resultsDiv.innerHTML=html2;
 }
 
+
+// ════════════════════════════════════
+// CARD STATUS TRACKER
+// ════════════════════════════════════
+var cardFilter={status:'',workType:'',search:''};
+
+function clearIRFilter(){irFilter={dateFrom:'',dateTo:'',workType:'',search:''};['ir-search','ir-from','ir-to'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});var wt=document.getElementById('ir-wt');if(wt)wt.value='';renderIRResults();}
+function clearPRFilter(){payRptFilter={workType:'',search:''};var s=document.getElementById('pr-search');if(s)s.value='';var wt=document.getElementById('pr-wt');if(wt)wt.value='';renderPRResults();}
+// ════════════════════════════════════
+// STATUS CARD PENDING TRACKER
+// ════════════════════════════════════
+var cardPendFilter={search:'',workType:''};
+
+function renderCardReport(){
+  var body=document.getElementById('card-rpt-body');
+  if(!body)return;
+  if(!document.getElementById('cp-results')){
+    body.innerHTML=
+      '<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;">🪪 Status Card Pending Tracker</div>'
+      +'<div style="font-size:12px;color:var(--m1);">Shows vehicles whose stage changed after the last status card was sent to the customer — or where no card has been sent yet.</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;" id="cp-tiles"></div>'
+      +'<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">'
+      +'<div style="flex:1;min-width:180px;"><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">🔍 Search (Reg / Car / Customer / Ref)</div>'
+      +'<input id="cp-search" type="text" class="fi" style="padding:6px 9px;font-size:12px;width:100%;" placeholder="Search..." oninput="cardPendFilter.search=this.value;renderCPResults()"></div>'
+      +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">Work Type</div>'
+      +'<select id="cp-wt" class="fsel" style="font-size:12px;" onchange="cardPendFilter.workType=this.value;renderCPResults()">'
+      +'<option value="">All Types</option><option value="body-shop">🔩 Body Shop</option><option value="repair">🔧 Mechanical</option>'
+      +'<option value="both">🔩🔧 Both</option><option value="glass">🪟 Glass</option><option value="electrical">⚡ Electrical</option>'
+      +'</select></div>'
+      +'<button style="padding:6px 12px;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--m1);font-size:12px;cursor:pointer;align-self:flex-end;" onclick="clearCPFilter()">✕ Clear</button>'
+      +'<a href="#" onclick="goTab(&quot;status&quot;);return false;" style="padding:6px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--green);font-size:12px;cursor:pointer;align-self:flex-end;text-decoration:none;">🪪 Generate Card →</a>'
+      +'</div>'
+      +'<div id="cp-results"></div>';
+  }
+  renderCPResults();
+}
+
+function clearCPFilter(){
+  cardPendFilter={search:'',workType:''};
+  var s=document.getElementById('cp-search');if(s)s.value='';
+  var w=document.getElementById('cp-wt');if(w)w.value='';
+  renderCPResults();
+}
+
+function markCardSent(btn){
+  var carId=btn?btn.dataset.carid:null;
+  var car=cars.find(function(c){return c.id===carId;});
+  if(!car)return;
+  car.lastCardSentAt=new Date().toISOString();
+  car.lastCardSentStage=car.stage;
+  persist();
+  syncIfConnected();
+  renderCPResults();
+  showToast('✅ Card marked as sent for '+car.regno,'#10b981');
+}
+
+function renderCPResults(){
+  var resultsDiv=document.getElementById('cp-results');
+  var tilesDiv=document.getElementById('cp-tiles');
+  if(!resultsDiv)return;
+
+  scLoadRecords(); // load status card records
+
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  // Only active cars
+  var active=all.filter(function(c){return c.stage&&c.stage!=='bs-delivered'&&c.stage!=='rp-delivered';});
+
+  // Determine pending: card never sent OR stage changed after last card sent
+  var pending=active.filter(function(c){
+    var reg=c.regno||'';
+    var stageUpdated=c.stageUpdatedAt?new Date(c.stageUpdatedAt).getTime():0;
+    // Check scRecords for last card sent time
+    var lastCardTs=0;
+    if(scRecords[reg]&&scRecords[reg].history&&scRecords[reg].history.length){
+      lastCardTs=new Date(scRecords[reg].history[0].ts).getTime();
+    }
+    // Also check car.lastCardSentAt (manual mark)
+    if(c.lastCardSentAt){
+      var manualTs=new Date(c.lastCardSentAt).getTime();
+      if(manualTs>lastCardTs)lastCardTs=manualTs;
+    }
+    // Pending if: no card ever sent, OR stage changed after last card
+    return lastCardTs===0||stageUpdated>lastCardTs;
+  });
+
+  var sent=active.filter(function(c){
+    var reg=c.regno||'';
+    var stageUpdated=c.stageUpdatedAt?new Date(c.stageUpdatedAt).getTime():0;
+    var lastCardTs=0;
+    if(scRecords[reg]&&scRecords[reg].history&&scRecords[reg].length){
+      lastCardTs=new Date(scRecords[reg].history[0].ts).getTime();
+    }
+    if(c.lastCardSentAt){var manualTs=new Date(c.lastCardSentAt).getTime();if(manualTs>lastCardTs)lastCardTs=manualTs;}
+    return lastCardTs>0&&stageUpdated<=lastCardTs;
+  });
+
+  if(cardPendFilter.workType) pending=pending.filter(function(c){return (c.workType||'body-shop')===cardPendFilter.workType;});
+  if(cardPendFilter.search){
+    var q=cardPendFilter.search.toLowerCase();
+    pending=pending.filter(function(c){
+      return (c.regno||'').toLowerCase().includes(q)
+        ||(c.model||'').toLowerCase().includes(q)
+        ||(c.customer||'').toLowerCase().includes(q)
+        ||(c.ref||'').toLowerCase().includes(q);
+    });
+  }
+  pending.sort(function(a,b){
+    var at=a.stageUpdatedAt?new Date(a.stageUpdatedAt).getTime():0;
+    var bt=b.stageUpdatedAt?new Date(b.stageUpdatedAt).getTime():0;
+    return bt-at; // Most recently updated first
+  });
+
+  if(tilesDiv) tilesDiv.innerHTML=
+    '<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Card Pending</div><div style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--disp);">'+pending.length+'</div></div>'
+    +'<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Card Sent (Up to date)</div><div style="font-size:24px;font-weight:800;color:var(--green);font-family:var(--disp);">'+sent.length+'</div></div>'
+    +'<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Total Active</div><div style="font-size:24px;font-weight:800;color:var(--blue);font-family:var(--disp);">'+active.length+'</div></div>';
+
+  if(!pending.length){
+    resultsDiv.innerHTML='<div style="text-align:center;padding:36px;color:var(--green);background:var(--bg);border-radius:var(--rs);border:1px solid var(--border);"><div style="font-size:40px;margin-bottom:8px;">✅</div><div style="font-size:16px;font-weight:700;">All customers are up to date!</div><div style="font-size:12px;color:var(--m1);margin-top:4px;">No pending status card updates.</div></div>';
+    return;
+  }
+
+  var rows=pending.map(function(car){
+    var reg=car.regno||'';
+    var lastCardTs=0;
+    var lastCardStage='—';
+    if(scRecords[reg]&&scRecords[reg].history&&scRecords[reg].history.length){
+      lastCardTs=new Date(scRecords[reg].history[0].ts).getTime();
+      lastCardStage=scRecords[reg].history[0].label||'—';
+    }
+    if(car.lastCardSentAt){
+      var mTs=new Date(car.lastCardSentAt).getTime();
+      if(mTs>lastCardTs){lastCardTs=mTs;lastCardStage=getStageLabel(car.lastCardSentStage||car.stage);}
+    }
+    var stageUpdated=car.stageUpdatedAt?new Date(car.stageUpdatedAt):null;
+    var neverSent=lastCardTs===0;
+    var daysSince=stageUpdated?Math.floor((Date.now()-stageUpdated.getTime())/864e5):null;
+    var urgency=neverSent?'var(--red)':daysSince>=2?'var(--red)':daysSince>=1?'var(--accent)':'var(--orange)';
+    var urgencyLabel=neverSent?'⚠️ Never Sent':daysSince>=2?'🔴 '+daysSince+'d ago':daysSince===1?'🟡 Yesterday':'🟠 Today';
+    return '<tr style="border-bottom:1px solid var(--border);">'
+      +'<td style="padding:9px 10px;"><strong style="font-size:13px;font-family:var(--disp);color:var(--accent);">'+reg+'</strong><div style="font-size:10px;color:var(--m2);">'+(car.model||'')+'</div></td>'
+      +'<td style="padding:9px 10px;font-size:12px;font-weight:600;">'+(car.customer||'—')+'<div style="font-size:10px;color:var(--m2);">Ref: '+(car.ref||'—')+'</div></td>'
+      +'<td style="padding:9px 10px;font-size:12px;font-weight:700;color:var(--blue);">'+getStageIcon(car.stage||'')+' '+getStageLabel(car.stage||'')+'</td>'
+      +'<td style="padding:9px 10px;font-size:11px;color:var(--m2);">'+(neverSent?'<span style="color:var(--red);">Never sent</span>':'Last: '+lastCardStage)+'</td>'
+      +'<td style="padding:9px 10px;"><span style="font-size:11px;font-weight:700;color:'+urgency+';">'+urgencyLabel+'</span></td>'
+      +'<td style="padding:9px 10px;white-space:nowrap;">'
+      +'<a onclick="goTab(&quot;status&quot;);return false;" href="#" style="display:inline-block;padding:4px 9px;background:rgba(26,79,214,.1);border:1px solid rgba(26,79,214,.3);border-radius:6px;color:var(--blue);font-size:11px;font-weight:700;text-decoration:none;margin-right:4px;">🪪 Generate</a>'
+      +'<button onclick="markCardSent(this)" data-carid="'+car.id+'" style="padding:4px 9px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;">✅ Mark Sent</button>'
+      +'</td>'
+      +'</tr>';
+  }).join('');
+
+  resultsDiv.innerHTML='<div style="overflow-x:auto;border-radius:var(--rs);border:1px solid var(--border);">'
+    +'<table style="width:100%;border-collapse:collapse;min-width:700px;">'
+    +'<thead><tr style="background:var(--s2);">'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Vehicle</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Customer / Ref</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Current Stage</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Last Card Sent At</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Urgency</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Action</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+
 // ════════════════════════════════════
 // INWARD VEHICLE REPORT
 // ════════════════════════════════════
@@ -2006,10 +2181,31 @@ var dailySearchVal='';
 function renderInwardReport(){
   var body=document.getElementById('inward-rpt-body');
   if(!body)return;
-  // Use live cars array (synced from GitHub) falling back to localStorage
-  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
-  if(!all.length){body.innerHTML='<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>';return;}
+  // Render static filter bar once
+  if(!document.getElementById('ir-results')){
+    body.innerHTML=
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;" id="ir-tiles"></div>'
+      +'<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">'
+      +'<div style="flex:1;min-width:200px;"><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">🔍 Search (Stage / Car / Reg / Customer / Ref)</div>'
+      +'<input id="ir-search" type="text" class="fi" style="padding:6px 9px;font-size:12px;width:100%;" placeholder="e.g. GJ01, Waiting for Parts, Dhara..." oninput="irFilter.search=this.value;renderIRResults()"></div>'
+      +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">From Date</div><input id="ir-from" type="date" class="fi" style="padding:5px 8px;font-size:12px;" onchange="irFilter.dateFrom=this.value;renderIRResults()"></div>'
+      +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">To Date</div><input id="ir-to" type="date" class="fi" style="padding:5px 8px;font-size:12px;" onchange="irFilter.dateTo=this.value;renderIRResults()"></div>'
+      +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">Work Type</div><select id="ir-wt" class="fsel" style="font-size:12px;" onchange="irFilter.workType=this.value;renderIRResults()">'
+      +'<option value="">All Types</option><option value="body-shop">🔩 Body Shop</option><option value="repair">🔧 Mechanical</option>'
+      +'<option value="both">🔩🔧 Both</option><option value="glass">🪟 Glass</option><option value="electrical">⚡ Electrical</option><option value="other">📋 Other</option>'
+      +'</select></div>'
+      +'<button style="padding:6px 12px;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--m1);font-size:12px;cursor:pointer;align-self:flex-end;" onclick="clearIRFilter()">✕ Clear</button>'
+      +'</div>'
+      +'<div id="ir-results"></div>';
+  }
+  renderIRResults();
+}
 
+function renderIRResults(){
+  var resultsDiv=document.getElementById('ir-results');
+  var tilesDiv=document.getElementById('ir-tiles');
+  if(!resultsDiv)return;
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   var filtered=all.slice();
   if(irFilter.workType) filtered=filtered.filter(function(c){return (c.workType||'body-shop')===irFilter.workType;});
   if(irFilter.dateFrom) filtered=filtered.filter(function(c){return c.date&&c.date>=irFilter.dateFrom;});
@@ -2025,77 +2221,44 @@ function renderInwardReport(){
     });
   }
   filtered.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
-
-  var wtLabels={'body-shop':'🔩 Body Shop','repair':'🔧 Mechanical/Repair','both':'🔩🔧 Body Shop+Repair','glass':'🪟 Glass Work','electrical':'⚡ Electrical','other':'📋 Other'};
+  var wtLabels={'body-shop':'🔩 Body Shop','repair':'🔧 Mechanical','both':'🔩🔧 Both','glass':'🪟 Glass','electrical':'⚡ Electrical','other':'📋 Other'};
   var totalBS=filtered.filter(function(c){return !c.workType||c.workType==='body-shop';}).length;
   var totalRP=filtered.filter(function(c){return c.workType==='repair';}).length;
-  var totalOther=filtered.length-totalBS-totalRP;
-
+  if(tilesDiv) tilesDiv.innerHTML=
+    '<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Total Inward</div><div style="font-size:22px;font-weight:800;color:var(--blue);font-family:var(--disp);">'+filtered.length+'</div></div>'
+    +'<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Body Shop</div><div style="font-size:22px;font-weight:800;color:var(--orange);font-family:var(--disp);">'+totalBS+'</div></div>'
+    +'<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Mechanical</div><div style="font-size:22px;font-weight:800;color:var(--pink);font-family:var(--disp);">'+totalRP+'</div></div>'
+    +'<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Other</div><div style="font-size:22px;font-weight:800;color:var(--teal);font-family:var(--disp);">'+(filtered.length-totalBS-totalRP)+'</div></div>';
+  if(!filtered.length){resultsDiv.innerHTML='<div class="empty"><div class="ei">🚗</div><p>No vehicles match the filters.</p></div>';return;}
   var rows=filtered.map(function(car){
     var stage=car.stage||'bs-inward';
-    var stageLabel=getStageIcon(stage)+' '+getStageLabel(stage);
     var inv=car.invoice||{};
-    var payCust=inv['pay-cust']||'pending';
-    var payIns=inv['pay-ins']||'pending';
+    var payCust=inv['pay-cust']||'pending',payIns=inv['pay-ins']||'pending';
     var payColor=(payCust==='received'&&payIns==='received')?'var(--green)':(payCust==='received'||payIns==='received')?'var(--accent)':'var(--red)';
     var payLabel=(payCust==='received'&&payIns==='received')?'✅ Received':(payCust==='received'||payIns==='received')?'💰 Partial':'⏳ Pending';
-    var wt=wtLabels[car.workType||'body-shop']||car.workType||'Body Shop';
     return '<tr>'
       +'<td style="padding:8px 10px;font-size:12px;white-space:nowrap;color:var(--m1);">'+fmt(car.date)+'</td>'
       +'<td style="padding:8px 10px;font-size:13px;font-weight:800;color:var(--accent);font-family:var(--disp);">'+(car.regno||'—')+'</td>'
       +'<td style="padding:8px 10px;font-size:12px;">'+(car.model||'—')+'</td>'
-      +'<td style="padding:8px 10px;font-size:12px;">'+(car.customer||'—')+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px;font-weight:600;">'+(car.customer||'—')+'</td>'
       +'<td style="padding:8px 10px;font-size:11px;color:var(--m1);">'+(car.ref||'—')+'</td>'
-      +'<td style="padding:8px 10px;font-size:11px;">'+wt+'</td>'
-      +'<td style="padding:8px 10px;font-size:11px;">'+stageLabel+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;">'+(wtLabels[car.workType||'body-shop']||car.workType||'Body Shop')+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;">'+getStageIcon(stage)+' '+getStageLabel(stage)+'</td>'
       +'<td style="padding:8px 10px;"><span style="font-size:11px;font-weight:700;color:'+payColor+';">'+payLabel+'</span></td>'
       +'</tr>';
   }).join('');
-
-  var html='';
-  // Summary tiles
-  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">'
-    +'<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Total Inward</div><div style="font-size:22px;font-weight:800;color:var(--blue);font-family:var(--disp);">'+filtered.length+'</div></div>'
-    +'<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Body Shop</div><div style="font-size:22px;font-weight:800;color:var(--orange);font-family:var(--disp);">'+totalBS+'</div></div>'
-    +'<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Mechanical</div><div style="font-size:22px;font-weight:800;color:var(--pink);font-family:var(--disp);">'+totalRP+'</div></div>'
-    +'<div style="background:var(--s2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Other</div><div style="font-size:22px;font-weight:800;color:var(--teal);font-family:var(--disp);">'+totalOther+'</div></div>'
-    +'</div>';
-  // Filter bar
-  html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">'
-    +'<div style="flex:1;min-width:180px;"><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">🔍 Search (Stage / Car / Reg / Customer)</div>'
-    +'<input type="text" class="fi" style="padding:6px 9px;font-size:12px;width:100%;" placeholder="e.g. Waiting for Parts, GJ01..." value="'+irFilter.search+'" oninput="irFilter.search=this.value;renderInwardReport()"></div>'
-    +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">From Date</div><input type="date" class="fi" style="padding:5px 8px;font-size:12px;" value="'+irFilter.dateFrom+'" onchange="irFilter.dateFrom=this.value;renderInwardReport()"></div>'
-    +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">To Date</div><input type="date" class="fi" style="padding:5px 8px;font-size:12px;" value="'+irFilter.dateTo+'" onchange="irFilter.dateTo=this.value;renderInwardReport()"></div>'
-    +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">Work Type</div><select class="fsel" style="font-size:12px;" onchange="irFilter.workType=this.value;renderInwardReport()">'
-    +'<option value="">All Types</option>'
-    +'<option value="body-shop"'+(irFilter.workType==='body-shop'?' selected':'')+'>🔩 Body Shop</option>'
-    +'<option value="repair"'+(irFilter.workType==='repair'?' selected':'')+'>🔧 Mechanical</option>'
-    +'<option value="both"'+(irFilter.workType==='both'?' selected':'')+'>🔩🔧 Both</option>'
-    +'<option value="glass"'+(irFilter.workType==='glass'?' selected':'')+'>🪟 Glass</option>'
-    +'<option value="electrical"'+(irFilter.workType==='electrical'?' selected':'')+'>⚡ Electrical</option>'
-    +'<option value="other"'+(irFilter.workType==='other'?' selected':'')+'>📋 Other</option>'
-    +'</select></div>'
-    +'<button style="padding:6px 12px;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--m1);font-size:12px;cursor:pointer;align-self:flex-end;" onclick="irFilter={dateFrom:\'\',dateTo:\'\',workType:\'\',search:\'\'};renderInwardReport()">✕ Clear</button>'
-    +'</div>';
-  // Table
-  if(!filtered.length){
-    html+='<div class="empty"><div class="ei">🚗</div><p>No vehicles match the filters.</p></div>';
-  } else {
-    html+='<div style="overflow-x:auto;border-radius:var(--rs);border:1px solid var(--border);">'
-      +'<table style="width:100%;border-collapse:collapse;min-width:680px;">'
-      +'<thead><tr style="background:var(--s2);">'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Inward Date</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Reg No.</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Car Name</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Customer</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Ref Name</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Work Type</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Current Stage</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Payment</th>'
-      +'</tr></thead>'
-      +'<tbody style="font-size:12px;">'+rows+'</tbody></table></div>';
-  }
-  body.innerHTML=html;
+  resultsDiv.innerHTML='<div style="overflow-x:auto;border-radius:var(--rs);border:1px solid var(--border);">'
+    +'<table style="width:100%;border-collapse:collapse;min-width:680px;">'
+    +'<thead><tr style="background:var(--s2);">'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Inward Date</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Reg No.</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Car Name</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Customer</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Ref Name</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Work Type</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Current Stage</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Payment</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function exportInwardCSV(){
@@ -2121,17 +2284,33 @@ var payRptFilter={workType:'',search:''};
 function renderPayReport(){
   var body=document.getElementById('pay-rpt-body');
   if(!body)return;
-  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
-  if(!all.length){body.innerHTML='<div class="empty"><div class="ei">💳</div><p>No cars added yet.</p></div>';return;}
+  if(!document.getElementById('pr-results')){
+    body.innerHTML=
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;" id="pr-tiles"></div>'
+      +'<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">'
+      +'<div style="flex:1;min-width:200px;"><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">🔍 Search (Reg No / Car Name / Customer / Ref)</div>'
+      +'<input id="pr-search" type="text" class="fi" style="padding:6px 9px;font-size:12px;width:100%;" placeholder="Search..." oninput="payRptFilter.search=this.value;renderPRResults()"></div>'
+      +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">Work Type</div><select id="pr-wt" class="fsel" style="font-size:12px;" onchange="payRptFilter.workType=this.value;renderPRResults()">'
+      +'<option value="">All Types</option><option value="body-shop">🔩 Body Shop</option><option value="repair">🔧 Mechanical</option>'
+      +'<option value="both">🔩🔧 Both</option><option value="glass">🪟 Glass</option><option value="electrical">⚡ Electrical</option>'
+      +'</select></div>'
+      +'<button style="padding:6px 12px;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--m1);font-size:12px;cursor:pointer;align-self:flex-end;" onclick="clearPRFilter()">✕ Clear</button>'
+      +'<button style="padding:6px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--green);font-size:12px;cursor:pointer;align-self:flex-end;" onclick="exportPayCSV()">📥 Export CSV</button>'
+      +'</div>'
+      +'<div id="pr-results"></div>';
+  }
+  renderPRResults();
+}
 
-  // Payment pending = pay-cust not received OR pay-ins not received
+function renderPRResults(){
+  var resultsDiv=document.getElementById('pr-results');
+  var tilesDiv=document.getElementById('pr-tiles');
+  if(!resultsDiv)return;
+  var all=cars.length?cars:JSON.parse(localStorage.getItem('mwt-v4')||'[]');
   var pending=all.filter(function(c){
     var inv=c.invoice||{};
-    var payCust=inv['pay-cust']||'pending';
-    var payIns=inv['pay-ins']||'pending';
-    return payCust!=='received'||payIns!=='received';
+    return (inv['pay-cust']||'pending')!=='received'||(inv['pay-ins']||'pending')!=='received';
   });
-
   if(payRptFilter.workType) pending=pending.filter(function(c){return (c.workType||'body-shop')===payRptFilter.workType;});
   if(payRptFilter.search){
     var q=payRptFilter.search.toLowerCase();
@@ -2143,77 +2322,47 @@ function renderPayReport(){
     });
   }
   pending.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
-
-  var totalPend=pending.length;
-  var partialCount=pending.filter(function(c){
-    var inv=c.invoice||{};
-    return inv['pay-cust']==='received'||inv['pay-ins']==='received';
-  }).length;
-  var fullyPend=totalPend-partialCount;
-
+  var partialCount=pending.filter(function(c){var inv=c.invoice||{};return inv['pay-cust']==='received'||inv['pay-ins']==='received';}).length;
+  if(tilesDiv) tilesDiv.innerHTML=
+    '<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Total Pending</div><div style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--disp);">'+pending.length+'</div></div>'
+    +'<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Partial Payment</div><div style="font-size:24px;font-weight:800;color:var(--accent);font-family:var(--disp);">'+partialCount+'</div></div>'
+    +'<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Fully Pending</div><div style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--disp);">'+(pending.length-partialCount)+'</div></div>';
+  if(!pending.length){resultsDiv.innerHTML='<div style="text-align:center;padding:32px;color:var(--green);"><div style="font-size:36px;margin-bottom:8px;">✅</div><p style="font-weight:700;font-size:14px;">All payments received!</p></div>';return;}
   var rows=pending.map(function(car){
     var inv=car.invoice||{};
-    var payCust=inv['pay-cust']||'pending';
-    var payIns=inv['pay-ins']||'pending';
+    var payCust=inv['pay-cust']||'pending',payIns=inv['pay-ins']||'pending';
     var isPartial=payCust==='received'||payIns==='received';
     var payColor=isPartial?'var(--accent)':'var(--red)';
     var payLabel=isPartial?'💰 Partial':'⏳ Pending';
-    var custAmt=inv['pay-ca']||'—';
-    var insAmt=inv['pay-ia']||'—';
-    var totalAmt=inv['ti-total']||inv['pi-amt']||'—';
+    var totalAmt=inv['ti-total']||inv['pi-amt']||'';
+    var custAmt=inv['pay-ca']||'';
+    var insAmt=inv['pay-ia']||'';
     var stage=car.stage||'bs-inward';
     return '<tr>'
       +'<td style="padding:8px 10px;"><strong style="font-size:13px;font-family:var(--disp);color:var(--accent);">'+(car.regno||'—')+'</strong></td>'
       +'<td style="padding:8px 10px;font-size:12px;">'+(car.model||'—')+'</td>'
       +'<td style="padding:8px 10px;font-size:12px;font-weight:600;">'+(car.customer||'—')+'</td>'
       +'<td style="padding:8px 10px;font-size:11px;color:var(--m1);">'+(car.ref||'—')+'</td>'
-      +'<td style="padding:8px 10px;font-size:11px;">'+(totalAmt!=='—'?'<strong>₹'+totalAmt+'</strong>':totalAmt)+'</td>'
-      +'<td style="padding:8px 10px;font-size:11px;color:var(--m2);">'+(custAmt!=='—'?'Cust: ₹'+custAmt:'—')+(insAmt!=='—'?' · Ins: ₹'+insAmt:'')+'</td>'
+      +'<td style="padding:8px 10px;font-size:12px;font-weight:700;color:var(--blue);">'+(totalAmt?'₹'+totalAmt:'—')+'</td>'
+      +'<td style="padding:8px 10px;font-size:11px;color:var(--m2);">'+(custAmt?'C:₹'+custAmt:'—')+(insAmt?' I:₹'+insAmt:'')+'</td>'
       +'<td style="padding:8px 10px;"><span style="font-size:11px;font-weight:700;color:'+payColor+';">'+payLabel+'</span></td>'
       +'<td style="padding:8px 10px;font-size:11px;">'+getStageIcon(stage)+' '+getStageLabel(stage)+'</td>'
       +'<td style="padding:8px 10px;font-size:11px;color:var(--m2);">'+fmt(car.date)+'</td>'
       +'</tr>';
   }).join('');
-
-  var html='';
-  html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">'
-    +'<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Total Pending</div><div style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--disp);">'+totalPend+'</div></div>'
-    +'<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Partial Payment</div><div style="font-size:24px;font-weight:800;color:var(--accent);font-family:var(--disp);">'+partialCount+'</div></div>'
-    +'<div style="background:var(--s2);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);"><div style="font-size:10px;color:var(--m1);margin-bottom:3px;">Fully Pending</div><div style="font-size:24px;font-weight:800;color:var(--red);font-family:var(--disp);">'+fullyPend+'</div></div>'
-    +'</div>';
-  html+='<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">'
-    +'<div style="flex:1;min-width:180px;"><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">🔍 Search (Reg No / Car Name / Customer / Ref)</div>'
-    +'<input type="text" class="fi" style="padding:6px 9px;font-size:12px;width:100%;" placeholder="Search..." value="'+payRptFilter.search+'" oninput="payRptFilter.search=this.value;renderPayReport()"></div>'
-    +'<div><div style="font-size:10px;color:var(--m2);margin-bottom:2px;">Work Type</div><select class="fsel" style="font-size:12px;" onchange="payRptFilter.workType=this.value;renderPayReport()">'
-    +'<option value="">All Types</option>'
-    +'<option value="body-shop"'+(payRptFilter.workType==='body-shop'?' selected':'')+'>🔩 Body Shop</option>'
-    +'<option value="repair"'+(payRptFilter.workType==='repair'?' selected':'')+'>🔧 Mechanical</option>'
-    +'<option value="both"'+(payRptFilter.workType==='both'?' selected':'')+'>🔩🔧 Both</option>'
-    +'<option value="glass"'+(payRptFilter.workType==='glass'?' selected':'')+'>🪟 Glass</option>'
-    +'<option value="electrical"'+(payRptFilter.workType==='electrical'?' selected':'')+'>⚡ Electrical</option>'
-    +'</select></div>'
-    +'<button style="padding:6px 12px;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--m1);font-size:12px;cursor:pointer;align-self:flex-end;" onclick="payRptFilter={workType:\'\',search:\'\'};renderPayReport()">✕ Clear</button>'
-    +'<button style="padding:6px 12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:6px;color:var(--green);font-size:12px;cursor:pointer;align-self:flex-end;" onclick="exportPayCSV()">📥 Export CSV</button>'
-    +'</div>';
-  if(!pending.length){
-    html+='<div style="text-align:center;padding:32px;color:var(--green);"><div style="font-size:36px;margin-bottom:8px;">✅</div><p style="font-weight:700;font-size:14px;">All payments received!</p></div>';
-  } else {
-    html+='<div style="overflow-x:auto;border-radius:var(--rs);border:1px solid var(--border);">'
-      +'<table style="width:100%;border-collapse:collapse;min-width:720px;">'
-      +'<thead><tr style="background:var(--s2);">'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Reg No.</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Car Name</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Customer</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Ref Name</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Total Amount</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Cust / Ins Amount</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Pay Status</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Current Stage</th>'
-      +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Inward Date</th>'
-      +'</tr></thead>'
-      +'<tbody>'+rows+'</tbody></table></div>';
-  }
-  body.innerHTML=html;
+  resultsDiv.innerHTML='<div style="overflow-x:auto;border-radius:var(--rs);border:1px solid var(--border);">'
+    +'<table style="width:100%;border-collapse:collapse;min-width:700px;">'
+    +'<thead><tr style="background:var(--s2);">'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Reg No.</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Car Name</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Customer</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Ref Name</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Total Amt</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Cust/Ins Amt</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Pay Status</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Current Stage</th>'
+    +'<th style="padding:8px 10px;font-size:10px;color:var(--m1);font-weight:700;border-bottom:1px solid var(--border);">Inward Date</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function exportPayCSV(){
