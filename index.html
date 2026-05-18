@@ -20,6 +20,22 @@
   --disp:'Barlow Condensed',sans-serif;--body:'Barlow',sans-serif;
   --r:10px;--rs:6px;--sb:env(safe-area-inset-bottom,0px);
 }
+/* ── THEMES ── */
+body.theme-midnight{--bg:#0d1018;--s1:#141720;--s2:#1a1f2e;--s3:#1f2538;--border:#272d42;--accent:#f59e0b;--adim:rgba(245,158,11,.12);--text:#e8eaf0;--m1:#8492b0;--m2:#5a6480;}
+body.theme-ocean{--bg:#05101f;--s1:#071828;--s2:#0d2236;--s3:#112a42;--border:#1a3a55;--accent:#38bdf8;--adim:rgba(56,189,248,.12);--text:#e0f2fe;--m1:#7ab8d8;--m2:#4a7a9a;}
+body.theme-forest{--bg:#071410;--s1:#0d1f18;--s2:#122a20;--s3:#173328;--border:#1f4030;--accent:#4ade80;--adim:rgba(74,222,128,.12);--text:#dcfce7;--m1:#6dbb88;--m2:#3d7a55;}
+body.theme-royal{--bg:#0e0a1f;--s1:#160f2e;--s2:#1d1538;--s3:#241b44;--border:#332660;--accent:#a78bfa;--adim:rgba(167,139,250,.12);--text:#ede9fe;--m1:#8b7cc0;--m2:#5a4e88;}
+body.theme-sunset{--bg:#120a05;--s1:#1e1008;--s2:#281608;--s3:#311c0c;--border:#4a2810;--accent:#fb923c;--adim:rgba(251,146,60,.12);--text:#fff7ed;--m1:#b07040;--m2:#7a4a25;}
+body.theme-rose{--bg:#130810;--s1:#1f0e1a;--s2:#291424;--s3:#32182d;--border:#4a2040;--accent:#f472b6;--adim:rgba(244,114,182,.12);--text:#fce7f3;--m1:#b06080;--m2:#7a3a55;}
+body.theme-slate{--bg:#0f1117;--s1:#181c26;--s2:#1f2435;--s3:#252b3e;--border:#303750;--accent:#64748b;--adim:rgba(100,116,139,.12);--text:#e2e8f0;--m1:#8898b0;--m2:#5a6880;}
+body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c8d0e8;--accent:#d97706;--adim:rgba(217,119,6,.1);--text:#1e2540;--m1:#5a6480;--m2:#8a95b0;}
+/* theme picker UI */
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+.theme-swatch{border-radius:10px;padding:10px 6px 8px;cursor:pointer;border:2px solid transparent;transition:all .2s;text-align:center;position:relative;}
+.theme-swatch:active{transform:scale(.95);}
+.theme-swatch.active{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25);}
+.theme-swatch .sw-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 5px;border:2px solid rgba(255,255,255,.3);}
+.theme-swatch .sw-name{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;opacity:.85;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;}
@@ -546,6 +562,13 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
         <button onclick="connectSync()" style="flex:1;background:var(--green);color:#000;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);">🔗 Connect</button>
         <button onclick="pushSync()" style="flex:1;background:var(--accent);color:#000;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);">⬆ Push Now</button>
         <button onclick="pullSync()" style="flex:1;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);">⬇ Pull Now</button>
+      </div>
+
+      <!-- THEME PICKER -->
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="font-family:var(--disp);font-size:13px;color:var(--accent);letter-spacing:1px;margin-bottom:4px;">🎨 APP THEME / BACKGROUND COLOR</div>
+        <div style="font-size:11px;color:var(--m2);margin-bottom:2px;">Choose a color theme for the app. Saved on this device.</div>
+        <div class="theme-grid" id="theme-grid"></div>
       </div>
 
       <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--m1);line-height:1.9;">
@@ -4488,5 +4511,52 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
+<script>
+// ── THEME SYSTEM ──
+const THEMES = [
+  {id:'midnight', name:'Midnight', bg:'#0d1018', accent:'#f59e0b'},
+  {id:'ocean',    name:'Ocean',    bg:'#05101f', accent:'#38bdf8'},
+  {id:'forest',   name:'Forest',   bg:'#071410', accent:'#4ade80'},
+  {id:'royal',    name:'Royal',    bg:'#0e0a1f', accent:'#a78bfa'},
+  {id:'sunset',   name:'Sunset',   bg:'#120a05', accent:'#fb923c'},
+  {id:'rose',     name:'Rose',     bg:'#130810', accent:'#f472b6'},
+  {id:'slate',    name:'Slate',    bg:'#0f1117', accent:'#64748b'},
+  {id:'light',    name:'Light',    bg:'#f0f2f7', accent:'#d97706'},
+];
+function applyTheme(id){
+  document.body.className = document.body.className.replace(/theme-\S+/g,'').trim();
+  if(id && id!=='midnight') document.body.classList.add('theme-'+id);
+  localStorage.setItem('carecay_theme', id||'midnight');
+  document.querySelectorAll('.theme-swatch').forEach(el=>{
+    el.classList.toggle('active', el.dataset.tid===id);
+  });
+}
+function renderThemeGrid(){
+  const grid = document.getElementById('theme-grid');
+  if(!grid) return;
+  const saved = localStorage.getItem('carecay_theme')||'midnight';
+  grid.innerHTML = THEMES.map(t=>`
+    <div class="theme-swatch${t.id===saved?' active':''}" data-tid="${t.id}" onclick="applyTheme('${t.id}')"
+      style="background:${t.bg};">
+      <div class="sw-dot" style="background:${t.accent};"></div>
+      <div class="sw-name" style="color:${t.accent};">${t.name}</div>
+    </div>`).join('');
+}
+// Apply saved theme on load
+(function(){
+  const saved = localStorage.getItem('carecay_theme');
+  if(saved && saved!=='midnight') document.body.classList.add('theme-'+saved);
+})();
+// Render grid when sync tab opens
+const _origGoTab = window.goTab;
+window.goTab = function(t){
+  if(_origGoTab) _origGoTab(t);
+  if(t==='sync') setTimeout(renderThemeGrid, 50);
+};
+// Also render if already on sync tab
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(renderThemeGrid, 200);
+});
+</script>
 </body>
 </html>
