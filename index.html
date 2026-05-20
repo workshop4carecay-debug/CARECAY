@@ -260,6 +260,11 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
 .theme-swatch .sw-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 5px;border:2px solid rgba(255,255,255,.3);}
 .theme-swatch .sw-name{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;opacity:.85;}
 /* ── PRINT ── */
+/* DR stage list */
+.dr-stage-item:hover{filter:brightness(1.12);}
+#dr-stage-list::-webkit-scrollbar{width:4px;}
+#dr-stage-list::-webkit-scrollbar-track{background:var(--s2);}
+#dr-stage-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
   body,html{overflow:visible!important;height:auto!important;}
@@ -751,35 +756,44 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
 </nav>
 <div class="toast" id="toast"></div>
 <!-- ── DR STAGE MODAL (MANAGER ONLY) ── -->
-<div id="drStageModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-  <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7);">
-    <div style="background:linear-gradient(135deg,#1e3a5f,#1e1b4b);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+<div id="drStageModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;align-items:center;justify-content:center;padding:12px;">
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;width:100%;max-width:460px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.8);">
+
+    <!-- Fixed Header -->
+    <div style="background:linear-gradient(135deg,#1e3a5f,#1e1b4b);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;">
       <div>
-        <div style="font-family:var(--disp);font-size:16px;font-weight:800;color:#fff;letter-spacing:1px;">✏️ UPDATE VEHICLE STAGE</div>
-        <div id="dr-modal-regno" style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;"></div>
+        <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:#fff;letter-spacing:1px;">✏️ UPDATE VEHICLE STAGE</div>
+        <div id="dr-modal-regno" style="font-size:11px;color:rgba(255,255,255,.65);margin-top:1px;"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;color:var(--accent);letter-spacing:1px;">👑 MANAGER ONLY</span>
-        <button onclick="closeDRStageModal()" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;width:30px;height:30px;color:#fff;font-size:16px;cursor:pointer;">✕</button>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:6px;padding:2px 8px;font-size:9px;font-weight:800;color:var(--accent);letter-spacing:1px;">👑 MANAGER</span>
+        <button onclick="closeDRStageModal()" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;width:28px;height:28px;color:#fff;font-size:15px;cursor:pointer;line-height:1;">✕</button>
       </div>
     </div>
-    <div id="dr-modal-carinfo" style="padding:10px 16px;background:var(--s2);border-bottom:1px solid var(--border);font-size:12px;color:var(--m1);line-height:1.7;"></div>
-    <div style="padding:14px 16px;">
-      <div style="font-size:10px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Current Stage</div>
-      <div id="dr-current-stage" style="font-size:13px;font-weight:700;color:var(--accent);background:var(--adim);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:8px 12px;margin-bottom:14px;"></div>
-      <div style="font-size:10px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">New Stage</div>
-      <div style="display:flex;gap:6px;margin-bottom:10px;">
-        <button onclick="drSwitchTab('bs')" id="dr-tab-bs" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:var(--accent);color:#000;font-family:var(--body);">🔩 Body Shop</button>
-        <button onclick="drSwitchTab('rp')" id="dr-tab-rp" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:var(--s3);color:var(--m1);font-family:var(--body);">🔧 Mechanical</button>
-      </div>
-      <select id="dr-stage-sel" style="width:100%;padding:10px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:13px;font-family:var(--body);margin-bottom:12px;"></select>
-      <div style="font-size:10px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Remark (optional)</div>
-      <input id="dr-stage-remark" type="text" placeholder="e.g. Handed to denting team" style="width:100%;padding:8px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:12px;font-family:var(--body);margin-bottom:14px;">
+
+    <!-- Car info -->
+    <div id="dr-modal-carinfo" style="padding:8px 14px;background:var(--s2);border-bottom:1px solid var(--border);font-size:11px;color:var(--m1);line-height:1.7;flex-shrink:0;"></div>
+
+    <!-- Current stage -->
+    <div style="padding:10px 14px 0;flex-shrink:0;">
+      <div style="font-size:9px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;">Current Stage</div>
+      <div id="dr-current-stage" style="font-size:13px;font-weight:700;color:var(--accent);background:var(--adim);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:7px 12px;margin-bottom:10px;"></div>
+      <div style="font-size:9px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Select New Stage — All Stages</div>
+    </div>
+
+    <!-- Scrollable stage list -->
+    <div id="dr-stage-list" style="flex:1;overflow-y:auto;padding:0 14px 6px;min-height:0;"></div>
+
+    <!-- Remark + buttons — fixed footer -->
+    <div style="padding:10px 14px 12px;border-top:1px solid var(--border);background:var(--s1);flex-shrink:0;">
+      <input id="dr-stage-remark" type="text" placeholder="Remark (optional) — e.g. Handed to denting team"
+        style="width:100%;padding:8px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:12px;font-family:var(--body);margin-bottom:10px;">
       <div style="display:flex;gap:8px;">
-        <button onclick="closeDRStageModal()" style="flex:1;padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--m1);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--body);">Cancel</button>
-        <button onclick="saveDRStage()" style="flex:2;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#1d4ed8,#6d28d9);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--body);">✅ Update Stage & Sync All</button>
+        <button onclick="closeDRStageModal()" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--m1);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--body);">Cancel</button>
+        <button onclick="saveDRStage()" style="flex:2;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#1d4ed8,#6d28d9);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--body);">✅ Update Stage & Sync All</button>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -4589,7 +4603,19 @@ document.addEventListener('DOMContentLoaded', function() {
 // STAGE QUICK EDIT — MANAGER ONLY
 // ════════════════════════════════
 var _drEditCarId = null;
-var _drActiveTab = 'bs';
+var _drSelectedStage = null;
+
+// Section headers for the stage list
+var DR_STAGE_SECTIONS = [
+  { header: '🔩 BODY SHOP — Inward & Insurance (IRFAN)', color: '#3b82f6',
+    stages: ['bs-inward','bs-jobcard','bs-claim','bs-survey-pend','bs-survey-done','bs-ins-approval','bs-ins-received','bs-cust-approval','bs-parts-ordered','bs-waiting-work'] },
+  { header: '🔨 BODY SHOP — Workshop Work (BHAVIN)', color: '#f97316',
+    stages: ['bs-waiting-parts','bs-parts-received','bs-denting','bs-painting','bs-fitting','bs-polish','bs-washing'] },
+  { header: '🧾 BODY SHOP — Billing & Delivery (PRIYA)', color: '#10b981',
+    stages: ['bs-performa-pend','bs-performa-ready','bs-ins-liability','bs-billing','bs-pay-pending','bs-pay-received','bs-ready','bs-delivered'] },
+  { header: '🔧 MECHANICAL — (NIKETU)', color: '#ec4899',
+    stages: ['rp-inward','rp-jobcard','rp-estimation','rp-cust-approval','rp-waiting-work','rp-waiting-parts','rp-parts-received','rp-mechanical','rp-washing','rp-billing','rp-pay-pending','rp-pay-received','rp-ready','rp-delivered'] },
+];
 
 function openDRStageModal(carId) {
   var loggedUser = sessionStorage.getItem('cc-login-user') || '';
@@ -4599,7 +4625,8 @@ function openDRStageModal(carId) {
   }
   var car = cars.find(function(c) { return c.id === carId; });
   if (!car) { showToast('Car not found!', '#ef4444'); return; }
-  _drEditCarId = carId;
+  _drEditCarId    = carId;
+  _drSelectedStage = car.stage;
 
   // Header
   document.getElementById('dr-modal-regno').textContent =
@@ -4609,12 +4636,11 @@ function openDRStageModal(carId) {
   var lastInfo = 'No stage history yet.';
   if (car.stageHistory && car.stageHistory.length) {
     var h = car.stageHistory[car.stageHistory.length - 1];
-    lastInfo = 'Last: ' + (h.date || '') + (h.time ? ' ' + h.time : '') +
-      ' by ' + (h.changedBy || '—') +
+    lastInfo = (h.date || '') + (h.time ? ' ' + h.time : '') + ' by ' + (h.changedBy || '—') +
       (h.prevStage ? ' | ' + getStageLabel(h.prevStage) + ' → ' + getStageLabel(h.stage) : '');
   } else if (car.stageUpdatedBy) {
-    var d = car.stageUpdatedAt ? new Date(car.stageUpdatedAt).toLocaleString('en-IN', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
-    lastInfo = 'Updated by ' + car.stageUpdatedBy + (d ? ' at ' + d : '');
+    var d = car.stageUpdatedAt ? new Date(car.stageUpdatedAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    lastInfo = 'Updated by ' + car.stageUpdatedBy + (d ? ' — ' + d : '');
   }
 
   var WLABELS = {'body-shop':'Body Shop','repair':'Mechanical','both':'BS+Mech','glass':'Glass','electrical':'Electrical','other':'Other'};
@@ -4622,56 +4648,96 @@ function openDRStageModal(carId) {
     '📥 Inward: <strong style="color:var(--text);">' + (fmt(car.date) || '—') + '</strong>' +
     ' &nbsp;|&nbsp; Ref: <strong style="color:var(--text);">' + (car.ref || '—') + '</strong>' +
     ' &nbsp;|&nbsp; Type: <strong style="color:var(--accent);">' + (WLABELS[car.workType || 'body-shop'] || 'BS') + '</strong>' +
-    '<div style="font-size:10px;color:var(--m2);margin-top:4px;padding:3px 6px;background:var(--s3);border-radius:4px;">🕐 ' + lastInfo + '</div>';
+    '<div style="font-size:10px;color:var(--m2);margin-top:3px;">🕐 ' + lastInfo + '</div>';
 
-  // Current stage
   document.getElementById('dr-current-stage').textContent =
     getStageIcon(car.stage || 'waiting') + ' ' + getStageLabel(car.stage || 'waiting');
 
-  // Auto-select tab
-  _drActiveTab = (car.workType === 'repair') ? 'rp' : 'bs';
-  drSwitchTab(_drActiveTab);
-
-  // Pre-select current stage in dropdown
-  var stages = _drActiveTab === 'bs' ? BS_STAGES : RP_STAGES;
-  if (stages.indexOf(car.stage) !== -1) {
-    document.getElementById('dr-stage-sel').value = car.stage;
-  }
+  // Build scrollable stage list — ALL stages in sections
+  _buildDRStageList(car.stage);
 
   document.getElementById('dr-stage-remark').value = '';
+  document.getElementById('drStageModal').style.display = 'flex';
 
-  // Show modal
-  var modal = document.getElementById('drStageModal');
-  modal.style.display = 'flex';
+  // Scroll selected item into view after render
+  setTimeout(function() {
+    var sel = document.querySelector('.dr-stage-item.selected');
+    if (sel) sel.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, 80);
 }
 
-function drSwitchTab(tab) {
-  _drActiveTab = tab;
-  var stages = tab === 'bs' ? BS_STAGES : RP_STAGES;
-
-  // Tab button styles
-  var bsBtnCss = 'flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--body);' +
-    (tab === 'bs' ? 'background:var(--accent);color:#000;' : 'background:var(--s3);color:var(--m1);');
-  var rpBtnCss = 'flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--body);' +
-    (tab === 'rp' ? 'background:#be185d;color:#fff;' : 'background:var(--s3);color:var(--m1);');
-  document.getElementById('dr-tab-bs').style.cssText = bsBtnCss;
-  document.getElementById('dr-tab-rp').style.cssText = rpBtnCss;
-
-  // Build stage dropdown with section breaks
-  var BREAKS = {
-    'bs-waiting-work' : '── WORKSHOP WORK ──',
-    'bs-denting'      : '── BODYWORK ──',
-    'bs-performa-pend': '── BILLING & DELIVERY ──',
-    'rp-waiting-work' : '── WORKSHOP WORK ──',
-    'rp-billing'      : '── BILLING & DELIVERY ──'
-  };
-  var opts = '';
-  stages.forEach(function(s) {
-    if (BREAKS[s]) opts += '<optgroup label="' + BREAKS[s] + '">';
-    opts += '<option value="' + s + '">' + getStageIcon(s) + ' ' + getStageLabel(s) + '</option>';
+function _buildDRStageList(currentStage) {
+  var list = document.getElementById('dr-stage-list');
+  var html = '';
+  DR_STAGE_SECTIONS.forEach(function(sec) {
+    html += '<div style="padding:6px 0 3px;">'
+      + '<div style="font-size:9px;font-weight:800;color:' + sec.color + ';letter-spacing:.8px;text-transform:uppercase;'
+      + 'padding:5px 10px;background:var(--s2);border-radius:6px;margin-bottom:4px;border-left:3px solid ' + sec.color + ';">'
+      + sec.header + '</div>';
+    sec.stages.forEach(function(s) {
+      var isCurrent = s === currentStage;
+      var isSelected = s === _drSelectedStage;
+      html += '<div class="dr-stage-item' + (isSelected ? ' selected' : '') + '"'
+        + ' data-stage="' + s + '"'
+        + ' onclick="drSelectStage('' + s + '')"'
+        + ' style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:3px;cursor:pointer;'
+        + 'border:2px solid ' + (isSelected ? sec.color : 'transparent') + ';'
+        + 'background:' + (isSelected ? 'rgba(99,102,241,.15)' : isCurrent ? 'var(--adim)' : 'var(--s2)') + ';'
+        + 'transition:all .1s;">'
+        + '<span style="font-size:16px;flex-shrink:0;">' + getStageIcon(s) + '</span>'
+        + '<span style="flex:1;font-size:12px;font-weight:' + (isSelected||isCurrent?'700':'500') + ';color:'
+          + (isSelected ? '#a5b4fc' : isCurrent ? 'var(--accent)' : 'var(--text)') + ';">'
+          + getStageLabel(s) + '</span>'
+        + (isCurrent ? '<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--adim);color:var(--accent);border:1px solid rgba(245,158,11,.3);">CURRENT</span>' : '')
+        + (isSelected && !isCurrent ? '<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.4);">SELECTED ✓</span>' : '')
+        + '</div>';
+    });
+    html += '</div>';
   });
-  document.getElementById('dr-stage-sel').innerHTML = opts;
+  list.innerHTML = html;
 }
+
+function drSelectStage(stage) {
+  _drSelectedStage = stage;
+  // Re-render just the items (faster than full rebuild)
+  document.querySelectorAll('.dr-stage-item').forEach(function(el) {
+    var s = el.dataset.stage;
+    var car = cars.find(function(c) { return c.id === _drEditCarId; });
+    var currentStage = car ? car.stage : '';
+    var isCurrent  = s === currentStage;
+    var isSelected = s === stage;
+    // Find section color
+    var color = '#6366f1';
+    DR_STAGE_SECTIONS.forEach(function(sec) { if(sec.stages.indexOf(s)!==-1) color = sec.color; });
+
+    el.style.border      = '2px solid ' + (isSelected ? color : 'transparent');
+    el.style.background  = isSelected ? 'rgba(99,102,241,.15)' : isCurrent ? 'var(--adim)' : 'var(--s2)';
+    el.classList.toggle('selected', isSelected);
+
+    // Update labels inside
+    var label = el.querySelector('span:nth-child(2)');
+    if (label) {
+      label.style.color      = isSelected ? '#a5b4fc' : isCurrent ? 'var(--accent)' : 'var(--text)';
+      label.style.fontWeight = (isSelected||isCurrent) ? '700' : '500';
+    }
+    // Remove old badges, add correct one
+    var oldBadge = el.querySelector('span:nth-child(3)');
+    if (oldBadge) oldBadge.remove();
+    if (isCurrent) {
+      var b = document.createElement('span');
+      b.style.cssText = 'font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--adim);color:var(--accent);border:1px solid rgba(245,158,11,.3);';
+      b.textContent = 'CURRENT';
+      el.appendChild(b);
+    } else if (isSelected) {
+      var b = document.createElement('span');
+      b.style.cssText = 'font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.4);flex-shrink:0;';
+      b.textContent = 'SELECTED ✓';
+      el.appendChild(b);
+    }
+  });
+}
+
+function drSwitchTab(tab) { /* kept for compatibility — no longer used */ }
 
 function saveDRStage() {
   var loggedUser = sessionStorage.getItem('cc-login-user') || '';
@@ -4682,12 +4748,16 @@ function saveDRStage() {
   var car = cars.find(function(c) { return c.id === _drEditCarId; });
   if (!car) return;
 
-  var newStage = document.getElementById('dr-stage-sel').value;
+  var newStage = _drSelectedStage;
   var remark   = document.getElementById('dr-stage-remark').value.trim();
   var oldStage = car.stage;
 
+  if (!newStage) {
+    showToast('⚠️ Please select a stage first.', '#f97316');
+    return;
+  }
   if (newStage === oldStage) {
-    showToast('⚠️ Same stage selected — no change made.', '#f97316');
+    showToast('⚠️ Same stage — no change made.', '#f97316');
     closeDRStageModal(); return;
   }
 
