@@ -637,6 +637,33 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
     </div>
   </div>
 
+<!-- PENDING PARTS CARD TAB -->
+<div class="tp" id="tab-parts-card">
+  <div class="ptitle">Pending Parts <span>Cards</span>
+    <button class="ibtn" onclick="printPartsCards()" style="font-size:12px;padding:6px 12px;background:#1d4ed8;border-color:#1d4ed8;color:#fff;font-weight:700;">🖨️ Print All</button>
+  </div>
+
+  <!-- Filter bar -->
+  <div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <input id="ppc-search" type="text" class="fi" style="flex:1;min-width:160px;padding:6px 10px;font-size:12px;"
+      placeholder="🔍 Search reg no., car, customer..."
+      oninput="renderPartsCards()">
+    <select id="ppc-filter" class="fsel" style="font-size:12px;" onchange="renderPartsCards()">
+      <option value="all">All Pending</option>
+      <option value="parts">🔩 Parts Pending</option>
+      <option value="before">📋 Before Pending</option>
+      <option value="ri">📸 RI Pending</option>
+      <option value="bill">🧾 Bill Pending</option>
+    </select>
+  </div>
+
+  <!-- Summary tiles -->
+  <div id="ppc-tiles" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;"></div>
+
+  <!-- Cards grid -->
+  <div id="ppc-body"></div>
+</div>
+
 <!-- STATUS CARD TAB -->
 <div class="tp" id="tab-status">
   <div class="ptitle" style="font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:1px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
@@ -752,6 +779,7 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
   <button class="bni"    id="bn-pending" onclick="goTab('pending')"><span class="ic">⏳</span>Pending</button>
   <button class="bni"    id="bn-mreport" onclick="goTab('mreport')"><span class="ic">🔧</span>Mechanic</button>
   <button class="bni"    id="bn-sync"    onclick="goTab('sync')"   ><span class="ic">🔗</span>Sync</button>
+  <button class="bni"    id="bn-parts-card" onclick="goTab('parts-card')" ><span class="ic">🔩</span>Parts</button>
   <button class="bni"    id="bn-status"  onclick="goTab('status')" ><span class="ic">📲</span>Status</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -805,6 +833,10 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
     <div class="fg2">
       <div class="ff"><label class="fl">Car Reg. No. *</label><input class="fi" id="car-regno" placeholder="GJ05BX4321" style="text-transform:uppercase;font-weight:700;letter-spacing:1px;font-size:16px;"></div>
       <div class="ff"><label class="fl">Vehicle Model</label><input class="fi" id="car-model" placeholder="e.g. Grand i10"></div>
+    </div>
+    <div class="fg2">
+      <div class="ff"><label class="fl">🔑 Engine No.</label><input class="fi" id="car-engine" placeholder="e.g. K10B1234567" style="text-transform:uppercase;letter-spacing:.5px;"></div>
+      <div class="ff"><label class="fl">🔩 Chassis No.</label><input class="fi" id="car-chassis" placeholder="e.g. MA3FJEB1S00123456" style="text-transform:uppercase;letter-spacing:.5px;"></div>
     </div>
     <div class="fg2">
       <div class="ff"><label class="fl">Ref Name</label><input class="fi" id="car-ref" placeholder="Reference / Agent Name"></div>
@@ -1152,6 +1184,7 @@ function goTab(t){
     if(d)d.classList.toggle('on',x===t);
   });
   if(t==='pending')renderPending();
+  if(t==='parts-card')renderPartsCards();
   if(t==='bills')renderBillsVendors();
   if(t==='daily')renderDaily();
   if(t==='invoice')renderInvoiceTab();
@@ -1319,6 +1352,7 @@ function goTab(t){
     if(d)d.classList.toggle('on',x===t);
   });
   if(t==='pending')renderPending();
+  if(t==='parts-card')renderPartsCards();
   if(t==='bills')renderBillsVendors();
   if(t==='daily')renderDaily();
   if(t==='invoice')renderInvoiceTab();
@@ -1518,7 +1552,7 @@ function editCarOpen(id){
   editingCarId=id;
   document.getElementById('addCarTitle').textContent='✏ Edit Car';
   document.getElementById('addCarBtn').textContent='Save Changes';
-  ['regno','model','customer','insco','claim','ref'].forEach(f=>document.getElementById('car-'+f).value=car[f]||'');
+  ['regno','model','customer','insco','claim','ref','engine','chassis'].forEach(f=>document.getElementById('car-'+f).value=car[f]||'');
   ['dentor','painter','mechanic','fitter','helper'].forEach(f=>document.getElementById('car-'+f).value=car[f]||'');
   document.getElementById('car-work-type').value=car.workType||'body-shop';
   document.getElementById('car-date').value=car.date||'';
@@ -1545,7 +1579,7 @@ function saveCar(){
   if(editingCarId){
     const car=cars.find(c=>c.id===editingCarId);
     if(car){
-      ['model','customer','insco','claim','ref'].forEach(f=>car[f]=document.getElementById('car-'+f).value.trim());
+      ['model','customer','insco','claim','ref','engine','chassis'].forEach(f=>car[f]=document.getElementById('car-'+f).value.trim());
       ['dentor','painter','mechanic','fitter','helper'].forEach(f=>car[f]=document.getElementById('car-'+f).value);
       car.workType=document.getElementById('car-work-type').value;
       car.regno=regno;
@@ -1563,6 +1597,8 @@ function saveCar(){
       customer:document.getElementById('car-customer').value.trim(),
       insco:document.getElementById('car-insco').value.trim(),
       claim:document.getElementById('car-claim').value.trim(),
+      engine:document.getElementById('car-engine').value.trim().toUpperCase(),
+      chassis:document.getElementById('car-chassis').value.trim().toUpperCase(),
       date:document.getElementById('car-date').value,
       dentDate:document.getElementById('car-dent-date').value,
       paintDate:document.getElementById('car-paint-date').value,
@@ -5021,6 +5057,284 @@ function printDailyReport() {
   win.document.close();
   win.focus();
   setTimeout(function() { win.print(); }, 500);
+}
+</script>
+<script>
+// ════════════════════════════════════════
+// PENDING PARTS CARDS
+// ════════════════════════════════════════
+
+function renderPartsCards() {
+  var search  = (document.getElementById('ppc-search')  ? document.getElementById('ppc-search').value  : '').toLowerCase();
+  var filter  = (document.getElementById('ppc-filter')  ? document.getElementById('ppc-filter').value  : 'all');
+  var body    = document.getElementById('ppc-body');
+  var tiles   = document.getElementById('ppc-tiles');
+  if (!body) return;
+
+  var all = cars.length ? cars : JSON.parse(localStorage.getItem('mwt-v4') || '[]');
+  var active = all.filter(function(c) {
+    return c.stage && c.stage !== 'bs-delivered' && c.stage !== 'rp-delivered';
+  });
+
+  // Count per category
+  var counts = { parts:0, before:0, ri:0, bill:0 };
+  active.forEach(function(car) {
+    var parts = car.parts || [];
+    if (parts.some(function(p){ return p.received !== 'yes'; }))  counts.parts++;
+    if (parts.some(function(p){ return p.before  !== 'yes'; }))  counts.before++;
+    if (parts.some(function(p){ return p.ri      !== 'yes'; }))  counts.ri++;
+    if (parts.some(function(p){ return p.bill    !== 'yes'; }))  counts.bill++;
+  });
+
+  // Tiles
+  if (tiles) {
+    tiles.innerHTML =
+      _ppcTile('🔩 Parts Pending',  counts.parts,  '#f97316', 'parts') +
+      _ppcTile('📋 Before Pending', counts.before, '#3b82f6', 'before') +
+      _ppcTile('📸 RI Pending',     counts.ri,     '#8b5cf6', 'ri') +
+      _ppcTile('🧾 Bill Pending',   counts.bill,   '#10b981', 'bill');
+  }
+
+  // Filter cars that match the selected category
+  var filtered = active.filter(function(car) {
+    var parts = car.parts || [];
+    var hasMatch = false;
+    if (filter === 'all')    hasMatch = parts.some(function(p){ return p.received!=='yes' || p.before!=='yes' || p.ri!=='yes' || p.bill!=='yes'; });
+    if (filter === 'parts')  hasMatch = parts.some(function(p){ return p.received !== 'yes'; });
+    if (filter === 'before') hasMatch = parts.some(function(p){ return p.before   !== 'yes'; });
+    if (filter === 'ri')     hasMatch = parts.some(function(p){ return p.ri       !== 'yes'; });
+    if (filter === 'bill')   hasMatch = parts.some(function(p){ return p.bill     !== 'yes'; });
+    return hasMatch;
+  });
+
+  // Search filter
+  if (search) {
+    filtered = filtered.filter(function(car) {
+      return (car.regno||'').toLowerCase().includes(search)
+        || (car.model||'').toLowerCase().includes(search)
+        || (car.customer||'').toLowerCase().includes(search)
+        || (car.ref||'').toLowerCase().includes(search);
+    });
+  }
+
+  if (!filtered.length) {
+    body.innerHTML = '<div class="empty"><div class="ei">✅</div><p>No pending items in this category.</p></div>';
+    return;
+  }
+
+  body.innerHTML = filtered.map(function(car) {
+    return _buildPartsCard(car, filter);
+  }).join('');
+}
+
+function ppcSetFilter(v){var el=document.getElementById('ppc-filter');if(el)el.value=v;renderPartsCards();}
+
+function _ppcTile(label, count, color, filterVal) {
+  return '<div onclick="ppcSetFilter(\'' + filterVal + '\')" '
+    + 'style="background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;cursor:pointer;'
+    + 'border-left:3px solid ' + color + ';transition:all .15s;">'
+    + '<div style="font-size:20px;font-weight:900;color:' + color + ';font-family:var(--disp);">' + count + '</div>'
+    + '<div style="font-size:9px;color:var(--m1);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">' + label + '</div>'
+    + '</div>';
+}
+
+function _buildPartsCard(car, filter) {
+  var parts = car.parts || [];
+
+  // Which parts to show per filter
+  var showParts;
+  if (filter === 'parts')       showParts = parts.filter(function(p){ return p.received !== 'yes'; });
+  else if (filter === 'before') showParts = parts.filter(function(p){ return p.before   !== 'yes'; });
+  else if (filter === 'ri')     showParts = parts.filter(function(p){ return p.ri       !== 'yes'; });
+  else if (filter === 'bill')   showParts = parts.filter(function(p){ return p.bill     !== 'yes'; });
+  else                          showParts = parts.filter(function(p){ return p.received!=='yes'||p.before!=='yes'||p.ri!=='yes'||p.bill!=='yes'; });
+
+  if (!showParts.length) return '';
+
+  var WLABELS = {'body-shop':'Body Shop','repair':'Mechanical','both':'BS+Mech','glass':'Glass','electrical':'Electrical','other':'Other'};
+  var workLabel = WLABELS[car.workType || 'body-shop'] || 'Body Shop';
+  var isBS = !car.workType || car.workType === 'body-shop' || car.workType === 'both' || car.workType === 'glass';
+  var accentColor = isBS ? '#f97316' : '#ec4899';
+
+  // Days in workshop
+  var daysTxt = '';
+  if (car.date) {
+    var diff = Math.floor((Date.now() - new Date(car.date)) / 864e5);
+    if (diff >= 0) daysTxt = diff + ' days';
+  }
+
+  // Parts rows
+  var partsHtml = showParts.map(function(p) {
+    var chips = '';
+    if (filter === 'all') {
+      chips +=
+        _chip('Before', p.before   === 'yes', '#3b82f6') +
+        _chip('RI',     p.ri       === 'yes', '#8b5cf6') +
+        _chip('Rcvd',   p.received === 'yes', '#10b981') +
+        _chip('Bill',   p.bill     === 'yes', '#f59e0b');
+    }
+    var qty = p.qty ? ' × ' + p.qty : '';
+    var vendor = p.vendor ? '<span style="font-size:10px;color:var(--m2);">🏪 ' + p.vendor + '</span>' : '';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--border);flex-wrap:wrap;">'
+      + '<span style="flex:1;font-size:12px;font-weight:600;color:var(--text);">🔩 ' + (p.name || '—') + qty + '</span>'
+      + vendor
+      + chips
+      + '</div>';
+  }).join('');
+
+  return '<div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:12px;">'
+    // Card header
+    + '<div style="background:linear-gradient(135deg,' + accentColor + '22,var(--s2));padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">'
+    + '<div>'
+    + '<div style="font-family:var(--disp);font-size:18px;font-weight:900;color:' + accentColor + ';letter-spacing:1px;">' + (car.regno || '—') + '</div>'
+    + '<div style="font-size:12px;color:var(--m1);">' + (car.model || '—') + ' · ' + (car.customer || '—') + '</div>'
+    + '</div>'
+    + '<div style="text-align:right;">'
+    + '<div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:' + accentColor + '22;color:' + accentColor + ';border:1px solid ' + accentColor + '44;">' + workLabel + '</div>'
+    + (daysTxt ? '<div style="font-size:10px;color:var(--m2);margin-top:3px;">📅 ' + (fmt(car.date)||'—') + ' (' + daysTxt + ')</div>' : '')
+    + '</div>'
+    + '</div>'
+    // Engine / Chassis
+    + ((car.engine || car.chassis) ?
+      '<div style="display:flex;gap:16px;padding:7px 14px;background:var(--s2);border-bottom:1px solid var(--border);font-size:11px;color:var(--m1);">'
+      + (car.engine  ? '<span>🔑 Engine: <strong style="color:var(--text);">' + car.engine  + '</strong></span>' : '')
+      + (car.chassis ? '<span>🔩 Chassis: <strong style="color:var(--text);">' + car.chassis + '</strong></span>' : '')
+      + '</div>' : '')
+    // Stage
+    + '<div style="padding:5px 14px;background:var(--s3);border-bottom:1px solid var(--border);font-size:11px;color:var(--m2);">'
+    + getStageIcon(car.stage || '') + ' ' + getStageLabel(car.stage || '') + ' &nbsp;|&nbsp; Ref: ' + (car.ref || '—') + (car.insco ? ' &nbsp;|&nbsp; ' + car.insco : '')
+    + '</div>'
+    // Parts header
+    + '<div style="padding:6px 14px;font-size:10px;font-weight:700;color:var(--m2);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border);">'
+    + showParts.length + ' Pending Part' + (showParts.length > 1 ? 's' : '')
+    + '</div>'
+    // Parts list
+    + partsHtml
+    + '</div>';
+}
+
+function _chip(label, done, color) {
+  return '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;white-space:nowrap;'
+    + 'background:' + (done ? color + '22' : 'var(--s3)') + ';'
+    + 'color:' + (done ? color : 'var(--m2)') + ';'
+    + 'border:1px solid ' + (done ? color + '44' : 'var(--border)') + ';'
+    + (done ? '' : 'opacity:.6;')
+    + '">' + (done ? '✅' : '⏳') + ' ' + label + '</span>';
+}
+
+// ── PRINT ALL PARTS CARDS ──
+function printPartsCards() {
+  var all = cars.length ? cars : JSON.parse(localStorage.getItem('mwt-v4') || '[]');
+  var active = all.filter(function(c) {
+    return c.stage && c.stage !== 'bs-delivered' && c.stage !== 'rp-delivered';
+  });
+  var filter = document.getElementById('ppc-filter') ? document.getElementById('ppc-filter').value : 'all';
+
+  var withParts = active.filter(function(car) {
+    var parts = car.parts || [];
+    if (filter === 'all')    return parts.some(function(p){ return p.received!=='yes'||p.before!=='yes'||p.ri!=='yes'||p.bill!=='yes'; });
+    if (filter === 'parts')  return parts.some(function(p){ return p.received !== 'yes'; });
+    if (filter === 'before') return parts.some(function(p){ return p.before   !== 'yes'; });
+    if (filter === 'ri')     return parts.some(function(p){ return p.ri       !== 'yes'; });
+    if (filter === 'bill')   return parts.some(function(p){ return p.bill     !== 'yes'; });
+    return false;
+  });
+
+  var now = new Date();
+  var dateStr = now.toLocaleDateString('en-IN', {weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  var timeStr = now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+
+  var FMAP = {all:'All Pending', parts:'Parts Pending', before:'Before Pending', ri:'RI Pending', bill:'Bill Pending'};
+  var WLABELS = {'body-shop':'Body Shop','repair':'Mechanical','both':'BS+Mech','glass':'Glass','electrical':'Electrical','other':'Other'};
+
+  var cardsHtml = withParts.map(function(car) {
+    var parts = car.parts || [];
+    var showParts;
+    if (filter==='parts')       showParts = parts.filter(function(p){return p.received!=='yes';});
+    else if (filter==='before') showParts = parts.filter(function(p){return p.before!=='yes';});
+    else if (filter==='ri')     showParts = parts.filter(function(p){return p.ri!=='yes';});
+    else if (filter==='bill')   showParts = parts.filter(function(p){return p.bill!=='yes';});
+    else                        showParts = parts.filter(function(p){return p.received!=='yes'||p.before!=='yes'||p.ri!=='yes'||p.bill!=='yes';});
+    if (!showParts.length) return '';
+
+    var daysTxt = '';
+    if (car.date) { var diff=Math.floor((now-new Date(car.date))/864e5); if(diff>=0) daysTxt=diff+'d'; }
+    var workLabel = WLABELS[car.workType||'body-shop']||'BS';
+    var isBS = !car.workType||car.workType==='body-shop'||car.workType==='both';
+    var ac = isBS ? '#c2410c' : '#be185d';
+
+    var rows = showParts.map(function(p) {
+      var qty = p.qty ? ' × ' + p.qty : '';
+      return '<tr>'
+        + '<td style="padding:4px 8px;font-size:11px;font-weight:600;">' + (p.name||'—') + qty + '</td>'
+        + '<td style="padding:4px 8px;font-size:10px;color:#6b7280;">' + (p.vendor||'—') + '</td>'
+        + '<td style="padding:4px 8px;text-align:center;font-size:10px;">' + (p.before==='yes'?'✅':'⏳') + '</td>'
+        + '<td style="padding:4px 8px;text-align:center;font-size:10px;">' + (p.ri==='yes'?'✅':'⏳') + '</td>'
+        + '<td style="padding:4px 8px;text-align:center;font-size:10px;">' + (p.received==='yes'?'✅':'⏳') + '</td>'
+        + '<td style="padding:4px 8px;text-align:center;font-size:10px;">' + (p.bill==='yes'?'✅':'⏳') + '</td>'
+        + '</tr>';
+    }).join('');
+
+    return '<div style="page-break-inside:avoid;margin-bottom:16px;border:2px solid ' + ac + ';border-radius:10px;overflow:hidden;">'
+      + '<div style="background:' + ac + ';padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">'
+      + '<div>'
+      + '<div style="font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;">' + (car.regno||'—') + '</div>'
+      + '<div style="font-size:10px;color:rgba(255,255,255,.8);">' + (car.model||'—') + ' · ' + (car.customer||'—') + '</div>'
+      + '</div>'
+      + '<div style="text-align:right;color:rgba(255,255,255,.9);">'
+      + '<div style="font-size:10px;font-weight:700;">' + workLabel + '</div>'
+      + '<div style="font-size:10px;">📅 ' + (car.date||'—') + (daysTxt?' ('+daysTxt+')':'') + '</div>'
+      + '</div>'
+      + '</div>'
+      + ((car.engine||car.chassis)?
+        '<div style="display:flex;gap:20px;padding:5px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb;font-size:10px;color:#374151;">'
+        + (car.engine?'<span>🔑 Engine: <strong>'+car.engine+'</strong></span>':'')
+        + (car.chassis?'<span>🔩 Chassis: <strong>'+car.chassis+'</strong></span>':'')
+        + '</div>':'')
+      + '<div style="padding:4px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb;font-size:10px;color:#374151;">'
+      + getStageIcon(car.stage||'') + ' ' + getStageLabel(car.stage||'') + ' &nbsp;|&nbsp; Ref: ' + (car.ref||'—')
+      + '</div>'
+      + '<table style="width:100%;border-collapse:collapse;">'
+      + '<thead><tr style="background:#f3f4f6;">'
+      + '<th style="padding:4px 8px;font-size:9px;text-align:left;color:#6b7280;">Part Name</th>'
+      + '<th style="padding:4px 8px;font-size:9px;text-align:left;color:#6b7280;">Vendor</th>'
+      + '<th style="padding:4px 8px;font-size:9px;text-align:center;color:#6b7280;">Before</th>'
+      + '<th style="padding:4px 8px;font-size:9px;text-align:center;color:#6b7280;">RI</th>'
+      + '<th style="padding:4px 8px;font-size:9px;text-align:center;color:#6b7280;">Received</th>'
+      + '<th style="padding:4px 8px;font-size:9px;text-align:center;color:#6b7280;">Bill</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table>'
+      + '</div>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    + '<title>Carecay Pending Parts — ' + FMAP[filter] + '</title>'
+    + '<style>@page{size:A4;margin:8mm;}*{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'
+    + 'body{background:#fff;color:#111;font-size:11px;}'
+    + '.page{max-width:193mm;margin:0 auto;}'
+    + '.hdr{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #c2410c;padding-bottom:7px;margin-bottom:12px;}'
+    + '.logo{font-size:18px;font-weight:900;color:#c2410c;letter-spacing:2px;text-transform:uppercase;}'
+    + '.sub{font-size:9px;color:#6b7280;letter-spacing:1px;margin-top:2px;}'
+    + 'tbody tr:nth-child(even){background:#f9fafb;}'
+    + '</style></head><body><div class="page">'
+    + '<div class="hdr">'
+    + '<div><div class="logo">CARECAY</div><div class="sub">Multibrand Workshop — Pending Parts Report</div></div>'
+    + '<div style="text-align:right;"><div style="font-size:12px;font-weight:800;color:#c2410c;text-transform:uppercase;">' + FMAP[filter] + '</div>'
+    + '<div style="font-size:10px;color:#374151;margin-top:2px;">' + dateStr + '</div>'
+    + '<div style="font-size:9px;color:#9ca3af;">Generated: ' + timeStr + ' | Total: ' + withParts.length + ' vehicles</div>'
+    + '</div></div>'
+    + (cardsHtml || '<div style="text-align:center;padding:30px;color:#9ca3af;">No pending items</div>')
+    + '</div></body></html>';
+
+  var win = window.open('', '_blank');
+  if (!win) {
+    var iframe = document.getElementById('_printFrame');
+    if (!iframe) { iframe = document.createElement('iframe'); iframe.id='_printFrame'; iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;'; document.body.appendChild(iframe); }
+    iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+    setTimeout(function(){iframe.contentWindow.print();}, 500);
+    return;
+  }
+  win.document.write(html); win.document.close(); win.focus();
+  setTimeout(function(){win.print();}, 500);
 }
 </script>
 </body>
