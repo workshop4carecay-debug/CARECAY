@@ -4679,7 +4679,7 @@ function _buildDRStageList(currentStage) {
       var isSelected = s === _drSelectedStage;
       html += '<div class="dr-stage-item' + (isSelected ? ' selected' : '') + '"'
         + ' data-stage="' + s + '"'
-        + ' onclick="drSelectStage('' + s + '')"'
+        + ' onclick="drSelectStage(\'' + s + '\')"'
         + ' style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:3px;cursor:pointer;'
         + 'border:2px solid ' + (isSelected ? sec.color : 'transparent') + ';'
         + 'background:' + (isSelected ? 'rgba(99,102,241,.15)' : isCurrent ? 'var(--adim)' : 'var(--s2)') + ';'
