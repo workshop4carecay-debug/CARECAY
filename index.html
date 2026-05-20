@@ -5105,7 +5105,7 @@ function ppcGetSearch(){
   return el ? el.value.toLowerCase() : '';
 }
 function ppcMatchFilter(parts, filter){
-  if(filter==='all')    return parts.some(function(p){return p.received!=='yes'||p.before!=='yes'||p.ri!=='yes'||p.bill!=='yes';});
+  if(filter==='all')    return parts.length > 0;
   if(filter==='parts')  return parts.some(function(p){return p.received!=='yes';});
   if(filter==='before') return parts.some(function(p){return p.before!=='yes';});
   if(filter==='ri')     return parts.some(function(p){return p.ri!=='yes';});
@@ -5117,7 +5117,7 @@ function ppcFilterParts(parts, filter){
   if(filter==='before') return parts.filter(function(p){return p.before!=='yes';});
   if(filter==='ri')     return parts.filter(function(p){return p.ri!=='yes';});
   if(filter==='bill')   return parts.filter(function(p){return p.bill!=='yes';});
-  return parts.filter(function(p){return p.received!=='yes'||p.before!=='yes'||p.ri!=='yes'||p.bill!=='yes';});
+  return parts; // show all parts when filter=all
 }
 
 function ppcSetFilter(v){
@@ -5131,7 +5131,10 @@ function renderPartsCards() {
   var tiles = document.getElementById('ppc-tiles');
   if(!body) return;
 
-  var all    = cars.length ? cars : JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  // Always load fresh — merge in-memory cars with localStorage
+  var stored = JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  var all    = (cars && cars.length) ? cars : stored;
+  if(!all.length) all = stored;
   var active = all.filter(function(c){return c.stage && c.stage!=='bs-delivered' && c.stage!=='rp-delivered';});
   var filter = ppcGetFilter();
   var search = ppcGetSearch();
@@ -5242,7 +5245,9 @@ function ppcChip(label,done,color){
 
 // ── PRINT ALL PARTS CARDS ──
 function printPartsCards(){
-  var all    = cars.length ? cars : JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  var stored = JSON.parse(localStorage.getItem('mwt-v4')||'[]');
+  var all    = (cars && cars.length) ? cars : stored;
+  if(!all.length) all = stored;
   var active = all.filter(function(c){return c.stage && c.stage!=='bs-delivered' && c.stage!=='rp-delivered';});
   var filter = ppcGetFilter();
 
