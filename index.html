@@ -246,22 +246,6 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
 .worker-stage-badge.done{background:rgba(16,185,129,.15);color:var(--green);border-color:rgba(16,185,129,.3);}
 .worker-next-btn{background:var(--green);color:#000;border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--body);white-space:nowrap;}
 .worker-done-badge{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;}
-
-/* ── PRINT STYLES ── */
-@media print {
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  body, html { overflow: visible !important; height: auto !important; background: #fff !important; }
-  .hdr, .bnav, .dsb, .ca > .tp:not(#tab-daily), #daily-body > div:first-child .ibtn,
-  #daily-search-bar, .print-hide { display: none !important; }
-  .ca { position: static !important; top: auto !important; bottom: auto !important; overflow: visible !important; }
-  #tab-daily { display: block !important; position: static !important; padding: 0 !important; }
-  #print-daily-sheet { display: block !important; }
-  #daily-body { display: none !important; }
-  @page { size: A4 portrait; margin: 12mm 10mm; }
-}
-@media screen {
-  #print-daily-sheet { display: none; }
-}
 </style>
 </head>
 <body>
@@ -523,15 +507,10 @@ textarea.fi{resize:vertical;line-height:1.7;min-height:100px;}
   <!-- DAILY -->
   <div class="tp" id="tab-daily">
     <div class="ptitle">Daily <span>Report</span>
-      <div style="display:flex;gap:6px;">
-        <button class="ibtn" onclick="exportAll()" style="font-size:13px;padding:6px 12px;">⬇</button>
-        <button class="ibtn p" onclick="printDailyReport()" style="font-size:12px;padding:6px 12px;background:#1d4ed8;border-color:#1d4ed8;color:#fff;font-weight:700;">🖨️ Print</button>
-      </div>
+      <button class="ibtn" onclick="exportAll()" style="font-size:13px;padding:6px 12px;">⬇</button>
     </div>
     <div id="daily-body"></div>
   </div>
-  <!-- PRINT SHEET (hidden on screen, shown on print) -->
-  <div id="print-daily-sheet"></div>
   <!-- INWARD REPORT -->
   <div class="tp" id="tab-inward-rpt">
     <div class="ptitle">Inward <span>Vehicle Report</span>
@@ -1924,6 +1903,7 @@ function renderDaily(){
       var payIns=inv['pay-ins']||'pending';
       var payColor=(payCust==='received'&&payIns==='received')?'var(--green)':(payCust==='received'||payIns==='received')?'var(--accent)':'var(--red)';
       var payLabel=(payCust==='received'&&payIns==='received')?'✅ Received':(payCust==='received'||payIns==='received')?'💰 Partial':'⏳ Pending';
+      var isManager = sessionStorage.getItem('cc-login-user') === 'MANAGER';
       return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);gap:8px;">
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
@@ -1933,9 +1913,10 @@ function renderDaily(){
           <div style="font-size:12px;color:var(--m1);">${car.model||'—'} · ${car.customer||'—'}</div>
           <div style="font-size:11px;color:var(--m2);">📥 ${fmt(car.date)||'—'} · Ref: ${car.ref||'—'}</div>
         </div>
-        <div style="text-align:right;flex-shrink:0;">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
           <span style="font-size:11px;font-weight:700;color:${payColor};">${payLabel}</span>
           ${car.claim?`<div style="font-size:10px;color:var(--m2);">Claim: ${car.claim}</div>`:''}
+          ${isManager?`<button onclick="openDRStageModal('${car.id}')" style="flex-shrink:0;background:linear-gradient(135deg,#1e3a8a,#4c1d95);border:1px solid rgba(99,102,241,.4);border-radius:8px;padding:6px 10px;color:#a5b4fc;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--body);white-space:nowrap;">✏️ Stage</button>`:''}
         </div>
       </div>`;
     }).join('');
@@ -2026,6 +2007,10 @@ function renderDailyResults(){
       var payIns=inv['pay-ins']||'pending';
       var payColor=(payCust==='received'&&payIns==='received')?'var(--green)':(payCust==='received'||payIns==='received')?'var(--accent)':'var(--red)';
       var payLabel=(payCust==='received'&&payIns==='received')?'✅ Paid':(payCust==='received'||payIns==='received')?'💰 Partial':'⏳ Pending';
+      var isManager = sessionStorage.getItem('cc-login-user') === 'MANAGER';
+      var editBtn = isManager
+        ? '<button onclick="openDRStageModal(\'' + car.id + '\')" style="flex-shrink:0;background:linear-gradient(135deg,#1e3a8a,#4c1d95);border:1px solid rgba(99,102,241,.4);border-radius:8px;padding:6px 10px;color:#a5b4fc;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--body);white-space:nowrap;">✏️ Stage</button>'
+        : '';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);gap:8px;">'
         +'<div style="flex:1;min-width:0;">'
         +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">'
@@ -2035,9 +2020,10 @@ function renderDailyResults(){
         +'<div style="font-size:12px;color:var(--m1);">'+(car.model||'—')+' · '+(car.customer||'—')+'</div>'
         +'<div style="font-size:11px;color:var(--m2);">📥 '+(fmt(car.date)||'—')+' · Ref: '+(car.ref||'—')+'</div>'
         +'</div>'
-        +'<div style="text-align:right;flex-shrink:0;">'
+        +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">'
         +'<span style="font-size:11px;font-weight:700;color:'+payColor+';">'+payLabel+'</span>'
         +(car.claim?'<div style="font-size:10px;color:var(--m2);">Claim: '+car.claim+'</div>':'')
+        + editBtn
         +'</div></div>';
     }).join('');
     html2+='<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:10px;">'
@@ -4580,152 +4566,191 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+<!-- ── DAILY REPORT STAGE QUICK-EDIT MODAL ── -->
+<div id="drStageModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);">
+    <!-- Modal Header -->
+    <div style="background:linear-gradient(135deg,#1e3a5f,#1e1b4b);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-family:var(--disp);font-size:16px;font-weight:800;color:#fff;letter-spacing:1px;">✏️ UPDATE STAGE</div>
+        <div id="dr-modal-regno" style="font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;color:var(--accent);letter-spacing:1px;">👑 MANAGER</span>
+        <button onclick="closeDRStageModal()" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;width:30px;height:30px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+      </div>
+    </div>
+
+    <!-- Car Info -->
+    <div id="dr-modal-carinfo" style="padding:12px 16px;background:var(--s2);border-bottom:1px solid var(--border);font-size:12px;color:var(--m1);"></div>
+
+    <!-- Current Stage -->
+    <div style="padding:14px 16px;">
+      <div style="font-size:10px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Current Stage</div>
+      <div id="dr-current-stage" style="font-size:13px;font-weight:700;color:var(--accent);background:var(--adim);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:8px 12px;margin-bottom:14px;"></div>
+
+      <div style="font-size:10px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Change To New Stage</div>
+
+      <!-- Work type tabs -->
+      <div id="dr-stage-tabs" style="display:flex;gap:6px;margin-bottom:10px;">
+        <button onclick="drSwitchTab('bs')" id="dr-tab-bs" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:var(--accent);color:#000;font-family:var(--body);">🔩 Body Shop</button>
+        <button onclick="drSwitchTab('rp')" id="dr-tab-rp" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:var(--s3);color:var(--m1);font-family:var(--body);">🔧 Mechanical</button>
+      </div>
+
+      <!-- Stage select -->
+      <select id="dr-stage-sel" style="width:100%;padding:10px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:13px;font-family:var(--body);margin-bottom:12px;"></select>
+
+      <!-- Remark -->
+      <div style="font-size:10px;font-weight:700;color:var(--m2);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Remark (optional)</div>
+      <input id="dr-stage-remark" type="text" placeholder="e.g. Handed to denting team" style="width:100%;padding:8px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--text);font-size:12px;font-family:var(--body);margin-bottom:14px;">
+
+      <!-- Action buttons -->
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeDRStageModal()" style="flex:1;padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--s2);color:var(--m1);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--body);">Cancel</button>
+        <button onclick="saveDRStage()" style="flex:2;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#1d4ed8,#6d28d9);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--body);">✅ Update Stage & Sync</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── DAILY REPORT PRINT ──
-function printDailyReport(){
-  var all = cars.length ? cars : JSON.parse(localStorage.getItem('mwt-v4')||'[]');
-  var active = all.filter(function(c){ return c.stage && c.stage!=='bs-delivered' && c.stage!=='rp-delivered'; });
+// ── DAILY REPORT — STAGE QUICK EDIT (MANAGER ONLY) ──
+var _drEditCarId = null;
+var _drActiveTab = 'bs';
 
-  var now = new Date();
-  var dateStr = now.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-  var timeStr = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  var dateShort = now.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+function openDRStageModal(carId) {
+  // Security: only manager can use this
+  var loggedUser = sessionStorage.getItem('cc-login-user') || '';
+  if (loggedUser !== 'MANAGER') {
+    showToast('❌ Manager access only!', '#ef4444');
+    return;
+  }
 
-  // Summary counts
-  var bsCars   = active.filter(function(c){ return c.workType==='body-shop'||!c.workType; });
-  var mechCars = active.filter(function(c){ return c.workType==='repair'; });
-  var bothCars = active.filter(function(c){ return c.workType==='both'; });
-  var payPend  = active.filter(function(c){ var inv=c.invoice||{}; return (inv['pay-cust']||'pending')!=='received'||(inv['pay-ins']||'pending')!=='received'; });
-  var payDone  = active.filter(function(c){ var inv=c.invoice||{}; return (inv['pay-cust']||'pending')==='received'&&(inv['pay-ins']||'pending')==='received'; });
+  var car = cars.find(function(c){ return c.id === carId; });
+  if (!car) return;
+  _drEditCarId = carId;
 
-  // Group by stage
-  var ALL_STAGES = BS_STAGES.concat(RP_STAGES.filter(function(s){ return BS_STAGES.indexOf(s)===-1; }));
-  var stageGroups = {};
-  active.forEach(function(c){
-    var st = c.stage||'waiting';
-    if(!stageGroups[st]) stageGroups[st]={label:getStageIcon(st)+' '+getStageLabel(st), cars:[], order:ALL_STAGES.indexOf(st), isBS:st.startsWith('bs-'), isRP:st.startsWith('rp-')};
-    stageGroups[st].cars.push(c);
-  });
-  var sortedStages = Object.keys(stageGroups).sort(function(a,b){ return stageGroups[a].order-stageGroups[b].order; });
+  // Populate car info
+  document.getElementById('dr-modal-regno').textContent = car.regno + ' — ' + (car.model||'') + ' · ' + (car.customer||'');
+  document.getElementById('dr-modal-carinfo').innerHTML =
+    '📥 Inward: <strong style="color:var(--text);">' + (fmt(car.date)||'—') + '</strong>' +
+    ' &nbsp;|&nbsp; Ref: <strong style="color:var(--text);">' + (car.ref||'—') + '</strong>' +
+    ' &nbsp;|&nbsp; Type: <strong style="color:var(--accent);">' + ({'body-shop':'Body Shop','repair':'Mechanical','both':'BS+Mech','glass':'Glass','electrical':'Electrical','other':'Other'}[car.workType||'body-shop']||'Body Shop') + '</strong>';
 
-  var WORK_LABELS = {'body-shop':'Body Shop','repair':'Mechanical','both':'BS+Mech','glass':'Glass','electrical':'Electrical','other':'Other'};
+  // Current stage
+  document.getElementById('dr-current-stage').textContent = getStageIcon(car.stage||'waiting') + ' ' + getStageLabel(car.stage||'waiting');
 
-  // Build stage table rows
-  var tableRows = '';
-  var srNo = 0;
-  sortedStages.forEach(function(st){
-    var grp = stageGroups[st];
-    var secColor = grp.isBS ? '#c2410c' : grp.isRP ? '#be185d' : '#92400e';
-    var secBg    = grp.isBS ? '#fff7ed' : grp.isRP ? '#fdf2f8' : '#fffbeb';
-    // stage group header row
-    tableRows += '<tr style="background:'+secBg+';"><td colspan="8" style="padding:6px 10px;font-weight:800;font-size:12px;color:'+secColor+';border-bottom:1px solid #e5e7eb;letter-spacing:.5px;">'
-      + grp.label + ' <span style="font-size:10px;font-weight:600;color:#6b7280;">('+grp.cars.length+' vehicle'+(grp.cars.length>1?'s':'')+')</span></td></tr>';
-    grp.cars.forEach(function(car){
-      srNo++;
-      var inv = car.invoice||{};
-      var payCust = inv['pay-cust']||'pending';
-      var payIns  = inv['pay-ins']||'pending';
-      var payFull = payCust==='received' && payIns==='received';
-      var payPart = !payFull && (payCust==='received' || payIns==='received');
-      var payTxt  = payFull ? 'Received' : payPart ? 'Partial' : 'Pending';
-      var payColor= payFull ? '#065f46' : payPart ? '#92400e' : '#991b1b';
-      var payBg   = payFull ? '#d1fae5' : payPart ? '#fef3c7' : '#fee2e2';
+  // Auto-select tab based on car work type
+  _drActiveTab = (car.workType === 'repair') ? 'rp' : 'bs';
+  drSwitchTab(_drActiveTab);
 
-      var insDays = '';
-      if(car.date){
-        var d0=new Date(car.date), d1=new Date();
-        var diff=Math.floor((d1-d0)/(1000*60*60*24));
-        insDays = diff >= 0 ? diff+'d' : '';
-      }
+  // Pre-select current stage in dropdown
+  var sel = document.getElementById('dr-stage-sel');
+  var allStages = _drActiveTab === 'bs' ? BS_STAGES : RP_STAGES;
+  var currentInList = allStages.indexOf(car.stage) !== -1;
+  if (currentInList) sel.value = car.stage;
 
-      tableRows += '<tr style="border-bottom:1px solid #f3f4f6;">'
-        + '<td style="padding:6px 8px;text-align:center;font-size:11px;color:#6b7280;">'+srNo+'</td>'
-        + '<td style="padding:6px 8px;font-weight:800;font-size:13px;color:#92400e;letter-spacing:1px;">'+(car.regno||'—')+'</td>'
-        + '<td style="padding:6px 8px;font-size:12px;">'+(car.model||'—')+'</td>'
-        + '<td style="padding:6px 8px;font-size:11px;color:#374151;">'+(car.customer||'—')+'</td>'
-        + '<td style="padding:6px 8px;font-size:11px;text-align:center;">'+(WORK_LABELS[car.workType||'body-shop']||'Body Shop')+'</td>'
-        + '<td style="padding:6px 8px;font-size:11px;text-align:center;color:#6b7280;">'+(car.ref||'—')+'</td>'
-        + '<td style="padding:6px 8px;font-size:11px;text-align:center;color:#6b7280;">'+(fmt(car.date)||'—')+(insDays?' <span style="font-size:9px;color:#9ca3af;">('+insDays+')</span>':'')+'</td>'
-        + '<td style="padding:5px 8px;text-align:center;"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:'+payBg+';color:'+payColor+';">'+payTxt+'</span></td>'
-        + '</tr>';
-    });
-  });
+  // Clear remark
+  document.getElementById('dr-stage-remark').value = '';
 
-  // Build full print HTML
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
-    + '<title>Carecay Daily Report — '+dateShort+'</title>'
-    + '<style>'
-    + '@page{size:A4 portrait;margin:12mm 10mm;}'
-    + '*{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}'
-    + 'body{background:#fff;color:#111;font-size:12px;}'
-    + '.page{max-width:190mm;margin:0 auto;}'
-    + '.header{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:10px;border-bottom:3px solid #1d4ed8;margin-bottom:12px;}'
-    + '.logo-block .logo{font-size:22px;font-weight:900;color:#1d4ed8;letter-spacing:2px;text-transform:uppercase;}'
-    + '.logo-block .sub{font-size:10px;color:#6b7280;letter-spacing:1px;margin-top:2px;}'
-    + '.date-block{text-align:right;}'
-    + '.date-block .report-title{font-size:13px;font-weight:800;color:#1d4ed8;letter-spacing:1px;text-transform:uppercase;}'
-    + '.date-block .date-str{font-size:11px;color:#374151;margin-top:3px;font-weight:600;}'
-    + '.date-block .time-str{font-size:10px;color:#9ca3af;margin-top:1px;}'
-    + '.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px;}'
-    + '.s-card{border-radius:8px;padding:10px 8px;text-align:center;border:1px solid #e5e7eb;}'
-    + '.s-card .s-num{font-size:22px;font-weight:900;line-height:1;}'
-    + '.s-card .s-lbl{font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;font-weight:600;}'
-    + 'table{width:100%;border-collapse:collapse;margin-bottom:16px;}'
-    + 'thead tr{background:#1d4ed8;color:#fff;}'
-    + 'thead th{padding:7px 8px;font-size:10px;text-align:left;letter-spacing:.5px;font-weight:700;text-transform:uppercase;}'
-    + 'tbody tr:nth-child(even){background:#f9fafb;}'
-    + '.footer{border-top:2px solid #e5e7eb;padding-top:8px;display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;}'
-    + '.sig-block{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px;}'
-    + '.sig-box{border-top:1px solid #374151;padding-top:4px;font-size:10px;color:#6b7280;text-align:center;}'
-    + '</style></head><body><div class="page">'
-
-    // Header
-    + '<div class="header">'
-    + '<div class="logo-block"><div class="logo">CARECAY</div><div class="sub">Multibrand Workshop — Daily Report</div></div>'
-    + '<div class="date-block"><div class="report-title">📋 Daily Work Report</div><div class="date-str">'+dateStr+'</div><div class="time-str">Generated at '+timeStr+'</div></div>'
-    + '</div>'
-
-    // Summary cards
-    + '<div class="summary">'
-    + '<div class="s-card" style="background:#eff6ff;border-color:#bfdbfe;"><div class="s-num" style="color:#1d4ed8;">'+active.length+'</div><div class="s-lbl">Total Active</div></div>'
-    + '<div class="s-card" style="background:#fff7ed;border-color:#fed7aa;"><div class="s-num" style="color:#c2410c;">'+bsCars.length+'</div><div class="s-lbl">Body Shop</div></div>'
-    + '<div class="s-card" style="background:#fdf2f8;border-color:#f9a8d4;"><div class="s-num" style="color:#be185d;">'+mechCars.length+'</div><div class="s-lbl">Mechanical</div></div>'
-    + '<div class="s-card" style="background:#fee2e2;border-color:#fca5a5;"><div class="s-num" style="color:#991b1b;">'+payPend.length+'</div><div class="s-lbl">Pay Pending</div></div>'
-    + '<div class="s-card" style="background:#d1fae5;border-color:#6ee7b7;"><div class="s-num" style="color:#065f46;">'+payDone.length+'</div><div class="s-lbl">Pay Received</div></div>'
-    + '</div>'
-
-    // Table
-    + '<table><thead><tr>'
-    + '<th style="width:28px;text-align:center;">#</th>'
-    + '<th style="width:60px;">Reg No.</th>'
-    + '<th>Car Model</th>'
-    + '<th>Customer</th>'
-    + '<th style="width:60px;text-align:center;">Type</th>'
-    + '<th style="width:48px;text-align:center;">Ref</th>'
-    + '<th style="width:60px;text-align:center;">Inward</th>'
-    + '<th style="width:56px;text-align:center;">Payment</th>'
-    + '</tr></thead><tbody>'
-    + (tableRows || '<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af;">No active vehicles</td></tr>')
-    + '</tbody></table>'
-
-    // Signature block
-    + '<div class="sig-block">'
-    + '<div class="sig-box">Workshop Manager</div>'
-    + '<div class="sig-box">Authorized By</div>'
-    + '<div class="sig-box">Date: '+dateShort+'</div>'
-    + '</div>'
-
-    // Footer
-    + '<div class="footer"><span>Carecay Multibrand Workshop — Confidential</span><span>Total Vehicles: '+active.length+' | Printed: '+dateStr+' '+timeStr+'</span></div>'
-    + '</div></body></html>';
-
-  // Open print window
-  var win = window.open('','_blank','width=900,height=700');
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  setTimeout(function(){ win.print(); }, 400);
+  // Show modal
+  var modal = document.getElementById('drStageModal');
+  modal.style.display = 'flex';
 }
+
+function drSwitchTab(tab) {
+  _drActiveTab = tab;
+  var stages = tab === 'bs' ? BS_STAGES : RP_STAGES;
+
+  // Tab button styles
+  var bsBtnStyle = tab === 'bs'
+    ? 'flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:var(--accent);color:#000;font-family:var(--body);'
+    : 'flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:var(--s3);color:var(--m1);font-family:var(--body);';
+  var rpBtnStyle = tab === 'rp'
+    ? 'flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:#be185d;color:#fff;font-family:var(--body);'
+    : 'flex:1;padding:7px;border-radius:8px;border:1px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:var(--s3);color:var(--m1);font-family:var(--body);';
+  document.getElementById('dr-tab-bs').style.cssText = bsBtnStyle;
+  document.getElementById('dr-tab-rp').style.cssText = rpBtnStyle;
+
+  // Build options grouping stages visually
+  var SECTION_BREAKS = {
+    'bs-waiting-work': '── WORKSHOP WORK ──',
+    'bs-denting':      '── BODYWORK ──',
+    'bs-performa-pend':'── BILLING & DELIVERY ──',
+    'rp-waiting-work': '── WORKSHOP WORK ──',
+    'rp-billing':      '── BILLING & DELIVERY ──'
+  };
+
+  var sel = document.getElementById('dr-stage-sel');
+  sel.innerHTML = stages.map(function(s){
+    var brk = SECTION_BREAKS[s] ? '<optgroup label="' + SECTION_BREAKS[s] + '">' : '';
+    return brk + '<option value="' + s + '">' + getStageIcon(s) + ' ' + getStageLabel(s) + '</option>';
+  }).join('');
+}
+
+function saveDRStage() {
+  // Double-check manager
+  var loggedUser = sessionStorage.getItem('cc-login-user') || '';
+  if (loggedUser !== 'MANAGER') {
+    showToast('❌ Manager access only!', '#ef4444');
+    closeDRStageModal();
+    return;
+  }
+
+  var car = cars.find(function(c){ return c.id === _drEditCarId; });
+  if (!car) return;
+
+  var newStage = document.getElementById('dr-stage-sel').value;
+  var remark   = document.getElementById('dr-stage-remark').value.trim();
+  var oldStage = car.stage;
+
+  if (newStage === oldStage) {
+    showToast('⚠ Same stage selected — no change.', '#f97316');
+    closeDRStageModal();
+    return;
+  }
+
+  // Apply stage update
+  car.stage = newStage;
+
+  // Log to stage history
+  if (!car.stageHistory) car.stageHistory = [];
+  car.stageHistory.push({
+    stage: newStage,
+    prevStage: oldStage,
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toLocaleTimeString('en-IN'),
+    changedBy: 'MANAGER (Daily Report)',
+    remark: remark || ''
+  });
+
+  // Persist + sync + refresh all views
+  persist();
+  syncIfConnected();
+  renderCars();
+
+  // Refresh daily report in place
+  if (typeof renderDaily === 'function') renderDaily();
+
+  // Refresh other active reports if visible
+  if (typeof renderDentingReport === 'function') renderDentingReport();
+  if (typeof renderMechanicReport === 'function') renderMechanicReport();
+  if (typeof renderPaintingReport === 'function') renderPaintingReport();
+  if (typeof renderWIP === 'function') renderWIP();
+
+  closeDRStageModal();
+  showToast('✅ ' + car.regno + ' → ' + getStageLabel(newStage) + (remark ? ' · ' + remark : ''), '#6d28d9');
+}
+
+function closeDRStageModal() {
+  document.getElementById('drStageModal').style.display = 'none';
+  _drEditCarId = null;
+}
+
+// Close on backdrop click
+document.getElementById('drStageModal').addEventListener('click', function(e){
+  if (e.target === this) closeDRStageModal();
+});
 </script>
 </body>
 </html>
