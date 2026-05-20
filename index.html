@@ -53,8 +53,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15
 .sync-dot.err{background:var(--red);}
 .sync-dot.busy{background:var(--accent);}
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:max(var(--sb),env(safe-area-inset-bottom,0px));}
-.bni{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 2px 6px;gap:2px;font-size:8px;color:var(--m2);font-weight:500;border:none;background:transparent;cursor:pointer;transition:color .15s;min-height:50px;}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:max(var(--sb),env(safe-area-inset-bottom,0px));overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.bnav::-webkit-scrollbar{display:none;}
+.bni{flex:0 0 auto;min-width:54px;display:flex;flex-direction:column;align-items:center;padding:9px 4px 6px;gap:2px;font-size:8px;color:var(--m2);font-weight:500;border:none;background:transparent;cursor:pointer;transition:color .15s;min-height:50px;}
 .bni .ic{font-size:17px;line-height:1;}
 .bni.on{color:var(--accent);}
 /* SIDEBAR */
@@ -460,6 +461,7 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
     <button class="dni"    id="dn-card-rpt" onclick="goTab('card-rpt')"><span class="ic">🪪</span> Card Pending</button>
     <button class="dni"    id="dn-worker"  onclick="goTab('worker');renderWorkerView()" style="background:rgba(245,158,11,.1);border-left:3px solid var(--accent);"><span class="ic">👷</span> My Work</button>
     <button class="dni"    id="dn-sync"    onclick="goTab('sync')"   ><span class="ic">🔗</span> Device Sync</button>
+    <button class="dni"    id="dn-parts-card" onclick="goTab('parts-card')" ><span class="ic">🔩</span> Parts Cards</button>
     <button class="dni"    id="dn-status"  onclick="goTab('status')" ><span class="ic">📲</span> Status Card</button>
   </div>
 </div>
