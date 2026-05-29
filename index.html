@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Carecay Suite">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Carecay Business Suite</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Carecay Workshop">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Carecay Multibrand Workshop</title>
@@ -276,8 +285,114 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
   @page{size:A4 portrait;margin:10mm;}
 }
 </style>
+
+<style id="bms-scoped-styles">
+*{box-sizing:border-box;margin:0;padding:0}
+#module-bms {
+  --bg:#f0f2f5;--bg2:#fff;--bg3:#f4f6f8;--bg4:#e8edf2;--bg5:#dde3ea;
+  --b:rgba(0,0,0,0.08);--b2:rgba(0,0,0,0.14);
+  --t:#1e293b;--t2:#475569;--t3:#94a3b8;
+  --am:#d97706;--am2:#b45309;--amd:rgba(217,119,6,0.10);
+  --gn:#059669;--gnd:rgba(5,150,105,0.10);
+  --rd:#dc2626;--rdd:rgba(220,38,38,0.10);
+  --bl:#2563eb;--bld:rgba(37,99,235,0.10);
+  --pu:#7c3aed;--pud:rgba(124,58,237,0.10);
+  --cy:#0891b2;--cyd:rgba(8,145,178,0.10);
+  --sb:#1e293b;--sb2:#162032;--sb3:#253549;
+  --sbt:#f1f5f9;--sbt2:#94a3b8;--sbt3:#475569;--sbam:#f59e0b;
+}#module-bms body{background:var(--bg);color:var(--t);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;overflow:hidden}#module-bms .app{display:flex;height:100vh}#module-bms .sb{width:220px;background:var(--sb);border-right:1px solid rgba(0,0,0,0.2);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}#module-bms .sb-logo{padding:14px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:9px}#module-bms .sb-ic{width:30px;height:30px;background:rgba(245,158,11,0.15);border:1px solid var(--sbam);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}#module-bms .sb-nav{padding:8px 6px;flex:1}#module-bms .sb-sec{font-size:9px;font-weight:700;color:var(--sbt3);text-transform:uppercase;letter-spacing:.1em;padding:10px 8px 4px}#module-bms .ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--sbt2);font-size:12px;transition:all .15s;margin-bottom:1px;user-select:none}#module-bms .ni:hover{background:var(--sb3);color:var(--sbt)}#module-bms .ni.on{background:rgba(245,158,11,0.15);color:var(--sbam);font-weight:600}#module-bms .ni svg{width:14px;height:14px;flex-shrink:0}#module-bms .nb{margin-left:auto;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;background:var(--sbam);color:#000;min-width:16px;text-align:center}#module-bms .nb.r{background:var(--rd);color:#fff}#module-bms .sb-user{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:9px;flex-shrink:0}#module-bms .sb-av{width:28px;height:28px;border-radius:50%;background:rgba(245,158,11,0.15);border:1px solid var(--sbam);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--sbam)}#module-bms .main{flex:1;overflow:hidden;display:flex;flex-direction:column}#module-bms .pg{display:none;flex-direction:column;flex:1;overflow:hidden}#module-bms .pg.on{display:flex}#module-bms .hdr{padding:12px 20px;border-bottom:1px solid var(--b2);display:flex;align-items:center;gap:12px;background:var(--bg2);flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .hdr h1{font-size:15px;font-weight:700;color:var(--t)}#module-bms .hdr-s{font-size:10px;color:var(--t3)}#module-bms .hdr-a{margin-left:auto;display:flex;gap:7px;align-items:center}#module-bms .cnt{padding:16px 20px;flex:1;overflow-y:auto}#module-bms .btn{padding:6px 13px;border-radius:6px;border:1px solid var(--b2);background:var(--bg2);color:var(--t);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,0.06)}#module-bms .btn:hover{background:var(--bg4)}#module-bms .btn.pr{background:var(--am);border-color:var(--am2);color:#fff;font-weight:700}#module-bms .btn.gn{background:var(--gnd);border-color:var(--gn);color:var(--gn)}#module-bms .btn.rd{background:var(--rdd);border-color:var(--rd);color:var(--rd)}#module-bms .btn.bl{background:var(--bld);border-color:var(--bl);color:var(--bl)}#module-bms .btn.cy{background:var(--cyd);border-color:var(--cy);color:var(--cy)}#module-bms .btn.am{background:var(--amd);border-color:var(--am);color:var(--am)}#module-bms .btn.sm{padding:3px 8px;font-size:11px}#module-bms .btn.xs{padding:2px 6px;font-size:10px}#module-bms .stats{display:grid;gap:10px;margin-bottom:14px}#module-bms .stats.c4{grid-template-columns:repeat(4,1fr)}#module-bms .stats.c5{grid-template-columns:repeat(5,1fr)}#module-bms .sc{background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:14px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .scl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-weight:700}#module-bms .scv{font-size:20px;font-weight:700}#module-bms .scs{font-size:10px;color:var(--t2);margin-top:2px}#module-bms .sci{position:absolute;right:10px;top:10px;font-size:22px;opacity:.08}#module-bms .sc.am .scv{color:var(--am)}#module-bms .sc.gn .scv{color:var(--gn)}#module-bms .sc.rd .scv{color:var(--rd)}#module-bms .sc.bl .scv{color:var(--bl)}#module-bms .sc.pu .scv{color:var(--pu)}#module-bms .card{background:var(--bg2);border:1px solid var(--b);border-radius:10px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .card-h{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);font-size:12px;font-weight:600;color:var(--t);gap:8px}#module-bms .card-b{padding:14px}#module-bms .tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b);box-shadow:0 1px 3px rgba(0,0,0,0.04)}#module-bms table{width:100%;border-collapse:collapse;font-size:11px}#module-bms thead th{background:var(--sb);color:#e2e8f0;padding:8px 9px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-bottom:2px solid rgba(0,0,0,0.2);white-space:nowrap;position:sticky;top:0;z-index:1}#module-bms tbody td{padding:7px 9px;border-bottom:1px solid var(--b);color:var(--t2);white-space:nowrap;background:var(--bg2)}#module-bms tbody tr:hover td{background:var(--bg3)}#module-bms tbody tr:last-child td{border-bottom:none}#module-bms .bx{display:inline-block;font-size:9px;padding:2px 7px;border-radius:8px;font-weight:700}#module-bms .bx.gn{background:#dcfce7;color:#15803d}#module-bms .bx.rd{background:#fee2e2;color:#b91c1c}#module-bms .bx.am{background:#fef3c7;color:#92400e}#module-bms .bx.bl{background:#dbeafe;color:#1d4ed8}#module-bms .bx.pu{background:#ede9fe;color:#6d28d9}#module-bms .bx.cy{background:#cffafe;color:#0e7490}#module-bms .fg{display:grid;gap:10px}#module-bms .fg.c4{grid-template-columns:repeat(4,1fr)}#module-bms .fg.c3{grid-template-columns:repeat(3,1fr)}#module-bms .fg.c2{grid-template-columns:repeat(2,1fr)}#module-bms .fg2{display:flex;flex-direction:column;gap:3px}#module-bms .fg2.s2{grid-column:span 2}#module-bms .fg2.s3{grid-column:span 3}#module-bms .fg2.s4{grid-column:span 4}#module-bms .fl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}#module-bms .fi{background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:6px 9px;color:var(--t);font-size:12px;outline:none;width:100%;transition:border-color .15s}#module-bms .fi:focus{border-color:var(--bl)}#module-bms select.fi option{background:var(--bg2)}#module-bms .al{padding:10px 14px;border-radius:6px;font-size:12px;display:flex;align-items:flex-start;gap:9px;margin-bottom:10px}#module-bms .al.i{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}#module-bms .al.s{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}#module-bms .al.w{background:#fffbeb;border:1px solid #fde68a;color:#92400e}#module-bms .al.e{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}#module-bms .tabs{display:flex;gap:2px;background:var(--bg4);padding:3px;border-radius:8px;margin-bottom:14px;border:1px solid var(--b)}#module-bms .tab{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--t2);font-weight:500;transition:all .15s}#module-bms .tab.on{background:var(--bg2);color:var(--t);box-shadow:0 1px 2px rgba(0,0,0,0.08);font-weight:600}#module-bms .flt{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}#module-bms .sf{background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:5px 9px;color:var(--t);font-size:12px;outline:none}#module-bms .sf:focus{border-color:var(--bl)}#module-bms .mov{position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}#module-bms .mbox{background:var(--bg2);border:1px solid var(--b2);border-radius:12px;width:100%;max-width:940px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25)}#module-bms .mhdr{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}#module-bms .mhdr h3{font-size:14px;font-weight:700;color:var(--t)}#module-bms .mbody{padding:18px}#module-bms .mfoot{padding:12px 18px;border-top:1px solid var(--b);display:flex;justify-content:flex-end;gap:8px;background:var(--bg3)}#module-bms .dov{position:fixed;inset:0;background:rgba(15,23,42,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}#module-bms .dbox{background:var(--bg2);border:2px solid var(--rd);border-radius:12px;width:100%;max-width:460px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}#module-bms .tog{width:34px;height:18px;background:var(--bg5);border-radius:9px;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s;border:1px solid var(--b2)}#module-bms .tog.on{background:var(--gn);border-color:var(--gn)}#module-bms .tog::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,0.2)}#module-bms .tog.on::after{left:18px}#module-bms .rg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}#module-bms .rc{background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .rc:hover{border-color:var(--am);transform:translateY(-2px)}#module-bms .rc h4{font-size:11px;font-weight:700;color:var(--t);margin-bottom:3px}#module-bms .rc p{font-size:10px;color:var(--t3)}#module-bms .tw2{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px}#module-bms .tst{background:var(--bg2);border:1px solid var(--b2);border-left:3px solid var(--bl);border-radius:7px;padding:10px 14px;font-size:12px;min-width:240px;animation:tI .25s ease;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.12);color:var(--t)}#module-bms .tst.gn{border-left-color:var(--gn)}#module-bms .tst.rd{border-left-color:var(--rd)}#module-bms .tst.am{border-left-color:var(--am)}
+@keyframes tI{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}#module-bms .ic{background:var(--bg2);border:1px solid var(--b2);border-radius:4px;padding:4px 6px;color:var(--t);font-size:11px;outline:none;width:100%}#module-bms .ic:focus{border-color:var(--bl)}#module-bms .ic.ro{background:var(--bg3);cursor:default;color:var(--am)}#module-bms .emp{text-align:center;padding:28px;color:var(--t3);font-size:12px}#module-bms .lnk{color:var(--bl);text-decoration:none;font-size:11px;font-weight:500}#module-bms .lnk:hover{text-decoration:underline}#module-bms .gl{background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:10px;font-size:11px;color:var(--t2);font-family:monospace;max-height:110px;overflow-y:auto;line-height:1.7}#module-bms .sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b)}#module-bms .sr:last-child{border-bottom:none}#module-bms ::-webkit-scrollbar{width:5px;height:5px}#module-bms ::-webkit-scrollbar-track{background:var(--bg3)}#module-bms ::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px}
+
+</style>
+
+<style id="module-system-styles">
+/* Module switcher bar */
+#module-switcher {
+  position: fixed;
+  top: 54px;
+  left: 0;
+  right: 0;
+  z-index: 400;
+  background: #0a0d14;
+  border-bottom: 1px solid rgba(245,158,11,0.25);
+  display: none;
+  align-items: stretch;
+  height: 38px;
+}
+.msw-btn {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #5a6480;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all .2s;
+  border-bottom: 2px solid transparent;
+  text-transform: uppercase;
+}
+.msw-btn:first-child { border-right: 1px solid rgba(255,255,255,0.06); }
+.msw-btn.msw-active { color: #f59e0b; border-bottom-color: #f59e0b; background: rgba(245,158,11,0.06); }
+.msw-btn.msw-active-bms { color: #0891b2; border-bottom-color: #0891b2; background: rgba(8,145,178,0.06); }
+
+/* Workshop module: shift content down 38px for switcher bar */
+#module-workshop { display: block; }
+#module-workshop .ca { top: 136px !important; bottom: calc(60px + env(safe-area-inset-bottom,0px)) !important; }
+#module-workshop .dsb { top: 136px !important; }
+/* Search bar: already at 54px -> need 90px after login */
+#module-workshop #global-search-wrap { top: 92px !important; }
+
+/* BMS module */
+#module-bms {
+  display: none;
+  position: fixed;
+  left: 0; right: 0;
+  top: 92px;
+  bottom: 0;
+  overflow: hidden;
+}
+#module-bms .app {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+#module-bms .main {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+#module-bms .pg {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+}
+#module-bms .pg.on { display: flex; }
+#module-bms .cnt {
+  padding: 16px 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+/* Override BMS body overflow since it's in a container */
+#module-bms * { box-sizing: border-box; }
+</style>
 </head>
-<body>
+<body class="theme-midnight">
+
+<!-- ===== MODULE SWITCHER BAR ===== -->
+<div id="module-switcher">
+  <button class="msw-btn msw-active" id="msw-workshop" onclick="switchModule('workshop')">🔧 Workshop</button>
+  <button class="msw-btn" id="msw-bms" onclick="switchModule('bms')">📋 BMS</button>
+</div>
+
+<div id="module-workshop">
+
 
 <!-- WORKER SELECT OVERLAY -->
 <div id="worker-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(10,13,20,.97);align-items:center;justify-content:center;flex-direction:column;padding:20px;">
@@ -414,7 +529,7 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
 </div>
 
 <!-- GLOBAL SEARCH BAR -->
-<div style="position:fixed;top:54px;left:0;right:0;z-index:150;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 12px;">
+<div id="global-search-wrap" style="position:fixed;top:54px;left:0;right:0;z-index:150;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 12px;">
   <div style="position:relative;max-width:100%;">
     <input id="global-search" 
       placeholder="🔍 Search Reg No, Car Name, Customer..." 
@@ -3053,7 +3168,7 @@ function doLockCheck(){
   if(entered === correct){
     sessionStorage.setItem('cc-ok','1');
     sessionStorage.setItem('cc-login-user', currentLockUser);
-    overlay.style.display='none';
+    overlay.style.display='none'; var msw=document.getElementById('module-switcher'); if(msw) msw.style.display='flex'; switchModule('workshop'); var gsw=document.getElementById('global-search-wrap'); if(gsw) gsw.style.top='92px';
     // Auto-select worker based on login
     if(currentLockUser === 'MANAGER') {
       selectWorker(null);
@@ -3146,7 +3261,7 @@ function saveChangePassword() {
   var overlay = document.getElementById('lock-overlay');
   if(!overlay) return;
   if(sessionStorage.getItem('cc-ok')==='1'){
-    overlay.style.display='none';
+    overlay.style.display='none'; var msw=document.getElementById('module-switcher'); if(msw) msw.style.display='flex'; switchModule('workshop'); var gsw=document.getElementById('global-search-wrap'); if(gsw) gsw.style.top='92px';
     var savedUser = sessionStorage.getItem('cc-login-user') || null;
     setTimeout(function(){
       if(savedUser && savedUser !== 'MANAGER') {
@@ -5642,5 +5757,2153 @@ function ppcFilterParts(parts){ return parts; }
 function ppcMatchFilter(parts){ return parts.length > 0; }
 function printPartsCards(){ ppcPrintAll(); }
 </script>
+
+</div> <!-- /module-workshop -->
+
+<div id="module-bms">
+
+<div class="app">
+<div class="sb">
+  <div class="sb-logo"><div class="sb-ic">&#128663;</div><div><div style="font-size:13px;font-weight:700;color:var(--sbam)">Carecay BMS</div><div style="font-size:9px;color:var(--sbt3)">Bill Management v3</div></div></div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Main</div>
+    <div class="ni on" onclick="go('dash',this)">&#9632; Dashboard</div>
+    <div class="sb-sec">Bills</div>
+    <div class="ni" onclick="go('purchase',this)">&#128443; Purchase Bills<span class="nb" id="pbc">0</span></div>
+    <div class="ni" onclick="go('sales',this)">&#128196; Sales/Insurance<span class="nb" id="sic">0</span></div>
+    <div class="sb-sec">Reports</div>
+    <div class="ni" onclick="go('reports',this)">&#128202; All Reports</div>
+    <div class="ni" onclick="go('vout',this)">&#128176; Vendor Outstanding<span class="nb r" id="voc">0</span></div>
+    <div class="ni" onclick="go('cout',this)">&#128100; Customer Outstanding<span class="nb r" id="coc">0</span></div>
+    <div class="ni" onclick="go('pl',this)">&#128200; Profit &amp; Loss</div>
+    <div class="ni" onclick="go('pending',this)">&#9200; Purchase&#8594;Sales Pending<span class="nb r" id="pspb">0</span></div>
+    <div class="sb-sec">Operations</div>
+    <div class="ni" onclick="go('inventory',this)">&#128230; Inventory</div>
+    <div class="ni" onclick="go('wa',this)">&#128172; WhatsApp Alerts<span class="nb r" id="wac">0</span></div>
+    <div class="sb-sec">Data</div>
+    <div class="ni" onclick="go('sync',this)">&#9729; Cloud Sync</div>
+  </nav>
+  <div class="sb-user"><div class="sb-av">J</div><div><div style="font-size:12px;font-weight:600;color:var(--sbt)">Jaimin</div><div style="font-size:10px;color:var(--sbt3)">Admin</div></div></div>
+</div>
+<div class="main">
+
+<!-- DASHBOARD -->
+<div class="pg on" id="pg-dash">
+  <div class="hdr"><div><h1>Dashboard</h1><div class="hdr-s">Carecay Multibrand Workshop</div></div><div class="hdr-a"><button class="btn pr" onclick="openPB(null)">+ Purchase Bill</button><button class="btn cy" onclick="openSI('')">+ Sales Invoice</button><button class="btn gn" onclick="exportAll()">Export All</button></div></div>
+  <div class="cnt">
+    <div class="stats c5">
+      <div class="sc am"><div class="scl">Total Purchase</div><div class="scv" id="d-pur">&#8377;0</div><div class="scs" id="d-ps">0 bills</div></div>
+      <div class="sc gn"><div class="scl">Total Sales</div><div class="scv" id="d-sal">&#8377;0</div><div class="scs" id="d-ss">0 invoices</div></div>
+      <div class="sc rd"><div class="scl">Sales Pending</div><div class="scv" id="d-pen">&#8377;0</div><div class="scs" id="d-pns">0 invoices</div></div>
+      <div class="sc pu"><div class="scl">Vendor Outstanding</div><div class="scv" id="d-vo">&#8377;0</div><div class="scs" id="d-vos">0 vendors</div></div>
+      <div class="sc bl" style="cursor:pointer" onclick="go('pending')"><div class="scl">Invoice Pending for Cars</div><div class="scv" id="d-psp">0</div><div class="scs" id="d-psps">cars without invoice</div></div>
+    </div>
+    <div class="card" style="border:1.5px solid var(--bl)">
+      <div class="card-h" style="background:var(--bld)"><span style="color:var(--bl);font-weight:700">&#128663; Sales Invoice Pending — Cars with Purchase but No Invoice</span><div style="display:flex;gap:6px"><span class="bx rd" id="d-psp-badge">0 cars</span><button class="btn sm bl" onclick="go('pending')">View &#8594;</button></div></div>
+      <div id="d-psp-list"><div class="emp" style="padding:12px">No pending cars.</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="card"><div class="card-h"><span style="color:var(--am)">Recent Purchase Bills</span><button class="btn sm" onclick="go('purchase')">View all</button></div><div id="d-pl"><div class="emp">No bills yet</div></div></div>
+      <div class="card"><div class="card-h"><span style="color:var(--gn)">Recent Sales Invoices</span><button class="btn sm" onclick="go('sales')">View all</button></div><div id="d-sl"><div class="emp">No invoices yet</div></div></div>
+    </div>
+    <div class="card"><div class="card-h">&#9889; Alerts<button class="btn sm gn" style="margin-left:auto" onclick="go('wa')">Send WA</button></div><div class="card-b" id="d-al"><div class="al i"><span>&#8505;</span><span>System ready.</span></div></div></div>
+  </div>
+</div>
+
+<!-- PURCHASE -->
+<div class="pg" id="pg-purchase">
+  <div class="hdr"><div><h1>Purchase Bills</h1><div class="hdr-s" id="pb-sub">0 bills</div></div><div class="hdr-a"><button class="btn pr" onclick="openPB(null)">+ Add Bill</button><button class="btn gn" onclick="exSheet('purchase')">Export</button></div></div>
+  <div class="cnt">
+    <div class="flt"><input class="sf" placeholder="Search vendor, bill no, part, car reg..." oninput="fPB(this.value)" style="width:240px"><select class="sf" onchange="fPBP(this.value)"><option value="">All Payments</option><option>Paid</option><option>Pending</option><option>Partial</option></select><select class="sf" onchange="fPBM(this.value)" id="pb-mf"><option value="">All Months</option></select></div>
+    <div class="tw"><table><thead><tr><th>SR</th><th>Type</th><th>Month</th><th>Bill Date</th><th>Bill No</th><th>Vendor</th><th>Part No</th><th>HSN</th><th>Particulars</th><th>Nos</th><th>Rate</th><th>Disc%</th><th>Taxable</th><th>GST%</th><th>GST Amt</th><th>Total</th><th>Round Off</th><th>Final Amt</th><th>Pur Date</th><th>Payment</th><th>Pay Type</th><th>Car Reg</th><th>Our Inv No</th><th>Voucher No</th><th>Duplicate</th><th>Invoice Link</th><th>Actions</th></tr></thead><tbody id="pb-tb"><tr><td colspan="27"><div class="emp">No purchase bills yet.</div></td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- SALES -->
+<div class="pg" id="pg-sales">
+  <div class="hdr"><div><h1>Sales / Insurance Invoices</h1><div class="hdr-s" id="si-sub">0 invoices</div></div><div class="hdr-a"><button class="btn cy" onclick="openSI('')">+ Add Invoice</button><button class="btn gn" onclick="exSheet('sales')">Export</button></div></div>
+  <div class="cnt">
+    <div class="flt"><input class="sf" placeholder="Search car reg, customer, inv no..." oninput="fSI(this.value)" style="width:240px"><select class="sf" onchange="fSIT(this.value)"><option value="">All Types</option><option>Insurance</option><option>Cash</option><option>Credit</option></select><select class="sf" onchange="fSIP(this.value)"><option value="">All Status</option><option>Paid</option><option>Pending</option><option>Partial</option></select><select class="sf" onchange="fSIM(this.value)" id="si-mf"><option value="">All Months</option></select></div>
+    <div class="tw"><table><thead><tr><th>SR</th><th>Inward Date</th><th>Month</th><th>Type</th><th>Inv No</th><th>Inv Date</th><th>Car Reg</th><th>Customer</th><th>Mobile</th><th>Billed Co</th><th>Claim No</th><th>GST No</th><th>Parts</th><th>Labour</th><th>CGST</th><th>SGST</th><th>IGST</th><th>Inv Amt</th><th>Round Off</th><th>Final Amt</th><th>Net Value</th><th>Ins Liability</th><th>TDS</th><th>Cust Payment</th><th>Pay Type</th><th>Pay Recd</th><th>Pending</th><th>Status</th><th>Remarks</th><th>Invoice Link</th><th>Actions</th></tr></thead><tbody id="si-tb"><tr><td colspan="31"><div class="emp">No invoices yet.</div></td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- VENDOR OUTSTANDING -->
+<div class="pg" id="pg-vout">
+  <div class="hdr"><div><h1>Vendor Outstanding</h1></div><div class="hdr-a"><button class="btn gn" onclick="exRep('vout')">Export</button></div></div>
+  <div class="cnt">
+    <div class="stats c4"><div class="sc rd"><div class="scl">Total Outstanding</div><div class="scv" id="vo-tot">&#8377;0</div><div class="scs" id="vo-vs">0 vendors</div></div><div class="sc am"><div class="scl">Pending Bills</div><div class="scv" id="vo-pb">0</div></div><div class="sc pu"><div class="scl">Partial Bills</div><div class="scv" id="vo-par">0</div></div><div class="sc gn"><div class="scl">Paid Bills</div><div class="scv" id="vo-paid">0</div></div></div>
+    <div class="flt"><input class="sf" placeholder="Search vendor..." oninput="fVO(this.value)" style="width:200px"></div>
+    <div id="vo-wrap"><div class="emp">No outstanding.</div></div>
+  </div>
+</div>
+
+<!-- CUSTOMER OUTSTANDING -->
+<div class="pg" id="pg-cout">
+  <div class="hdr"><div><h1>Customer Outstanding</h1></div><div class="hdr-a"><button class="btn gn" onclick="exRep('cout')">Export</button></div></div>
+  <div class="cnt">
+    <div class="stats c4"><div class="sc rd"><div class="scl">Total Outstanding</div><div class="scv" id="co-tot">&#8377;0</div><div class="scs" id="co-cs">0 invoices</div></div><div class="sc am"><div class="scl">Insurance Pending</div><div class="scv" id="co-ins">&#8377;0</div></div><div class="sc pu"><div class="scl">Customer Pending</div><div class="scv" id="co-cus">&#8377;0</div></div><div class="sc bl"><div class="scl">TDS Deducted</div><div class="scv" id="co-tds">&#8377;0</div></div></div>
+    <div class="tabs"><div class="tab on" onclick="coTab('partner',this)">Partner-wise</div><div class="tab" onclick="coTab('customer',this)">Customer-wise</div><div class="tab" onclick="coTab('all',this)">All Pending</div></div>
+    <div id="co-wrap"><div class="emp">No outstanding.</div></div>
+  </div>
+</div>
+
+<!-- P&L -->
+<div class="pg" id="pg-pl">
+  <div class="hdr"><div><h1>Profit &amp; Loss</h1><div class="hdr-s">Vehicle-wise P&amp;L by Car Reg No</div></div><div class="hdr-a"><button class="btn gn" onclick="exPL()">Export</button></div></div>
+  <div class="cnt">
+    <div class="stats c4"><div class="sc am"><div class="scl">Total Purchase</div><div class="scv" id="pl-tp">&#8377;0</div></div><div class="sc bl"><div class="scl">Total Sales</div><div class="scv" id="pl-ts">&#8377;0</div></div><div class="sc gn"><div class="scl">Gross Profit</div><div class="scv" id="pl-gp">&#8377;0</div><div class="scs" id="pl-mg">0%</div></div><div class="sc pu"><div class="scl">Vehicles</div><div class="scv" id="pl-veh">0</div></div></div>
+    <div class="flt"><input class="sf" placeholder="Search car reg, customer..." oninput="fPL(this.value)" style="width:220px"><select class="sf" onchange="fPLM(this.value)" id="pl-mf"><option value="">All Months</option></select></div>
+    <div class="tw"><table id="pl-tbl"><thead>
+      <tr>
+        <th rowspan="2" style="vertical-align:middle">SR</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:90px;color:#93c5fd">Inv No</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:80px">Inv Date</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:100px">Partner Name</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:110px">Customer</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:80px">Mobile</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:90px">Car Model</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:90px;color:#93c5fd">Car Reg No</th>
+        <th colspan="7" style="text-align:center;background:rgba(245,158,11,0.15);color:#fbbf24;padding:6px">— PURCHASE —</th>
+        <th colspan="7" style="text-align:center;background:rgba(5,150,105,0.15);color:#6ee7b7;padding:6px">— SALE —</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:100px;color:#c4b5fd">Profit/Loss</th>
+        <th rowspan="2" style="vertical-align:middle;min-width:70px">Margin</th>
+        <th rowspan="2" style="vertical-align:middle">Action</th>
+      </tr>
+      <tr>
+        <th style="background:rgba(245,158,11,0.08);color:#fbbf24;min-width:130px">Particulars</th>
+        <th style="background:rgba(245,158,11,0.08);color:#fbbf24;min-width:45px">Qty</th>
+        <th style="background:rgba(245,158,11,0.08);color:#fbbf24;min-width:80px">Taxable</th>
+        <th style="background:rgba(245,158,11,0.08);color:#fbbf24;min-width:72px">CGST</th>
+        <th style="background:rgba(245,158,11,0.08);color:#fbbf24;min-width:72px">SGST</th>
+        <th style="background:rgba(245,158,11,0.08);color:#fbbf24;min-width:72px">Total GST</th>
+        <th style="background:rgba(245,158,11,0.08);color:#fbbf24;min-width:85px">Total Pur</th>
+        <th style="background:rgba(5,150,105,0.08);color:#6ee7b7;min-width:130px">Particulars</th>
+        <th style="background:rgba(5,150,105,0.08);color:#6ee7b7;min-width:45px">Qty</th>
+        <th style="background:rgba(5,150,105,0.08);color:#6ee7b7;min-width:80px">Taxable</th>
+        <th style="background:rgba(5,150,105,0.08);color:#6ee7b7;min-width:72px">CGST</th>
+        <th style="background:rgba(5,150,105,0.08);color:#6ee7b7;min-width:72px">SGST</th>
+        <th style="background:rgba(5,150,105,0.08);color:#6ee7b7;min-width:72px">Total GST</th>
+        <th style="background:rgba(5,150,105,0.08);color:#6ee7b7;min-width:85px">Total Sale</th>
+      </tr>
+    </thead><tbody id="pl-tb"><tr><td colspan="25"><div class="emp">P&amp;L auto-builds from Purchase Bills + Sales Invoices by Car Reg No.</div></td></tr></tbody><tfoot id="pl-tf"></tfoot></table></div>
+  </div>
+</div>
+
+<!-- PURCHASE PENDING SALES -->
+<div class="pg" id="pg-pending">
+  <div class="hdr"><div><h1>Purchase Done — Sales Invoice Pending</h1></div><div class="hdr-a"><button class="btn cy" onclick="openSI('')">+ Raise Invoice</button><button class="btn gn" onclick="exSheet('pending')">Export</button></div></div>
+  <div class="cnt">
+    <div class="stats c4"><div class="sc rd"><div class="scl">Cars Pending</div><div class="scv" id="psp-t">0</div></div><div class="sc am"><div class="scl">Purchase Value</div><div class="scv" id="psp-v">&#8377;0</div></div><div class="sc pu"><div class="scl">Line Items</div><div class="scv" id="psp-i">0</div></div><div class="sc bl"><div class="scl">Oldest Pending</div><div class="scv" id="psp-o" style="font-size:14px">-</div></div></div>
+    <div class="al w"><span>&#9200;</span><span>These cars have purchase bills but <strong>no sales invoice</strong>. Raise invoice to complete the cycle.</span></div>
+    <div class="flt"><input class="sf" placeholder="Search car reg, vendor, part..." oninput="fPSP(this.value)" style="width:220px"><select class="sf" onchange="fPSPM(this.value)" id="psp-mf"><option value="">All Months</option></select></div>
+    <div class="tw"><table><thead><tr><th>SR</th><th>Car Reg No</th><th>Month</th><th>Vendor</th><th>Part No</th><th>HSN</th><th>Particulars</th><th>Nos</th><th>Rate</th><th>GST%</th><th>Total Purchase</th><th>Bill Date</th><th>Bill No</th><th>Bill Type</th><th>Days Pending</th><th>Action</th></tr></thead><tbody id="psp-tb"><tr><td colspan="16"><div class="emp">Loading...</div></td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div class="pg" id="pg-reports">
+  <div class="hdr"><div><h1>Reports</h1></div></div>
+  <div class="cnt">
+    <div class="rg">
+      <div class="rc" onclick="genR('stock')"><div style="font-size:22px;margin-bottom:6px">&#128230;</div><h4>Stock Inventory</h4><p>Levels &amp; alerts</p></div>
+      <div class="rc" onclick="go('vout')"><div style="font-size:22px;margin-bottom:6px">&#127978;</div><h4>Vendor Outstanding</h4><p>Unpaid bills</p></div>
+      <div class="rc" onclick="go('cout')"><div style="font-size:22px;margin-bottom:6px">&#128100;</div><h4>Customer Outstanding</h4><p>Partner &amp; customer dues</p></div>
+      <div class="rc" onclick="go('pl')"><div style="font-size:22px;margin-bottom:6px">&#128176;</div><h4>Profit &amp; Loss</h4><p>Vehicle-wise P&amp;L</p></div>
+      <div class="rc" onclick="go('pending')"><div style="font-size:22px;margin-bottom:6px">&#128663;</div><h4>Purchase&#8594;Sales Pending</h4><p>Cars without invoice</p></div>
+      <div class="rc" onclick="genR('pvs')"><div style="font-size:22px;margin-bottom:6px">&#128202;</div><h4>Purchase vs Sales</h4><p>Month-wise</p></div>
+      <div class="rc" onclick="genR('gst')"><div style="font-size:22px;margin-bottom:6px">&#129534;</div><h4>GST Summary</h4><p>CGST/SGST/IGST</p></div>
+      <div class="rc" onclick="genR('insurance')"><div style="font-size:22px;margin-bottom:6px">&#128737;</div><h4>Insurance Pending</h4><p>Unpaid claims</p></div>
+      <div class="rc" onclick="genR('dup')"><div style="font-size:22px;margin-bottom:6px">&#128260;</div><h4>Duplicate Bills</h4><p>Flagged duplicates</p></div>
+      <div class="rc" onclick="genR('vehicle')"><div style="font-size:22px;margin-bottom:6px">&#128661;</div><h4>Vehicle-wise Usage</h4><p>Parts per car</p></div>
+      <div class="rc" onclick="genR('voucher-pending')" style="border-color:var(--am)"><div style="font-size:22px;margin-bottom:6px">&#128203;</div><h4>Voucher No Pending</h4><p>Bills with no voucher no or Google Drive link</p></div>
+    </div>
+    <div id="rep-out" style="display:none"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:700" id="rep-ttl"></div><div style="display:flex;gap:8px"><button class="btn gn" onclick="exRep('current')">Export</button><button class="btn" onclick="document.getElementById('rep-out').style.display='none'">Close</button></div></div><div class="tw"><table><thead id="rep-hd"></thead><tbody id="rep-bd"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- INVENTORY -->
+<div class="pg" id="pg-inventory">
+  <div class="hdr"><div><h1>Parts Inventory</h1></div><div class="hdr-a"><button class="btn gn" onclick="exSheet('inventory')">Export</button></div></div>
+  <div class="cnt">
+    <div class="stats c4"><div class="sc gn"><div class="scl">Total Parts</div><div class="scv" id="iv-t">0</div></div><div class="sc am"><div class="scl">Stock Value</div><div class="scv" id="iv-v">&#8377;0</div></div><div class="sc rd"><div class="scl">Low Stock</div><div class="scv" id="iv-l">0</div></div><div class="sc bl"><div class="scl">Vehicles</div><div class="scv" id="iv-vh">0</div></div></div>
+    <div class="tw"><table><thead><tr><th>Part No</th><th>HSN</th><th>Description</th><th>Vendor</th><th>Stock</th><th>Rate</th><th>Value</th><th>Last Purchase</th><th>Used In Cars</th><th>Status</th></tr></thead><tbody id="iv-tb"><tr><td colspan="10"><div class="emp">No inventory yet.</div></td></tr></tbody></table></div>
+  </div>
+</div>
+
+<!-- WHATSAPP -->
+<div class="pg" id="pg-wa">
+  <div class="hdr"><div><h1>WhatsApp Alerts</h1></div><div class="hdr-a"><button class="btn gn" onclick="sendAllWA()">Send All</button><button class="btn bl" onclick="testWA()">Test</button></div></div>
+  <div class="cnt">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="card"><div class="card-h" style="background:#075e54;color:#fff">&#128172; Setup</div><div class="card-b"><div class="fg2" style="margin-bottom:10px"><div class="fl" style="margin-bottom:4px">Your WhatsApp Number</div><input class="fi" id="wa-num" placeholder="+91 9876543210"></div><div class="fg2" style="margin-bottom:10px"><div class="fl" style="margin-bottom:4px">Message Template</div><textarea class="fi" id="wa-tmpl" rows="3" style="resize:none">Dear {customer}, invoice {inv_no} of Rs.{amount} is pending. Contact Carecay Workshop.</textarea></div><button class="btn gn" style="width:100%" onclick="toast('Saved.','gn')">Save</button></div></div>
+      <div class="card"><div class="card-h">Alert Rules</div><div style="padding:12px 14px"><div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b)"><div style="flex:1"><div style="font-size:12px;font-weight:600">Payment Pending</div><div style="font-size:10px;color:var(--t3)">Overdue invoices</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div><div style="display:flex;align-items:center;gap:10px;padding:8px 0"><div style="flex:1"><div style="font-size:12px;font-weight:600">Vendor Payment Due</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div></div></div>
+    </div>
+    <div class="card"><div class="card-h">Pending Queue <span class="bx rd" id="wa-qc">0</span></div><div id="wa-q" style="padding:12px 14px"><div class="emp">No pending.</div></div></div>
+    <div class="card" style="margin-top:12px"><div class="card-h">History</div><div id="wa-h" style="padding:12px 14px"><div class="emp">No alerts sent.</div></div></div>
+  </div>
+</div>
+
+<!-- SYNC -->
+<div class="pg" id="pg-sync">
+  <div class="hdr"><div><h1>Data Backup &amp; Sync</h1><div class="hdr-s">Export · Import · Share between PCs</div></div><div class="hdr-a"><button class="btn gn" onclick="exportAll()">&#8595; Export All Data</button></div></div>
+  <div class="cnt">
+
+    <!-- STEP BY STEP GUIDE -->
+    <div class="card" style="border:1.5px solid var(--gn);margin-bottom:14px">
+      <div class="card-h" style="background:var(--gnd);color:var(--gn);font-size:13px">&#128218; How to Share Data Between 2 PCs — Step by Step</div>
+      <div style="padding:14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+          <!-- PC 1 Steps -->
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--bl);margin-bottom:12px;padding:8px 12px;background:var(--bld);border-radius:6px">&#128187; PC 1 — Jaimin's Computer (After finishing work)</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:24px;height:24px;background:var(--am);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+                <div><div style="font-size:12px;font-weight:600;color:var(--t)">Click "Export All Data" button</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Top right corner of this page. Downloads a file named:<br><strong style="color:var(--am)">carecay_complete_2025-05-28.xlsx</strong></div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:24px;height:24px;background:var(--am);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+                <div><div style="font-size:12px;font-weight:600;color:var(--t)">Send this file to PC 2</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Send via any method:<br>• WhatsApp (send to staff's number)<br>• Email (send to staff's email)<br>• Pen drive / USB<br>• Google Drive upload</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:24px;height:24px;background:var(--am);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+                <div><div style="font-size:12px;font-weight:600;color:var(--t)">Done — PC 2 can now import</div><div style="font-size:11px;color:var(--t3);margin-top:2px">File contains all purchase bills + sales invoices</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PC 2 Steps -->
+          <div>
+            <div style="font-size:12px;font-weight:700;color:var(--gn);margin-bottom:12px;padding:8px 12px;background:var(--gnd);border-radius:6px">&#128187; PC 2 — Staff Computer (After receiving file)</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:24px;height:24px;background:var(--gn);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+                <div><div style="font-size:12px;font-weight:600;color:var(--t)">Download the .xlsx file received</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Save it anywhere on the PC<br>(Downloads folder is fine)</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:24px;height:24px;background:var(--gn);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+                <div><div style="font-size:12px;font-weight:600;color:var(--t)">Open Carecay BMS app</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Open the HTML file in browser</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:24px;height:24px;background:var(--gn);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+                <div><div style="font-size:12px;font-weight:600;color:var(--t)">Click "Import Excel File" below</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Select the .xlsx file → all data loads instantly</div></div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:24px;height:24px;background:var(--gn);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</div>
+                <div><div style="font-size:12px;font-weight:600;color:var(--t)">Add new bills on PC 2</div><div style="font-size:11px;color:var(--t3);margin-top:2px">Then export again and send back to PC 1</div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- DAILY WORKFLOW -->
+        <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--b)">
+          <div style="font-size:11px;font-weight:700;color:var(--t);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">&#128197; Daily Workflow</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;flex-wrap:wrap">
+            <span style="background:var(--bld);color:var(--bl);padding:4px 10px;border-radius:6px;font-weight:600">PC1 adds bills</span>
+            <span style="color:var(--t3)">&#8594;</span>
+            <span style="background:var(--amd);color:var(--am);padding:4px 10px;border-radius:6px;font-weight:600">Export All</span>
+            <span style="color:var(--t3)">&#8594;</span>
+            <span style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:6px;font-weight:600">Send via WhatsApp</span>
+            <span style="color:var(--t3)">&#8594;</span>
+            <span style="background:var(--gnd);color:var(--gn);padding:4px 10px;border-radius:6px;font-weight:600">PC2 imports</span>
+            <span style="color:var(--t3)">&#8594;</span>
+            <span style="background:var(--gnd);color:var(--gn);padding:4px 10px;border-radius:6px;font-weight:600">PC2 adds bills</span>
+            <span style="color:var(--t3)">&#8594;</span>
+            <span style="background:var(--amd);color:var(--am);padding:4px 10px;border-radius:6px;font-weight:600">Export &amp; send back</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPORT & IMPORT BUTTONS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+
+      <!-- EXPORT -->
+      <div class="card">
+        <div class="card-h" style="background:var(--sb);color:#e2e8f0">&#8595; Export — Save &amp; Share Data</div>
+        <div class="card-b">
+          <div class="al s" style="margin-bottom:12px"><span>&#128229;</span><span>Export your data as Excel file. Send to PC 2 via WhatsApp, email or pen drive.</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn gn" style="width:100%;justify-content:center;padding:10px" onclick="exportAll()">&#8595; Export ALL Data (Purchase + Sales + Inventory)</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button class="btn bl" style="justify-content:center" onclick="exSheet('purchase')">&#8595; Purchase Bills Only</button>
+              <button class="btn cy" style="justify-content:center" onclick="exSheet('sales')">&#8595; Sales Invoices Only</button>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:11px;color:var(--t3)">
+            &#128161; <strong>Tip:</strong> Use "Export ALL Data" every time you finish work. Send that file to the other PC.
+          </div>
+        </div>
+      </div>
+
+      <!-- IMPORT -->
+      <div class="card">
+        <div class="card-h" style="background:var(--sb);color:#e2e8f0">&#8593; Import — Load Data from Excel File</div>
+        <div class="card-b">
+          <div class="al w" style="margin-bottom:12px"><span>&#9888;&#65039;</span><span>Importing will <strong>add to existing data</strong>. To replace all data, click "Clear Data" first then import.</span></div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--t);margin-bottom:6px">Select the Excel file exported from other PC:</div>
+            <input type="file" id="import-file" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this)">
+            <button class="btn pr" style="width:100%;justify-content:center;padding:10px" onclick="Q('import-file').click()">&#8593; Click to Select &amp; Import Excel File</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn am" style="justify-content:center" onclick="importMode('add')">&#43; Add to existing data</button>
+            <button class="btn rd" style="justify-content:center" onclick="importMode('replace')">&#8635; Replace all data</button>
+          </div>
+          <div id="import-status" style="margin-top:10px;font-size:11px;color:var(--t3)">No file selected yet.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DATA TOOLS -->
+    <div class="card">
+      <div class="card-h">&#128295; Data Tools</div>
+      <div class="card-b">
+        <div class="gl" id="sync-log">System ready.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn gn" onclick="exportAll()">Export All</button>
+          <button class="btn bl" onclick="exSheet('purchase')">Purchase Bills</button>
+          <button class="btn bl" onclick="exSheet('sales')">Sales Invoices</button>
+          <button class="btn" onclick="exSheet('inventory')">Inventory</button>
+          <span style="margin-left:auto"><button class="btn rd" onclick="clearAll()">&#128465; Clear All Data</button></span>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--t3)">
+          Data Size: <strong id="sync-sz">0 KB</strong> &nbsp;|&nbsp;
+          Purchase Bills: <strong id="sync-pb">0</strong> &nbsp;|&nbsp;
+          Sales Invoices: <strong id="sync-si">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIREBASE REAL-TIME SYNC -->
+    <div class="card" style="border:1.5px solid var(--bl);margin-top:14px">
+      <div class="card-h" style="background:var(--bld);color:var(--bl);font-size:13px">&#9889; Firebase Real-Time Sync — Both PCs Live Together (Free)</div>
+      <div style="padding:14px">
+        <div class="al i" style="margin-bottom:14px">
+          <span>&#9889;</span>
+          <div>
+            <strong>How it works:</strong> PC1 saves a bill → Firebase cloud updates instantly → PC2 sees it within 3 seconds automatically. No manual export/import needed.<br>
+            <span style="font-size:10px;color:var(--bl)">Free forever · Up to 1GB data · 100 simultaneous connections · Google Firebase</span>
+          </div>
+        </div>
+
+        <!-- Setup Steps -->
+        <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:14px;border:1px solid var(--b)">
+          <div style="font-size:11px;font-weight:700;color:var(--t);margin-bottom:10px;text-transform:uppercase">&#128295; One-Time Setup (5 minutes)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--t2)">
+            <div style="display:flex;gap:10px"><span style="width:20px;height:20px;background:var(--bl);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">1</span><span>Go to <strong><a href="https://console.firebase.google.com" target="_blank" class="lnk">console.firebase.google.com</a></strong> → Sign in with Gmail</span></div>
+            <div style="display:flex;gap:10px"><span style="width:20px;height:20px;background:var(--bl);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">2</span><span>Click <strong>"Create a project"</strong> → Name: <strong>carecay-bms</strong> → Disable Google Analytics → Create</span></div>
+            <div style="display:flex;gap:10px"><span style="width:20px;height:20px;background:var(--bl);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">3</span><span>In left sidebar → <strong>Build → Realtime Database</strong> → Create Database → Start in <strong>test mode</strong> → Enable</span></div>
+            <div style="display:flex;gap:10px"><span style="width:20px;height:20px;background:var(--bl);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">4</span><span>Copy the database URL shown — looks like: <strong style="color:var(--bl)">https://carecay-bms-xxxx-default-rtdb.firebaseio.com</strong></span></div>
+            <div style="display:flex;gap:10px"><span style="width:20px;height:20px;background:var(--bl);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">5</span><span>Paste URL below → Click Connect → Click Push ↑ → Done! Both PCs now sync in real-time ✅</span></div>
+          </div>
+        </div>
+
+        <!-- Connection UI -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px">
+          <div>
+            <div class="fl" style="margin-bottom:5px">Firebase Database URL</div>
+            <div style="display:flex;gap:6px">
+              <input class="fi" id="fb-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="flex:1;font-size:11px">
+              <button class="btn bl" onclick="fbConnect()">Connect</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px">
+            <div style="flex:1">
+              <div class="fl" style="margin-bottom:5px">Status</div>
+              <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:6px;border:1px solid var(--b)">
+                <div id="fb-dot" style="width:10px;height:10px;border-radius:50%;background:var(--t3);flex-shrink:0"></div>
+                <span id="fb-status" style="font-size:12px;color:var(--t2)">Not connected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <button class="btn gn" style="justify-content:center" onclick="fbPush()">&#8593; Push to Firebase</button>
+          <button class="btn bl" style="justify-content:center" onclick="fbPull()">&#8595; Pull from Firebase</button>
+          <button class="btn cy" style="justify-content:center" onclick="fbAutoOn()">&#9889; Auto-Sync ON</button>
+          <button class="btn" style="justify-content:center" onclick="fbAutoOff()">&#9632; Auto-Sync OFF</button>
+        </div>
+
+        <div style="margin-top:10px;font-size:11px;background:var(--bg3);border-radius:6px;padding:8px 12px;color:var(--t2)">
+          <strong>Auto-Sync:</strong> When ON — app checks Firebase every 10 seconds and updates automatically on both PCs. Both PCs must have Auto-Sync ON.
+        </div>
+
+        <div class="gl" id="fb-log" style="margin-top:10px">Firebase ready. Enter URL and click Connect.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div></div>
+
+<!-- MODALS -->
+<div class="mov" id="pb-modal" style="display:none"><div class="mbox"><div class="mhdr"><h3 id="pb-title">Add Purchase Bill</h3><button class="btn sm" onclick="closePBM()">&#10005;</button></div><div class="mbody" id="pb-body"></div><div class="mfoot"><button class="btn" onclick="closePBM()">Cancel</button><button class="btn pr" onclick="savePB()">Save Bill</button></div></div></div>
+<div class="mov" id="si-modal" style="display:none"><div class="mbox"><div class="mhdr"><h3 id="si-title">Add Sales Invoice</h3><button class="btn sm" onclick="closeSIM()">&#10005;</button></div><div class="mbody" id="si-body"></div><div class="mfoot"><button class="btn" onclick="closeSIM()">Cancel</button><button class="btn cy" onclick="saveSI()">Save Invoice</button></div></div></div>
+<div class="dov" id="dup-modal" style="display:none"><div class="dbox" id="dup-body"></div></div>
+<div class="tw2" id="toasts"></div>
+<script>
+var DB={
+  pb:JSON.parse(localStorage.getItem('cc_pb')||'[]'),
+  si:JSON.parse(localStorage.getItem('cc_si')||'[]'),
+  wh:JSON.parse(localStorage.getItem('cc_wh')||'[]'),
+  blobId:localStorage.getItem('cc_bi')||'',
+  gsUrl:localStorage.getItem('cc_gs')||'',
+  inv:{},log:[],ePBIdx:null,eSIIdx:null,coMode:'partner',plFilter:'',
+  repRows:[],repHdrs:[],repTitle:''
+};
+
+function N(v){return parseFloat((v||'').toString().replace(/[^0-9.-]/g,''))||0;}
+function F(v){return N(v).toLocaleString('en-IN',{maximumFractionDigits:2});}
+function FL(v){if(v>=10000000)return(v/10000000).toFixed(2)+'Cr';if(v>=100000)return(v/100000).toFixed(2)+'L';if(v>=1000)return(v/1000).toFixed(1)+'K';return F(v);}
+function EV(id){var e=document.getElementById(id);return e?e.value:'';}
+function S(id,v){var e=document.getElementById(id);if(e)e.innerHTML=v;}
+function Q(id){return document.getElementById(id);}
+
+function toast(msg,type){
+  var el=document.createElement('div');
+  el.className='tst '+(type||'');
+  el.textContent=(type==='gn'?'✅':type==='rd'?'❌':type==='am'?'⚠️':'ℹ️')+' '+msg;
+  Q('toasts').appendChild(el);
+  setTimeout(function(){el.remove();},3500);
+}
+function addLog(msg){
+  DB.log.unshift('['+new Date().toLocaleTimeString()+'] '+msg);
+  if(DB.log.length>30)DB.log.pop();
+  var el=Q('sync-log');if(el)el.innerHTML=DB.log.join('<br>');
+}
+function persist(){
+  localStorage.setItem('cc_pb',JSON.stringify(DB.pb));
+  localStorage.setItem('cc_si',JSON.stringify(DB.si));
+  localStorage.setItem('cc_wh',JSON.stringify(DB.wh));
+  buildInv();updDash();rPB(DB.pb);rSI(DB.si);buildWAQ();
+}
+
+function go(id,el){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  var pg=Q('pg-'+id);if(pg)pg.classList.add('on');
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
+  if(el)el.classList.add('on');
+  else document.querySelectorAll('.ni').forEach(function(n){var oc=n.getAttribute('onclick')||'';if(oc.indexOf("'"+id+"'")>=0)n.classList.add('on');});
+  if(id==='inventory')rInv();
+  if(id==='wa'){buildWAQ();rWAH();}
+  if(id==='vout')rVout(DB.pb);
+  if(id==='cout')rCout();
+  if(id==='pl')rPL();
+  if(id==='pending')rPSP();
+  if(id==='sync')updSync();
+}
+
+// ===== PURCHASE BILL FORM =====
+var _pbr=0;
+function openPB(idx){
+  DB.ePBIdx=idx;
+  var d=(idx!==null&&idx!==undefined)?DB.pb[idx]:{};
+  Q('pb-title').textContent=(idx!==null&&idx!==undefined)?'Edit Purchase Bill #'+(d.sr||''):'Add Purchase Bill';
+  buildPBForm(d);
+  Q('pb-modal').style.display='flex';
+}
+function closePBM(){Q('pb-modal').style.display='none';}
+
+function buildPBForm(d){
+  d=d||{};
+  function sel(id,opts,val){return '<select class="fi" id="pbf-'+id+'">'+opts.map(function(o){return'<option '+(val===o?'selected':'')+'>'+o+'</option>';}).join('')+'</select>';}
+  function inp(id,val,ph){return '<input class="fi" id="pbf-'+id+'" value="'+(val||'').toString().replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'">';}
+  var btOpts=['Tax Invoice','Chitti (Cash/No GST)','Handwritten Bill','Stock Transfer'];
+  var isC=(d.bill_type||'').indexOf('Chitti')>=0;
+  var html='<div class="al '+(isC?'w':'s')+'" id="pb-banner" style="margin-bottom:12px"><span>'+(isC?'📝 Chitti Mode — GST = 0':'✅ Fill header details then add items below')+'</span></div>';
+  html+='<div class="fg c4" style="gap:10px;margin-bottom:14px">';
+  html+='<div class="fg2"><div class="fl">Bill Type ★</div>'+sel('bill_type',btOpts,d.bill_type||'Tax Invoice')+'</div>';
+  html+='<div class="fg2"><div class="fl">Month</div>'+inp('month',d.month)+'</div>';
+  html+='<div class="fg2"><div class="fl">Bill Date</div>'+inp('bill_date',d.bill_date)+'</div>';
+  html+='<div class="fg2"><div class="fl">Bill No ★</div>'+inp('bill_no',d.bill_no)+'</div>';
+  html+='<div class="fg2 s2"><div class="fl">Vendor Name ★</div>'+inp('vendor_name',d.vendor_name)+'</div>';
+  html+='<div class="fg2"><div class="fl">Purchase Date</div>'+inp('purchase_date',d.purchase_date)+'</div>';
+  html+='<div class="fg2"><div class="fl">Payment Done</div>'+sel('payment_done',['Pending','Paid','Partial'],d.payment_done||'Pending')+'</div>';
+  html+='<div class="fg2"><div class="fl">Pay Type</div>'+sel('payment_type',['','Cash','NEFT','RTGS','Cheque','UPI'],d.payment_type||'')+'</div>';
+  html+='<div class="fg2 s2"><div class="fl">Car Reg No</div>'+inp('car_reg',d.used_for_car_reg)+'</div>';
+  html+='<div class="fg2"><div class="fl">Our Inv No</div>'+inp('our_inv_no',d.our_inv_no)+'</div>';
+  html+='<div class="fg2"><div class="fl">Voucher No</div>'+inp('voucher_no',d.voucher_no)+'</div>';
+  html+='<div class="fg2"><div class="fl">Duplicate?</div>'+sel('duplicate',['No','Yes'],d.duplicate||'No')+'</div>';
+  html+='<div class="fg2 s4"><div class="fl">Invoice Link (Google Drive URL)</div>'+inp('invoice_link',d.invoice_link,'https://drive.google.com/...')+'</div>';
+  html+='</div>';
+  html+='<div style="margin-bottom:10px">';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  html+='<div style="font-size:10px;font-weight:700;color:var(--am);text-transform:uppercase">Line Items (with HSN)</div>';
+  html+='<div style="display:flex;gap:6px"><button class="btn sm bl" onclick="togglePaste()">📋 Paste</button><button class="btn sm gn" onclick="addPBRow(null)">+ Row</button></div></div>';
+  html+='<div id="paste-panel" style="display:none;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;padding:12px;margin-bottom:10px">';
+  html+='<div style="font-size:11px;font-weight:700;color:var(--t);margin-bottom:6px">Paste Particulars / Items — Any format accepted</div>';
+  html+='<div style="font-size:10px;color:var(--t3);margin-bottom:8px;line-height:1.8;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:8px">'+
+        '&#9989; <strong>Particulars only</strong> (one per line) — rows created, fill Rate manually<br>'+
+        '&#9989; <strong>Particulars | Qty | Rate</strong><br>'+
+        '&#9989; <strong>Part No | HSN | Particulars | Qty | Rate | Disc% | GST%</strong><br>'+
+        '&#9989; Tab separated from Excel also works</div>';
+  html+='<textarea class="fi" id="paste-area" rows="5" style="font-family:monospace;font-size:11px" placeholder="Brake Pad&#10;Engine Oil 5W30&#10;Windshield Glass&#10;&#10;OR: A001  87089900  Brake Pad  2  850  5  18"></textarea>';
+  html+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn pr" onclick="doPaste()">&#9889; Convert to Rows</button><button class="btn sm" onclick="Q(\'paste-panel\').style.display=\'none\'">Cancel</button></div></div>';
+  var th='background:var(--sb);color:#e2e8f0;padding:6px 7px;text-align:left;font-size:9px;font-weight:700;border-bottom:1px solid rgba(0,0,0,0.2);white-space:nowrap';
+  html+='<div style="overflow-x:auto;border-radius:8px;border:1px solid var(--b)"><table style="width:100%;border-collapse:collapse"><thead><tr>';
+  html+='<th style="'+th+'">#</th><th style="'+th+';min-width:78px">Part No</th><th style="'+th+';min-width:70px">HSN</th><th style="'+th+';min-width:145px">Particulars</th><th style="'+th+';min-width:46px">Nos</th><th style="'+th+';min-width:70px">Rate</th><th style="'+th+';min-width:46px">Disc%</th><th style="'+th+';min-width:70px">Taxable</th><th style="'+th+';min-width:50px">GST%</th><th style="'+th+';min-width:70px">GST Amt</th><th style="'+th+';min-width:76px">Total</th><th style="'+th+'">Del</th>';
+  html+='</tr></thead><tbody id="pb-rows"></tbody>';
+  html+='<tfoot><tr style="background:var(--bg4)">'+
+    '<td colspan="4" style="padding:6px 9px;font-size:11px;font-weight:700">TOTALS</td>'+
+    '<td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--gn)" id="pb-tq">0</td>'+
+    '<td></td><td></td>'+
+    '<td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--am)" id="pb-ttx">₹0</td>'+
+    '<td></td>'+
+    '<td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--am)" id="pb-tga">₹0</td>'+
+    '<td style="padding:6px 9px;font-size:13px;font-weight:700;color:var(--am)" id="pb-ttt">₹0</td>'+
+    '<td></td>'+
+    '</tr>'+
+    '<tr style="background:#f0fdf4;border-top:2px solid var(--gn)">'+
+    '<td colspan="4" style="padding:7px 9px;font-size:11px;font-weight:700;color:var(--t)">ROUND OFF SUMMARY</td>'+
+    '<td></td><td></td><td></td><td></td><td></td>'+
+    '<td style="padding:7px 9px;font-size:11px"><span style="color:var(--t3)">Round Off:</span> <strong id="pb-roff" style="color:var(--pu)">0.00</strong></td>'+
+    '<td style="padding:7px 9px;font-size:13px;font-weight:700;color:var(--gn)">Final: <span id="pb-final">₹0</span></td>'+
+    '<td></td>'+
+    '</tr>'+
+    '</tfoot>';
+  html+='</table></div><div id="pb-rcnt" style="font-size:10px;color:var(--t3);margin-top:5px">0 items</div></div>';
+  Q('pb-body').innerHTML=html;
+  Q('pbf-bill_type').addEventListener('change',function(){onBillType(this.value);});
+  if(d.particulars||d.part_no){addPBRow({part_no:d.part_no,hsn_code:d.hsn_code,particulars:d.particulars,nos:d.nos,rate:d.purchase_price,disc:d.discount,gst:d.gst_percent,taxable:d.taxable_price,gamt:d.gst_amount,total:d.total_parts_purchase||d.total});}
+  else{addPBRow(null);}
+}
+
+function onBillType(val){
+  var isC=val.indexOf('Chitti')>=0;
+  var b=Q('pb-banner');
+  if(b){b.className='al '+(isC?'w':'s');b.innerHTML='<span>'+(isC?'📝 Chitti Mode — GST will be 0 for all items':'✅ Tax Invoice mode')+'</span>';}
+  if(isC){var rows=Q('pb-rows').rows;for(var i=0;i<rows.length;i++){var g=rows[i].querySelector('[data-f="gst"]');if(g){g.value='0';calcPBRow(g);}}toast('Chitti — GST set to 0','am');}
+}
+function togglePaste(){var p=Q('paste-panel');if(p)p.style.display=p.style.display==='none'?'block':'none';}
+
+function doPaste(){
+  var raw=EV('paste-area').trim();
+  if(!raw){toast('Nothing to paste.','am');return;}
+
+  // Remove blank rows from existing empty rows first
+  var tb=Q('pb-rows');
+  if(tb){
+    var emptyRows=[];
+    for(var ei=0;ei<tb.rows.length;ei++){
+      var hasVal=false;
+      tb.rows[ei].querySelectorAll('input').forEach(function(inp){if(inp.value.trim())hasVal=true;});
+      if(!hasVal)emptyRows.push(tb.rows[ei].id);
+    }
+    emptyRows.forEach(function(id){var el=Q(id);if(el)el.remove();});
+  }
+
+  var lines=raw.split('\n').filter(function(l){return l.trim();});
+  var n=0;
+
+  lines.forEach(function(line){
+    var raw2=line.trim();
+    if(!raw2)return;
+
+    // Detect separator
+    var sep = raw2.indexOf('\t')>=0 ? '\t' : raw2.indexOf('|')>=0 ? '|' : raw2.indexOf(',')>=0 ? ',' : null;
+
+    var d={};
+
+    if(sep){
+      // Has separator — split into columns
+      var c=raw2.split(sep).map(function(x){return x.trim();});
+      if(c.length>=7)      d={part_no:c[0],hsn_code:c[1],particulars:c[2],nos:c[3],rate:c[4],disc:c[5],gst:c[6]};
+      else if(c.length>=6) d={part_no:c[0],particulars:c[1],nos:c[2],rate:c[3],disc:c[4],gst:c[5]};
+      else if(c.length>=5) d={part_no:c[0],particulars:c[1],nos:c[2],rate:c[3],disc:c[4]};
+      else if(c.length>=4) d={part_no:c[0],particulars:c[1],nos:c[2],rate:c[3]};
+      else if(c.length>=3) d={particulars:c[0],nos:c[1],rate:c[2]};
+      else if(c.length>=2) d={particulars:c[0],nos:c[1]};
+      else                 d={particulars:c[0]};
+    } else {
+      // No separator — treat entire line as particulars only
+      d={particulars:raw2};
+    }
+
+    // Always add row even if only particulars — rate can be filled manually
+    if(d.particulars||d.part_no){
+      addPBRow(d);
+      n++;
+    }
+  });
+
+  Q('paste-panel').style.display='none';
+  Q('paste-area').value='';
+  if(n>0){
+    toast(n+' item'+(n>1?'s':'')+' added! Fill Rate column if needed.','gn');
+  } else {
+    toast('No items found. Check format.','am');
+  }
+}
+
+function addPBRow(d){
+  d=d||{};var tb=Q('pb-rows');if(!tb)return;
+  var id='pbr'+(++_pbr);var n=tb.rows.length+1;
+  var gOpts=['0','5','12','18','28'].map(function(o){return'<option '+((d.gst||'18')===o?'selected':'')+'>'+o+'</option>';}).join('');
+  function ic(f,v,w,ro){
+    var isEmpty=(v===''||v===undefined||v===null);
+    var hl=(f==='rate'&&isEmpty)?';border:1.5px solid var(--am);background:#fffbeb':'';
+    return'<input class="ic'+(ro?' ro':'')+'" data-f="'+f+'" value="'+(v||'')+'" '+(ro?'readonly':'')+' style="width:'+(w||'100%')+hl+'" oninput="calcPBRow(this);if(this.value){this.style.border=\'\';this.style.background=\'\';}">';
+  }
+  var tr=document.createElement('tr');tr.id=id;tr.style.borderBottom='1px solid var(--b)';
+  tr.innerHTML='<td style="padding:3px 6px;color:var(--t3);font-size:10px;text-align:center">'+n+'</td>'+
+    '<td style="padding:2px">'+ic('part_no',d.part_no,'78px')+'</td>'+
+    '<td style="padding:2px">'+ic('hsn_code',d.hsn_code,'68px')+'</td>'+
+    '<td style="padding:2px">'+ic('particulars',d.particulars,'143px')+'</td>'+
+    '<td style="padding:2px">'+ic('nos',d.nos,'44px')+'</td>'+
+    '<td style="padding:2px">'+ic('rate',d.rate||d.purchase_price,'68px')+'</td>'+
+    '<td style="padding:2px">'+ic('disc',d.disc||d.discount||'0','44px')+'</td>'+
+    '<td style="padding:2px">'+ic('taxable',d.taxable,'68px',true)+'</td>'+
+    '<td style="padding:2px"><select class="ic" data-f="gst" style="width:50px" onchange="calcPBRow(this)">'+gOpts+'</select></td>'+
+    '<td style="padding:2px">'+ic('gamt',d.gamt,'68px',true)+'</td>'+
+    '<td style="padding:2px">'+ic('total',d.total,'74px',true)+'</td>'+
+    '<td style="padding:2px;text-align:center"><button onclick="delPBRow(\''+id+'\')" style="background:var(--rdd);border:1px solid var(--rd);border-radius:4px;color:var(--rd);cursor:pointer;padding:3px 7px;font-size:10px">&#10005;</button></td>';
+  tb.appendChild(tr);
+  if(d.nos&&(d.rate||d.purchase_price))calcPBRow(tr.querySelector('[data-f="nos"]'));
+  updPBT();updPBRC();
+}
+function delPBRow(id){var el=Q(id);if(el)el.remove();updPBT();updPBRC();renPB();}
+function renPB(){var rows=Q('pb-rows').rows;for(var i=0;i<rows.length;i++)rows[i].cells[0].textContent=i+1;}
+function calcPBRow(el){
+  var row=el.closest('tr');if(!row)return;
+  function gv(f){var e=row.querySelector('[data-f="'+f+'"]');return e?parseFloat(e.value||0)||0:0;}
+  function sv(f,v){var e=row.querySelector('[data-f="'+f+'"]');if(e)e.value=v||'';}
+  var q=gv('nos'),r=gv('rate'),d=gv('disc'),g=gv('gst');
+  var tax=Math.round(q*r*(1-d/100)*100)/100;
+  var ga=Math.round(tax*(g/100)*100)/100;
+  var tot=Math.round((tax+ga)*100)/100;
+  sv('taxable',tax||'');sv('gamt',ga||'');sv('total',tot||'');updPBT();
+}
+function updPBT(){
+  var tb=Q('pb-rows');if(!tb)return;
+  var q=0,tx=0,ga=0,tt=0;
+  for(var i=0;i<tb.rows.length;i++){
+    function gv(r,f){var e=r.querySelector('[data-f="'+f+'"]');return e?parseFloat(e.value||0)||0:0;}
+    q+=gv(tb.rows[i],'nos');tx+=gv(tb.rows[i],'taxable');ga+=gv(tb.rows[i],'gamt');tt+=gv(tb.rows[i],'total');
+  }
+  S('pb-tq',q||0);S('pb-ttx','₹'+F(tx));S('pb-tga','₹'+F(ga));S('pb-ttt','₹'+F(tt));
+  // Round off
+  var rounded = Math.round(tt);
+  var roundOff = Math.round((rounded - tt)*100)/100;
+  var roEl = Q('pb-roff');
+  if(roEl){
+    roEl.textContent = roundOff===0 ? '0.00' : (roundOff>0?'+':'')+roundOff.toFixed(2);
+    roEl.style.color = roundOff>0?'var(--gn)':roundOff<0?'var(--rd)':'var(--t3)';
+  }
+  S('pb-final','₹'+F(rounded));
+}
+function updPBRC(){var tb=Q('pb-rows');if(!tb)return;var c=tb.rows.length;var el=Q('pb-rcnt');if(el)el.textContent=c+' item'+(c!==1?'s':'');}
+
+function savePB(){
+  var hdr={
+    bill_type:EV('pbf-bill_type'),month:EV('pbf-month'),bill_date:EV('pbf-bill_date'),
+    bill_no:EV('pbf-bill_no'),vendor_name:EV('pbf-vendor_name'),purchase_date:EV('pbf-purchase_date'),
+    payment_done:EV('pbf-payment_done'),payment_type:EV('pbf-payment_type'),
+    used_for_car_reg:EV('pbf-car_reg'),our_inv_no:EV('pbf-our_inv_no'),
+    voucher_no:EV('pbf-voucher_no'),duplicate:EV('pbf-duplicate'),invoice_link:EV('pbf-invoice_link'),
+    round_off:(Q('pb-roff')?Q('pb-roff').textContent:'0.00'),
+    final_amount:(Q('pb-final')?Q('pb-final').textContent.replace('₹','').replace(/,/g,''):'')
+  };
+  // Rule 1: Duplicate bill_no + vendor
+  if((DB.ePBIdx===null||DB.ePBIdx===undefined)&&hdr.bill_no&&hdr.vendor_name){
+    for(var i=0;i<DB.pb.length;i++){
+      if(DB.pb[i].bill_no&&DB.pb[i].bill_no.trim()===hdr.bill_no.trim()&&DB.pb[i].vendor_name&&DB.pb[i].vendor_name.trim()===hdr.vendor_name.trim()){showDup(hdr.bill_no,hdr.vendor_name,i);return;}
+    }
+  }
+  // Rule 2: Same part + car reg (only if sales not done)
+  if((DB.ePBIdx===null||DB.ePBIdx===undefined)&&hdr.used_for_car_reg){
+    var cr=hdr.used_for_car_reg.trim().toUpperCase();
+    var salesDone=DB.si.some(function(s){return(s.car_reg_no||'').trim().toUpperCase()===cr&&s.inv_no;});
+    if(!salesDone){
+      var tb=Q('pb-rows');
+      for(var j=0;j<tb.rows.length;j++){
+        var pno=tb.rows[j].querySelector('[data-f="part_no"]');
+        if(pno&&pno.value.trim()){
+          var pn=pno.value.trim().toUpperCase();
+          var prev=DB.pb.findIndex(function(b){return(b.part_no||'').trim().toUpperCase()===pn&&(b.used_for_car_reg||'').trim().toUpperCase()===cr;});
+          if(prev>=0){showPartDup(pno.value,hdr.used_for_car_reg);return;}
+        }
+      }
+    }
+  }
+  var tb=Q('pb-rows');if(!tb||tb.rows.length===0){toast('Add at least one item.','am');return;}
+  var saved=0;
+  var startIdx=(DB.ePBIdx!==null&&DB.ePBIdx!==undefined)?DB.ePBIdx:DB.pb.length;
+  if(DB.ePBIdx!==null&&DB.ePBIdx!==undefined)DB.pb.splice(DB.ePBIdx,1);
+  for(var k=0;k<tb.rows.length;k++){
+    var row=tb.rows[k];
+    function grf(r,f){var e=r.querySelector('[data-f="'+f+'"]');return e?e.value.trim():'';}
+    var item={part_no:grf(row,'part_no'),hsn_code:grf(row,'hsn_code'),particulars:grf(row,'particulars'),nos:grf(row,'nos'),purchase_price:grf(row,'rate'),discount:grf(row,'disc'),taxable_price:grf(row,'taxable'),gst_percent:grf(row,'gst'),gst_amount:grf(row,'gamt'),total_parts_purchase:grf(row,'total'),total:grf(row,'total')};
+    if(!item.particulars&&!item.part_no&&!item.nos)continue;
+    var entry=Object.assign({},hdr,item);
+    if(k>0)entry.duplicate='No';
+    DB.pb.splice(startIdx+k,0,entry);saved++;
+  }
+  DB.pb.forEach(function(r,i){r.sr=i+1;});
+  if(!saved){toast('No valid items.','am');return;}
+  persist();toast(saved+' item'+(saved>1?'s':'')+' saved! ['+hdr.bill_type+']','gn');closePBM();go('purchase');
+  addLog('PB: '+hdr.bill_no+' ('+saved+' items, '+( hdr.used_for_car_reg||'no car')+')');
+}
+
+function showDup(bn,vn,idx){
+  var e=DB.pb[idx];
+  Q('dup-body').innerHTML='<div style="font-size:22px;margin-bottom:10px">&#9888;&#65039;</div>'+
+    '<h3 style="font-size:15px;font-weight:700;color:var(--rd);margin-bottom:8px">Duplicate Bill Blocked!</h3>'+
+    '<p style="font-size:12px;color:var(--t2);margin-bottom:14px">Bill No <strong>'+bn+'</strong> from <strong>'+vn+'</strong> already exists.</p>'+
+    '<div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px">'+
+    '<div><span style="color:var(--t3)">Date:</span> '+(e.bill_date||'-')+'</div>'+
+    '<div><span style="color:var(--t3)">Total:</span> <span style="color:var(--am);font-weight:700">₹'+F(e.total_parts_purchase||e.total)+'</span></div>'+
+    '<div><span style="color:var(--t3)">Part:</span> '+(e.particulars||e.part_no||'-')+'</div>'+
+    '<div><span style="color:var(--t3)">Car:</span> <span style="color:var(--bl);font-weight:600">'+(e.used_for_car_reg||'-')+'</span></div>'+
+    '</div>'+
+    '<div style="display:flex;flex-direction:column;gap:8px">'+
+    '<button class="btn bl" style="justify-content:center" onclick="viewDup('+idx+')">&#128065; View Entry</button>'+
+    '<button class="btn am" style="justify-content:center" onclick="editDup('+idx+')">&#9999;&#65039; Edit Entry</button>'+
+    '<button class="btn rd" style="justify-content:center" onclick="closeDup()">&#10005; Cancel</button>'+
+    '</div>';
+  Q('dup-modal').style.display='flex';
+}
+function showPartDup(partNo,carReg){
+  Q('dup-body').innerHTML='<div style="font-size:22px;margin-bottom:10px">&#128260;</div>'+
+    '<h3 style="font-size:15px;font-weight:700;color:var(--am);margin-bottom:8px">Part Already Purchased for This Car</h3>'+
+    '<p style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.7">Part <strong>'+partNo+'</strong> already purchased for Car <strong style="color:var(--bl)">'+carReg+'</strong> and sales invoice not yet raised.<br><br>Raise the sales invoice first, then new purchase will be allowed.</p>'+
+    '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#92400e">&#128161; Complete the sales cycle for this car first.</div>'+
+    '<div style="display:flex;flex-direction:column;gap:8px">'+
+    '<button class="btn cy" style="justify-content:center" onclick="closeDup();openSI(\''+carReg+'\')">+ Raise Sales Invoice for '+carReg+'</button>'+
+    '<button class="btn rd" style="justify-content:center" onclick="closeDup()">&#10005; Cancel</button>'+
+    '</div>';
+  Q('dup-modal').style.display='flex';
+}
+function closeDup(){Q('dup-modal').style.display='none';}
+function viewDup(idx){closeDup();closePBM();go('purchase');setTimeout(function(){var r=Q('pb-tb').rows[idx];if(r){r.style.background='rgba(245,158,11,0.15)';r.scrollIntoView({behavior:'smooth',block:'center'});}},300);}
+function editDup(idx){closeDup();closePBM();openPB(idx);}
+
+
+// ===== SALES INVOICE FORM =====
+var _sir=0;
+function openSI(carReg){
+  DB.eSIIdx=null;
+  Q('si-title').textContent='Add Sales Invoice'+(carReg?' — '+carReg:'');
+  buildSIForm({},carReg);
+  Q('si-modal').style.display='flex';
+}
+function openEditSI(idx){
+  DB.eSIIdx=idx;
+  Q('si-title').textContent='Edit Sales Invoice #'+DB.si[idx].sr;
+  buildSIForm(DB.si[idx],DB.si[idx].car_reg_no||'');
+  Q('si-modal').style.display='flex';
+}
+function closeSIM(){Q('si-modal').style.display='none';}
+
+function buildSIForm(d,carReg){
+  d=d||{};carReg=carReg||d.car_reg_no||'';
+  var purItems=carReg?DB.pb.filter(function(b){return(b.used_for_car_reg||'').trim().toUpperCase()===carReg.trim().toUpperCase();}) :[];
+  function sel(id,opts,val){return '<select class="fi" id="sif-'+id+'">'+opts.map(function(o){return'<option '+(val===o?'selected':'')+'>'+o+'</option>';}).join('')+'</select>';}
+  function inp(id,val,ph,extra){return '<input class="fi" id="sif-'+id+'" value="'+(val||'').toString().replace(/"/g,'&quot;')+'" placeholder="'+(ph||'')+'" '+(extra||'')+'>';}
+  var html='<div class="al s" style="margin-bottom:12px"><span>&#10003;</span><span>';
+  if(purItems.length>0)html+='<strong>'+purItems.length+' purchased items</strong> auto-loaded for Car Reg <strong>'+carReg+'</strong>. Adjust sale price per item.';
+  else html+='Enter Car Reg No to auto-fetch purchased items.';
+  html+='</span></div>';
+  html+='<div class="fg c4" style="gap:10px;margin-bottom:14px">';
+  html+='<div class="fg2"><div class="fl">Inward Date</div>'+inp('inward_date',d.inward_date)+'</div>';
+  html+='<div class="fg2"><div class="fl">Month</div>'+inp('month',d.month)+'</div>';
+  html+='<div class="fg2"><div class="fl">Type</div>'+sel('type',['Insurance','Cash','Credit','Warranty'],d.type_of_service||'Insurance')+'</div>';
+  html+='<div class="fg2"><div class="fl">Inv No ★</div>'+inp('inv_no',d.inv_no)+'</div>';
+  html+='<div class="fg2"><div class="fl">Inv Date</div>'+inp('inv_date',d.inv_date)+'</div>';
+  html+='<div class="fg2"><div class="fl">Car Reg No ★</div><input class="fi" id="sif-car_reg" value="'+(carReg||'')+'" onchange="onSICarReg(this.value)"></div>';
+  html+='<div class="fg2"><div class="fl">Car Model/Ref</div>'+inp('car_ref',d.car_ref)+'</div>';
+  html+='<div class="fg2"><div class="fl">Insurance Mail</div>'+inp('ins_mail',d.insurance_mail)+'</div>';
+  html+='<div class="fg2 s2"><div class="fl">Customer Name</div>'+inp('customer',d.customer_name)+'</div>';
+  html+='<div class="fg2"><div class="fl">Mobile No</div>'+inp('mobile',d.mobile_no)+'</div>';
+  html+='<div class="fg2"><div class="fl">GST No</div>'+inp('gst_no',d.gst_no)+'</div>';
+  html+='<div class="fg2 s2"><div class="fl">Partner Name (Insurance Company)</div>'+inp('partner_name',d.partner_name||d.billed_company,'','placeholder="e.g. TATA AIG, New India, HDFC ERGO..."')+'</div>';
+  html+='<div class="fg2 s2"><div class="fl">Billed Company (for GST / Invoice)</div>'+inp('billed_co',d.billed_company)+'</div>';
+  html+='<div class="fg2"><div class="fl">Policy No</div>'+inp('policy_no',d.policy_no)+'</div>';
+  html+='<div class="fg2"><div class="fl">Claim No</div>'+inp('claim_no',d.claim_no)+'</div>';
+  html+='</div>';
+  // Sales items table
+  html+='<div style="margin-bottom:14px">';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  html+='<div style="font-size:10px;font-weight:700;color:var(--gn);text-transform:uppercase">Sales Line Items (auto-fetched from Purchase)</div>';
+  html+='<button class="btn sm gn" onclick="addSIRow(null)">+ Row</button></div>';
+  html+='<div style="font-size:10px;color:var(--t3);background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:8px 12px;margin-bottom:8px">&#128161; Change Sale Rate per item. CGST=SGST=GST/2 auto-calculated. Item Profit shown per row.</div>';
+  var th='background:var(--sb);color:#e2e8f0;padding:6px 7px;text-align:left;font-size:9px;font-weight:700;border-bottom:1px solid rgba(0,0,0,0.2);white-space:nowrap';
+  html+='<div style="overflow-x:auto;border-radius:8px;border:1px solid var(--b)"><table style="width:100%;border-collapse:collapse"><thead><tr>';
+  html+='<th style="'+th+'">#</th><th style="'+th+';min-width:76px">Part No</th><th style="'+th+';min-width:66px">HSN</th><th style="'+th+';min-width:143px">Particulars</th><th style="'+th+';min-width:44px">Qty</th><th style="'+th+';min-width:70px">Sale Rate</th><th style="'+th+';min-width:44px">Disc%</th><th style="'+th+';min-width:68px">Taxable</th><th style="'+th+';min-width:50px">GST%</th><th style="'+th+';min-width:58px">CGST</th><th style="'+th+';min-width:58px">SGST</th><th style="'+th+';min-width:76px">Total Sale</th><th style="'+th+';min-width:66px">Pur Price</th><th style="'+th+';min-width:66px">Profit</th><th style="'+th+'">Del</th>';
+  html+='</tr></thead><tbody id="si-rows"></tbody>';
+  html+='<tfoot><tr style="background:var(--bg4)"><td colspan="4" style="padding:6px 9px;font-size:11px;font-weight:700">TOTALS</td><td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--gn)" id="si-tq">0</td><td></td><td></td><td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--am)" id="si-ttx">&#8377;0</td><td></td><td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--am)" id="si-tcg">&#8377;0</td><td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--am)" id="si-tsg">&#8377;0</td><td style="padding:6px 9px;font-size:13px;font-weight:700;color:var(--am)" id="si-ttt">&#8377;0</td><td style="padding:6px 9px;font-size:11px;font-weight:700;color:var(--rd)" id="si-tpc">&#8377;0</td><td style="padding:6px 9px;font-size:13px;font-weight:700;color:var(--gn)" id="si-tpr">&#8377;0</td><td></td></tr></tfoot>';
+  html+='</table></div><div id="si-rcnt" style="font-size:10px;color:var(--t3);margin-top:5px">0 items</div></div>';
+  // Payment section
+  html+='<div style="font-size:10px;font-weight:700;color:var(--am);text-transform:uppercase;padding-top:4px;border-top:1px solid var(--b);margin-bottom:10px">Payment &amp; Totals</div>';
+  html+='<div class="fg c4" style="gap:10px">';
+  html+='<div class="fg2"><div class="fl">Labour</div>'+inp('labour',d.labour)+'</div>';
+  html+='<div class="fg2"><div class="fl">CGST (auto)</div><input class="fi" id="sif-cgst" value="'+(d.cgst||'')+'" style="color:var(--am)" readonly></div>';
+  html+='<div class="fg2"><div class="fl">SGST (auto)</div><input class="fi" id="sif-sgst" value="'+(d.sgst||'')+'" style="color:var(--am)" readonly></div>';
+  html+='<div class="fg2"><div class="fl">IGST</div>'+inp('igst',d.igst)+'</div>';
+  html+='<div class="fg2"><div class="fl">Inv Amount (auto)</div><input class="fi" id="sif-inv_amount" value="'+(d.inv_amount||'')+'" style="color:var(--am);font-weight:700" readonly></div>';
+  html+='<div class="fg2"><div class="fl">Round Off</div><input class="fi" id="sif-round_off" value="'+(d.round_off||'')+'" style="color:var(--pu)" readonly placeholder="auto"></div>';
+  html+='<div class="fg2"><div class="fl">Final Inv Amount (rounded)</div><input class="fi" id="sif-final_amount" value="'+(d.final_amount||'')+'" style="color:var(--am);font-weight:700;font-size:14px" readonly></div>';
+  html+='<div class="fg2"><div class="fl">Net Invoice Value</div><input class="fi" id="sif-net_value" value="'+(d.net_invoice_value||'')+'" oninput="calcCustPay()" placeholder="Enter net invoice value"></div>';
+  html+='<div class="fg2"><div class="fl">Insurance Liability</div><input class="fi" id="sif-ins_liability" value="'+(d.insurance_liability||'')+'" oninput="calcCustPay()" placeholder="Enter insurance liability"></div>';
+  html+='<div class="fg2"><div class="fl">Customer Payment (auto)</div><input class="fi" id="sif-cust_pay" value="'+(d.customer_payment||'')+'" style="color:var(--bl);font-weight:700;background:var(--bld)" readonly title="Auto = Net Invoice Value - Insurance Liability"></div>';
+  html+='<div class="fg2"><div class="fl">TDS</div>'+inp('tds',d.tds)+'</div>';
+  html+='<div class="fg2"><div class="fl">Pay Status</div>'+sel('pay_status',['Pending','Paid','Partial'],d.payment_status||'Pending')+'</div>';
+  html+='<div class="fg2"><div class="fl">Pay Type</div>'+sel('pay_type',['','Cash','NEFT','RTGS','Cheque','UPI','Insurance'],d.payment_type||'')+'</div>';
+  html+='<div class="fg2"><div class="fl">Ins Recd Date</div>'+inp('ins_recd_date',d.insurance_payment_received_date)+'</div>';
+  html+='<div class="fg2"><div class="fl">Pay Rs Received</div>'+inp('pay_recd',d.payment_rs_received)+'</div>';
+  html+='<div class="fg2"><div class="fl">Pay Recd Date</div>'+inp('pay_recd_date',d.payment_received_date)+'</div>';
+  html+='<div class="fg2"><div class="fl">Discount</div>'+inp('discount',d.discount)+'</div>';
+  html+='<div class="fg2"><div class="fl">Pending Payment</div>'+inp('pending',d.pending_payment)+'</div>';
+  html+='<div class="fg2 s2"><div class="fl">Remarks</div>'+inp('remarks',d.remarks)+'</div>';
+  html+='<div class="fg2 s2"><div class="fl">Invoice Link (Google Drive)</div>'+inp('inv_link',d.invoice_link,'https://drive.google.com/...')+'</div>';
+  html+='</div>';
+  Q('si-body').innerHTML=html;
+  // Auto-calc customer payment on load if values exist
+  calcCustPay();
+
+  // Load items — if editing and has saved line_items, use those; else fetch from purchase bills
+  var loadedFromSaved = false;
+  if(d.line_items){
+    try{
+      var saved = JSON.parse(d.line_items);
+      if(saved && saved.length > 0){
+        saved.forEach(function(li){ addSIRow(li); });
+        loadedFromSaved = true;
+      }
+    } catch(e){ loadedFromSaved = false; }
+  }
+  if(!loadedFromSaved){
+    if(purItems.length > 0){ purItems.forEach(function(b){ addSIRow(b); }); }
+    else{ addSIRow(null); }
+  }
+  updSIT();
+}
+
+function calcCustPay(){
+  var net = N(EV('sif-net_value'));
+  var ins = N(EV('sif-ins_liability'));
+  var cp  = Q('sif-cust_pay');
+  if(cp && (net || ins)){
+    var result = Math.round((net - ins) * 100) / 100;
+    cp.value = result >= 0 ? F(result) : '0';
+  }
+}
+
+function onSICarReg(val){
+  var reg=val.trim().toUpperCase();if(!reg)return;
+  var items=DB.pb.filter(function(b){return(b.used_for_car_reg||'').trim().toUpperCase()===reg;});
+  if(!items.length){toast('No purchase bills for '+reg,'am');return;}
+  var tb=Q('si-rows');if(!tb)return;tb.innerHTML='';
+  items.forEach(function(b){addSIRow(b);});updSIT();
+  toast(items.length+' items fetched for '+reg,'gn');
+}
+
+function addSIRow(b){
+  b=b||{};var tb=Q('si-rows');if(!tb)return;
+  var id='sir'+(++_sir);var n=tb.rows.length+1;
+  // Handle both purchase bill format and saved line_items format
+  var salePrice = b.sale_price || b.purchase_price || '';
+  var purPrice  = b.pur_price  || b.purchase_price || '';
+  var qty       = b.qty        || b.nos            || '';
+  var disc      = b.disc       || b.discount       || '0';
+  var gstPct    = b.gst        || b.gst_percent    || '18';
+  var cgstVal   = b.cgst       || '';
+  var sgstVal   = b.sgst       || '';
+  var taxable   = b.taxable    || '';
+  var total     = b.total      || '';
+
+  var gOpts=['0','5','12','18','28'].map(function(o){return'<option '+(gstPct===o?'selected':'')+'>'+o+'</option>';}).join('');
+  function sic(f,v,w,ro){return'<input class="ic'+(ro?' ro':'')+'" data-f="'+f+'" value="'+(v||'')+'" '+(ro?'readonly':'')+' style="width:'+(w||'100%')+'" oninput="calcSIRow(this)">';}
+  var tr=document.createElement('tr');tr.id=id;tr.style.borderBottom='1px solid var(--b)';
+  tr.innerHTML=
+    '<td style="padding:3px 6px;color:var(--t3);font-size:10px;text-align:center">'+n+'</td>'+
+    '<td style="padding:2px">'+sic('part_no',b.part_no,'74px')+'</td>'+
+    '<td style="padding:2px">'+sic('hsn_code',b.hsn_code,'64px')+'</td>'+
+    '<td style="padding:2px">'+sic('particulars',b.particulars,'141px')+'</td>'+
+    '<td style="padding:2px">'+sic('qty',qty,'42px')+'</td>'+
+    '<td style="padding:2px">'+sic('sale_price',salePrice,'68px')+'</td>'+
+    '<td style="padding:2px">'+sic('disc',disc,'42px')+'</td>'+
+    '<td style="padding:2px">'+sic('taxable',taxable,'68px',true)+'</td>'+
+    '<td style="padding:2px"><select class="ic" data-f="gst" style="width:50px" onchange="calcSIRow(this)">'+gOpts+'</select></td>'+
+    '<td style="padding:2px">'+sic('cgst',cgstVal,'56px',true)+'</td>'+
+    '<td style="padding:2px">'+sic('sgst',sgstVal,'56px',true)+'</td>'+
+    '<td style="padding:2px">'+sic('total',total,'74px',true)+'</td>'+
+    '<td style="padding:2px"><input class="ic ro" data-f="pur_price" value="'+purPrice+'" readonly style="width:64px;color:var(--rd);font-size:10px"></td>'+
+    '<td style="padding:2px"><input class="ic ro" data-f="profit" value="" readonly style="width:64px;font-weight:700"></td>'+
+    '<td style="padding:2px;text-align:center"><button onclick="delSIRow(\''+id+'\')" style="background:var(--rdd);border:1px solid var(--rd);border-radius:4px;color:var(--rd);cursor:pointer;padding:3px 7px;font-size:10px">&#10005;</button></td>';
+  tb.appendChild(tr);
+  // Calc if we have values
+  calcSIRow(tr.querySelector('[data-f="sale_price"]'));
+  updSIT();
+}
+function delSIRow(id){var el=Q(id);if(el)el.remove();updSIT();renSI();}
+function renSI(){var rows=Q('si-rows').rows;for(var i=0;i<rows.length;i++)rows[i].cells[0].textContent=i+1;}
+
+function calcSIRow(el){
+  if(!el)return;var row=el.closest('tr');if(!row)return;
+  function gv(f){var e=row.querySelector('[data-f="'+f+'"]');return e?parseFloat(e.value||0)||0:0;}
+  function sv(f,v){var e=row.querySelector('[data-f="'+f+'"]');if(e)e.value=v||'';}
+  var q=gv('qty'),r=gv('sale_price'),d=gv('disc'),g=gv('gst'),p=gv('pur_price');
+  var tax=Math.round(q*r*(1-d/100)*100)/100;
+  var ga=Math.round(tax*(g/100)*100)/100;
+  var cg=Math.round(ga/2*100)/100;
+  var tot=Math.round((tax+ga)*100)/100;
+  var pt=Math.round(q*p*100)/100;
+  var profit=Math.round((tot-pt)*100)/100;
+  sv('taxable',tax||'');sv('cgst',cg||'');sv('sgst',cg||'');sv('total',tot||'');
+  var pe=row.querySelector('[data-f="profit"]');
+  if(pe){pe.value=profit?(profit>=0?'▲':'▼')+' ₹'+F(Math.abs(profit)):'';pe.style.color=profit>=0?'var(--gn)':'var(--rd)';}
+  updSIT();
+}
+function updSIT(){
+  var tb=Q('si-rows');if(!tb)return;
+  var q=0,tx=0,cg=0,sg=0,tt=0,pc=0;
+  for(var i=0;i<tb.rows.length;i++){
+    function gv(r,f){var e=r.querySelector('[data-f="'+f+'"]');return e?parseFloat(e.value||0)||0:0;}
+    var qty=gv(tb.rows[i],'qty'),pur=gv(tb.rows[i],'pur_price');
+    q+=qty;tx+=gv(tb.rows[i],'taxable');cg+=gv(tb.rows[i],'cgst');sg+=gv(tb.rows[i],'sgst');tt+=gv(tb.rows[i],'total');pc+=qty*pur;
+  }
+  var profit=Math.round((tt-pc)*100)/100;
+  S('si-tq',q||0);S('si-ttx','₹'+F(tx));S('si-tcg','₹'+F(cg));S('si-tsg','₹'+F(sg));S('si-ttt','₹'+F(tt));S('si-tpc','₹'+F(pc));
+  var pe=Q('si-tpr');if(pe){pe.textContent=(profit>=0?'▲ ':'▼ ')+'₹'+F(Math.abs(profit));pe.style.color=profit>=0?'var(--gn)':'var(--rd)';}
+  var cge=Q('sif-cgst');if(cge)cge.value=F(cg);
+  var sge=Q('sif-sgst');if(sge)sge.value=F(sg);
+  var iae=Q('sif-inv_amount');if(iae)iae.value=F(tt);
+  // Round Off calculation
+  var rounded = Math.round(tt);
+  var roundOff = Math.round((rounded - tt)*100)/100;
+  var roEl=Q('sif-round_off');
+  if(roEl){
+    roEl.value = roundOff===0 ? '0.00' : (roundOff>0?'+':'')+roundOff.toFixed(2);
+    roEl.style.color = roundOff>0 ? 'var(--gn)' : roundOff<0 ? 'var(--rd)' : 'var(--t3)';
+  }
+  var faEl=Q('sif-final_amount');
+  if(faEl) faEl.value=F(rounded);
+  var rc=Q('si-rcnt');if(rc){var c=tb.rows.length;rc.textContent=c+' item'+(c!==1?'s':'');}
+}
+
+function saveSI(){
+  var siTb=Q('si-rows');
+  var lineItems=[];var totParts=0,totCGST=0,totSGST=0,totInv=0;
+  if(siTb){
+    for(var i=0;i<siTb.rows.length;i++){
+      var row=siTb.rows[i];
+      function grsi(r,f){var e=r.querySelector('[data-f="'+f+'"]');return e?e.value.trim():'';}
+      var li={part_no:grsi(row,'part_no'),hsn_code:grsi(row,'hsn_code'),particulars:grsi(row,'particulars'),qty:grsi(row,'qty'),sale_price:grsi(row,'sale_price'),gst:grsi(row,'gst'),cgst:grsi(row,'cgst'),sgst:grsi(row,'sgst'),total:grsi(row,'total'),pur_price:grsi(row,'pur_price')};
+      if(!li.particulars&&!li.part_no)continue;
+      lineItems.push(li);totParts+=N(li.total)-N(li.cgst)-N(li.sgst);totCGST+=N(li.cgst);totSGST+=N(li.sgst);totInv+=N(li.total);
+    }
+  }
+  var data={
+    inward_date:EV('sif-inward_date'),month:EV('sif-month'),type_of_service:EV('sif-type'),
+    inv_no:EV('sif-inv_no'),inv_date:EV('sif-inv_date'),car_reg_no:EV('sif-car_reg'),
+    car_ref:EV('sif-car_ref'),insurance_mail:EV('sif-ins_mail'),customer_name:EV('sif-customer'),
+    mobile_no:EV('sif-mobile'),gst_no:EV('sif-gst_no'),partner_name:EV('sif-partner_name'),billed_company:EV('sif-billed_co'),
+    policy_no:EV('sif-policy_no'),claim_no:EV('sif-claim_no'),parts:F(totParts),labour:EV('sif-labour'),
+    cgst:EV('sif-cgst'),sgst:EV('sif-sgst'),igst:EV('sif-igst'),inv_amount:EV('sif-inv_amount'),
+    claim_charge:'', net_invoice_value:EV('sif-net_value'), insurance_liability:EV('sif-ins_liability'),
+    tds:EV('sif-tds'), payment_status:EV('sif-pay_status'), payment_type:EV('sif-pay_type'),
+    payment_received_from_insurance:'', insurance_payment_received_date:EV('sif-ins_recd_date'),
+    customer_payment:EV('sif-cust_pay'), payment_rs_received:EV('sif-pay_recd'),
+    payment_received_date:EV('sif-pay_recd_date'), discount:EV('sif-discount'),
+    pending_payment:EV('sif-pending'), difference_payment:'',
+    round_off:EV('sif-round_off'), final_amount:EV('sif-final_amount'),
+    remarks:EV('sif-remarks'),invoice_link:EV('sif-inv_link'),line_items:JSON.stringify(lineItems)
+  };
+  if(!data.parts||N(data.parts)===0)data.parts=F(totParts);
+  if(!data.cgst||N(data.cgst)===0)data.cgst=F(totCGST);
+  if(!data.sgst||N(data.sgst)===0)data.sgst=F(totSGST);
+  if(!data.inv_amount||N(data.inv_amount)===0)data.inv_amount=F(totInv);
+  if(!data.net_invoice_value||N(data.net_invoice_value)===0)data.net_invoice_value=F(totInv);
+  if(DB.eSIIdx!==null&&DB.eSIIdx!==undefined){DB.si[DB.eSIIdx]=Object.assign(DB.si[DB.eSIIdx],data);}
+  else{data.sr=DB.si.length+1;DB.si.push(data);}
+  DB.si.forEach(function(r,i){r.sr=i+1;});
+  persist();toast('Invoice saved! ₹'+data.inv_amount,'gn');closeSIM();go('sales');
+  addLog('SI: '+(data.inv_no||'#'+data.sr)+' car:'+(data.car_reg_no||'N/A')+' ₹'+data.inv_amount);
+}
+
+// ===== RENDER TABLES =====
+function rPB(data){
+  var tb=Q('pb-tb');
+  S('pbc',DB.pb.length);S('pb-sub',DB.pb.length+' bills');
+  var months=[];DB.pb.forEach(function(r){if(r.month&&months.indexOf(r.month)<0)months.push(r.month);});
+  var mf=Q('pb-mf');if(mf){var cv=mf.value;mf.innerHTML='<option value="">All Months</option>'+months.map(function(m){return'<option '+(cv===m?'selected':'')+'>'+m+'</option>';}).join('');}
+  if(!data.length){tb.innerHTML='<tr><td colspan="25"><div class="emp">No purchase bills yet.</div></td></tr>';return;}
+  tb.innerHTML=data.map(function(r,i){
+    var lnk=r.invoice_link?'<a href="'+r.invoice_link+'" target="_blank" class="lnk">&#128206; View</a>':'-';
+    var isC=(r.bill_type||'').indexOf('Chitti')>=0;
+    var bt=isC?'<span class="bx am">Chitti</span>':(r.bill_type==='Handwritten Bill'?'<span class="bx pu">HW</span>':(r.bill_type==='Stock Transfer'?'<span class="bx cy">ST</span>':'<span class="bx gn" style="font-size:8px">Tax</span>'));
+    return'<tr>'+
+      '<td>'+r.sr+'</td><td>'+bt+'</td>'+
+      '<td>'+(r.month||'-')+'</td><td>'+(r.bill_date||'-')+'</td>'+
+      '<td style="font-weight:600;color:var(--t)">'+(r.bill_no||'-')+'</td>'+
+      '<td style="font-weight:600;color:var(--t)">'+(r.vendor_name||'-')+'</td>'+
+      '<td>'+(r.part_no||'-')+'</td>'+
+      '<td style="color:var(--cy);font-size:10px">'+(r.hsn_code||'-')+'</td>'+
+      '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">'+(r.particulars||'-')+'</td>'+
+      '<td>'+(r.nos||'-')+'</td><td>₹'+F(r.purchase_price)+'</td><td>'+(r.discount||0)+'%</td>'+
+      '<td>₹'+F(r.taxable_price)+'</td><td>'+(r.gst_percent||'-')+'%</td><td>₹'+F(r.gst_amount)+'</td>'+
+      '<td style="font-weight:700;color:var(--am)">₹'+F(r.total_parts_purchase||r.total)+'</td>'+
+      '<td style="color:var(--pu);font-size:11px">'+(r.round_off||'0.00')+'</td>'+
+      '<td style="font-weight:700;color:var(--gn)">₹'+F(r.final_amount||r.total_parts_purchase||r.total)+'</td>'+
+      '<td>'+(r.purchase_date||'-')+'</td>'+
+      '<td><span class="bx '+(r.payment_done==='Paid'?'gn':r.payment_done==='Partial'?'am':'rd')+'">'+(r.payment_done||'Pending')+'</span></td>'+
+      '<td>'+(r.payment_type||'-')+'</td>'+
+      '<td style="color:var(--bl);font-weight:600">'+(r.used_for_car_reg||'-')+'</td>'+
+      '<td>'+(r.our_inv_no||'-')+'</td><td>'+(r.voucher_no||'-')+'</td>'+
+      '<td><span class="bx '+(r.duplicate==='Yes'?'rd':'gn')+'">'+(r.duplicate||'No')+'</span></td>'+
+      '<td>'+lnk+'</td>'+
+      '<td style="display:flex;gap:4px"><button class="btn xs" onclick="openPB('+i+')">&#9999;</button><button class="btn xs rd" onclick="delPB('+i+')">&#128465;</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function rSI(data){
+  var tb=Q('si-tb');
+  S('sic',DB.si.length);S('si-sub',DB.si.length+' invoices');
+  var months=[];DB.si.forEach(function(r){if(r.month&&months.indexOf(r.month)<0)months.push(r.month);});
+  var mf=Q('si-mf');if(mf){var cv=mf.value;mf.innerHTML='<option value="">All Months</option>'+months.map(function(m){return'<option '+(cv===m?'selected':'')+'>'+m+'</option>';}).join('');}
+  if(!data.length){tb.innerHTML='<tr><td colspan="30"><div class="emp">No invoices yet.</div></td></tr>';return;}
+  tb.innerHTML=data.map(function(r,i){
+    var lnk=r.invoice_link?'<a href="'+r.invoice_link+'" target="_blank" class="lnk">&#128206; View</a>':'-';
+    return'<tr>'+
+      '<td>'+r.sr+'</td><td>'+(r.inward_date||'-')+'</td><td>'+(r.month||'-')+'</td>'+
+      '<td><span class="bx '+(r.type_of_service==='Insurance'?'bl':r.type_of_service==='Cash'?'gn':'am')+'">'+(r.type_of_service||'-')+'</span></td>'+
+      '<td style="font-weight:600;color:var(--t)">'+(r.inv_no||'-')+'</td><td>'+(r.inv_date||'-')+'</td>'+
+      '<td style="font-weight:700;color:var(--bl)">'+(r.car_reg_no||'-')+'</td>'+
+      '<td>'+(r.customer_name||'-')+'</td><td>'+(r.mobile_no||'-')+'</td>'+
+      '<td>'+(r.billed_company||'-')+'</td><td>'+(r.claim_no||'-')+'</td>'+
+      '<td style="font-size:10px">'+(r.gst_no||'-')+'</td>'+
+      '<td>₹'+F(r.parts)+'</td><td>₹'+F(r.labour)+'</td>'+
+      '<td>₹'+F(r.cgst)+'</td><td>₹'+F(r.sgst)+'</td><td>₹'+F(r.igst)+'</td>'+
+      '<td style="font-weight:700;color:var(--am)">₹'+F(r.inv_amount)+'</td>'+
+      '<td style="color:var(--pu);font-size:11px">'+(r.round_off||'0.00')+'</td>'+
+      '<td style="font-weight:700;color:var(--am)">₹'+F(r.final_amount||r.inv_amount)+'</td>'+
+      '<td>₹'+F(r.net_invoice_value)+'</td><td>₹'+F(r.insurance_liability)+'</td>'+
+      '<td>₹'+F(r.tds)+'</td>'+
+      '<td style="color:var(--bl);font-weight:600">₹'+F(r.customer_payment)+'</td>'+
+      '<td>'+(r.payment_type||'-')+'</td>'+
+      '<td>₹'+F(r.payment_rs_received)+'</td>'+
+      '<td style="color:var(--rd);font-weight:600">₹'+F(r.pending_payment)+'</td>'+
+      '<td><span class="bx '+(r.payment_status==='Paid'?'gn':r.payment_status==='Partial'?'am':'rd')+'">'+(r.payment_status||'Pending')+'</span></td>'+
+      '<td style="max-width:100px;overflow:hidden;text-overflow:ellipsis">'+(r.remarks||'-')+'</td>'+
+      '<td>'+lnk+'</td>'+
+      '<td style="display:flex;gap:4px"><button class="btn xs" onclick="openEditSI('+i+')">&#9999;</button><button class="btn xs rd" onclick="delSI('+i+')">&#128465;</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function fPB(v){var lv=v.toLowerCase();rPB(v?DB.pb.filter(function(r){return JSON.stringify(r).toLowerCase().indexOf(lv)>=0;}):DB.pb);}
+function fPBP(v){rPB(v?DB.pb.filter(function(r){return r.payment_done===v;}):DB.pb);}
+function fPBM(v){rPB(v?DB.pb.filter(function(r){return r.month===v;}):DB.pb);}
+function fSI(v){var lv=v.toLowerCase();rSI(v?DB.si.filter(function(r){return JSON.stringify(r).toLowerCase().indexOf(lv)>=0;}):DB.si);}
+function fSIT(v){rSI(v?DB.si.filter(function(r){return r.type_of_service===v;}):DB.si);}
+function fSIP(v){rSI(v?DB.si.filter(function(r){return r.payment_status===v;}):DB.si);}
+function fSIM(v){rSI(v?DB.si.filter(function(r){return r.month===v;}):DB.si);}
+
+function delPB(idx){if(!confirm('Delete?'))return;DB.pb.splice(idx,1);DB.pb.forEach(function(r,i){r.sr=i+1;});persist();toast('Deleted.','rd');}
+function delSI(idx){if(!confirm('Delete?'))return;DB.si.splice(idx,1);DB.si.forEach(function(r,i){r.sr=i+1;});persist();toast('Deleted.','rd');}
+
+// ===== INVENTORY =====
+function buildInv(){
+  DB.inv={};
+  DB.pb.forEach(function(b){
+    var k=(b.part_no||b.particulars||'UNKNOWN').trim();
+    if(!DB.inv[k])DB.inv[k]={part_no:b.part_no,hsn:b.hsn_code,desc:b.particulars,vendor:b.vendor_name,purchased:0,price:0,last:'',veh:{}};
+    DB.inv[k].purchased+=parseFloat(b.nos||1);
+    DB.inv[k].price=parseFloat(b.purchase_price||0);
+    DB.inv[k].last=b.bill_date||'';
+    if(b.hsn_code)DB.inv[k].hsn=b.hsn_code;
+    if(b.used_for_car_reg)DB.inv[k].veh[b.used_for_car_reg]=1;
+  });
+}
+function rInv(){
+  buildInv();var parts=Object.entries(DB.inv);var tb=Q('iv-tb');
+  if(!parts.length){tb.innerHTML='<tr><td colspan="10"><div class="emp">No inventory.</div></td></tr>';return;}
+  var tv=0,lc=0,vs={};
+  tb.innerHTML=parts.map(function(kv){
+    var k=kv[0],p=kv[1];var st=p.purchased;var val=st*p.price;tv+=val;if(st<=2)lc++;
+    Object.keys(p.veh).forEach(function(v){vs[v]=1;});
+    return'<tr>'+
+      '<td style="font-weight:600;color:var(--t)">'+(p.part_no||'-')+'</td>'+
+      '<td style="color:var(--cy);font-size:10px">'+(p.hsn||'-')+'</td>'+
+      '<td>'+(p.desc||k)+'</td><td>'+(p.vendor||'-')+'</td>'+
+      '<td><strong style="color:'+(st<=2?'var(--rd)':st<=5?'var(--am)':'var(--gn)')+'">'+st+'</strong></td>'+
+      '<td>₹'+F(p.price)+'</td><td>₹'+F(val)+'</td><td>'+(p.last||'-')+'</td>'+
+      '<td style="font-size:10px;color:var(--bl)">'+Object.keys(p.veh).slice(0,3).join(', ')+'</td>'+
+      '<td><span class="bx '+(st<=2?'rd':st<=5?'am':'gn')+'">'+(st<=2?'Low Stock':st<=5?'Limited':'OK')+'</span></td>'+
+    '</tr>';
+  }).join('');
+  S('iv-t',parts.length);S('iv-v','₹'+FL(tv));S('iv-l',lc);S('iv-vh',Object.keys(vs).length);
+}
+
+// ===== PURCHASE PENDING SALES =====
+function getPendingCars(){
+  var bought={};
+  DB.pb.forEach(function(b){var reg=(b.used_for_car_reg||'').trim().toUpperCase();if(!reg)return;if(!bought[reg])bought[reg]={reg:reg,bills:[],total:0,months:[],oldest:''};bought[reg].bills.push(b);bought[reg].total+=N(b.total_parts_purchase||b.total);if(b.month&&bought[reg].months.indexOf(b.month)<0)bought[reg].months.push(b.month);if(!bought[reg].oldest||(b.bill_date&&b.bill_date<bought[reg].oldest))bought[reg].oldest=b.bill_date||'';});
+  var hasSales={};DB.si.forEach(function(s){var reg=(s.car_reg_no||'').trim().toUpperCase();if(reg&&s.inv_no)hasSales[reg]=true;});
+  return Object.values(bought).filter(function(c){return!hasSales[c.reg];});
+}
+
+function rPSP(){
+  var p=getPendingCars();
+  var totalItems=p.reduce(function(a,c){return a+c.bills.length;},0);
+  var totalVal=p.reduce(function(a,c){return a+c.total;},0);
+  var oldest=p.reduce(function(a,c){return(!a||(c.oldest&&c.oldest<a))?c.oldest:a;},'');
+  S('pspb',p.length);S('d-psp',p.length);S('d-psps',p.length+' car'+(p.length!==1?'s':'')+' need invoices');
+  S('psp-t',p.length);S('psp-v','₹'+FL(totalVal));S('psp-i',totalItems);S('psp-o',oldest||'-');
+  var db=Q('d-psp-badge');if(db)db.textContent=p.length+' car'+(p.length!==1?'s':'');
+  var dl=Q('d-psp-list');
+  if(dl){
+    if(!p.length){dl.innerHTML='<div class="emp" style="padding:12px;color:#166534;background:#f0fdf4">&#10003; All cars have sales invoices.</div>';return;}
+    var today=new Date();
+    var th='background:var(--sb);color:#e2e8f0;padding:7px 9px;text-align:left;font-size:9px;font-weight:700;border-bottom:1px solid rgba(0,0,0,0.2)';
+    dl.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr>'+
+      '<th style="'+th+'">Car Reg No</th><th style="'+th+'">Parts Purchased</th><th style="'+th+'">Vendor</th><th style="'+th+'">Month</th><th style="'+th+'">Pur Date</th><th style="'+th+'">Total</th><th style="'+th+'">Days</th><th style="'+th+'">Action</th>'+
+      '</tr></thead><tbody>'+
+      p.slice(0,20).map(function(c){
+        var b=c.bills[0];var days=0;
+        if(c.oldest){var parts=c.oldest.split('/');var bd=parts.length>=3?new Date(parseInt(parts[2])<100?(2000+parseInt(parts[2])):parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0])):new Date(c.oldest);if(!isNaN(bd))days=Math.max(0,Math.floor((today-bd)/(1000*60*60*24)));}
+        var uc=days>30?'rd':days>14?'am':'bl';
+        var rb=days>30?'background:#fff5f5':days>14?'background:#fffbeb':'';
+        var vendors=[...new Set(c.bills.map(function(bi){return bi.vendor_name||''}))].filter(Boolean).slice(0,2).join(', ');
+        var parts2=c.bills.map(function(bi){return bi.particulars||bi.part_no||'';}).filter(Boolean).slice(0,3).join(', ')+(c.bills.length>3?' (+'+( c.bills.length-3)+')':'');
+        return'<tr style="border-bottom:1px solid var(--b);'+rb+'">'+
+          '<td style="padding:7px 9px;font-weight:700;color:var(--bl)">'+c.reg+'</td>'+
+          '<td style="padding:7px 9px;max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--t2)">'+parts2+'</td>'+
+          '<td style="padding:7px 9px;color:var(--t2)">'+vendors+'</td>'+
+          '<td style="padding:7px 9px;color:var(--t2)">'+c.months.join(', ')+'</td>'+
+          '<td style="padding:7px 9px;color:var(--t2)">'+c.oldest+'</td>'+
+          '<td style="padding:7px 9px;font-weight:700;color:var(--am)">₹'+F(c.total)+'</td>'+
+          '<td style="padding:7px 9px"><span class="bx '+uc+'">'+(days>0?days+'d':'-')+'</span></td>'+
+          '<td style="padding:7px 9px"><button class="btn xs cy" onclick="openSI(\''+c.reg+'\')">+ Invoice</button></td>'+
+        '</tr>';
+      }).join('')+'</tbody></table></div>';
+  }
+  // Full page table
+  var ptb=Q('psp-tb');
+  if(!ptb)return;
+  var months=[];p.forEach(function(c){c.months.forEach(function(m){if(months.indexOf(m)<0)months.push(m);});});
+  var mf=Q('psp-mf');if(mf){var cv=mf.value;mf.innerHTML='<option value="">All Months</option>'+months.map(function(m){return'<option '+(cv===m?'selected':'')+'>'+m+'</option>';}).join('');}
+  if(!p.length){ptb.innerHTML='<tr><td colspan="16"><div class="emp" style="background:#f0fdf4;padding:20px;color:#166634">&#10003; All cars have invoices!</div></td></tr>';return;}
+  var today2=new Date();var allRows=[];
+  p.forEach(function(c){c.bills.forEach(function(b){allRows.push({car:c,bill:b});});});
+  ptb.innerHTML=allRows.map(function(x,i){
+    var c=x.car,b=x.bill;var days=0;
+    if(c.oldest){var pp=c.oldest.split('/');var bd=pp.length>=3?new Date(parseInt(pp[2])<100?(2000+parseInt(pp[2])):parseInt(pp[2]),parseInt(pp[1])-1,parseInt(pp[0])):new Date(c.oldest);if(!isNaN(bd))days=Math.max(0,Math.floor((today2-bd)/(1000*60*60*24)));}
+    var uc=days>30?'rd':days>14?'am':'bl';
+    var isC=(b.bill_type||'').indexOf('Chitti')>=0;
+    return'<tr style="border-bottom:1px solid var(--b)'+(days>30?';background:#fff5f5':days>14?';background:#fffbeb':'')+'">' +
+      '<td style="padding:6px 9px;text-align:center;color:var(--t3)">'+(i+1)+'</td>'+
+      '<td style="padding:6px 9px;font-weight:700;color:var(--bl)">'+c.reg+'</td>'+
+      '<td style="padding:6px 9px">'+(b.month||'-')+'</td>'+
+      '<td style="padding:6px 9px;font-weight:600;color:var(--t)">'+(b.vendor_name||'-')+'</td>'+
+      '<td style="padding:6px 9px">'+(b.part_no||'-')+'</td>'+
+      '<td style="padding:6px 9px;color:var(--cy);font-size:10px">'+(b.hsn_code||'-')+'</td>'+
+      '<td style="padding:6px 9px;max-width:130px;overflow:hidden;text-overflow:ellipsis">'+(b.particulars||'-')+'</td>'+
+      '<td style="padding:6px 9px">'+(b.nos||'-')+'</td>'+
+      '<td style="padding:6px 9px">₹'+F(b.purchase_price)+'</td>'+
+      '<td style="padding:6px 9px">'+(b.gst_percent||'-')+'%</td>'+
+      '<td style="padding:6px 9px;font-weight:700;color:var(--am)">₹'+F(b.total_parts_purchase||b.total)+'</td>'+
+      '<td style="padding:6px 9px">'+(b.bill_date||'-')+'</td>'+
+      '<td style="padding:6px 9px">'+(b.bill_no||'-')+'</td>'+
+      '<td style="padding:6px 9px">'+(isC?'<span class="bx am">Chitti</span>':'<span class="bx gn" style="font-size:8px">Tax</span>')+'</td>'+
+      '<td style="padding:6px 9px"><span class="bx '+uc+'">'+(days>0?days+' days':'-')+'</span></td>'+
+      '<td style="padding:6px 9px"><button class="btn xs cy" onclick="openSI(\''+c.reg+'\')">+ Invoice</button></td>'+
+    '</tr>';
+  }).join('');
+}
+function fPSP(v){var lv=v.toLowerCase();var p=getPendingCars();if(v)p=p.filter(function(c){return(c.reg+JSON.stringify(c.bills)).toLowerCase().indexOf(lv)>=0;});rPSPList(p);}
+function fPSPM(v){var p=getPendingCars();if(v)p=p.filter(function(c){return c.months.indexOf(v)>=0;});rPSPList(p);}
+function rPSPList(p){var ptb=Q('psp-tb');if(!ptb)return;if(!p.length){ptb.innerHTML='<tr><td colspan="16"><div class="emp">No matching.</div></td></tr>';return;}var allRows=[];p.forEach(function(c){c.bills.forEach(function(b){allRows.push({car:c,bill:b});});});ptb.innerHTML=allRows.map(function(x,i){var c=x.car,b=x.bill;return'<tr style="border-bottom:1px solid var(--b)"><td style="padding:6px 9px;text-align:center;color:var(--t3)">'+(i+1)+'</td><td style="padding:6px 9px;font-weight:700;color:var(--bl)">'+c.reg+'</td><td style="padding:6px 9px">'+(b.month||'-')+'</td><td style="padding:6px 9px">'+(b.vendor_name||'-')+'</td><td style="padding:6px 9px">'+(b.part_no||'-')+'</td><td style="padding:6px 9px;color:var(--cy)">'+(b.hsn_code||'-')+'</td><td style="padding:6px 9px">'+(b.particulars||'-')+'</td><td style="padding:6px 9px">'+(b.nos||'-')+'</td><td style="padding:6px 9px">₹'+F(b.purchase_price)+'</td><td style="padding:6px 9px">'+(b.gst_percent||'-')+'%</td><td style="padding:6px 9px;font-weight:700;color:var(--am)">₹'+F(b.total_parts_purchase||b.total)+'</td><td style="padding:6px 9px">'+(b.bill_date||'-')+'</td><td style="padding:6px 9px">'+(b.bill_no||'-')+'</td><td></td><td><span class="bx am">Pending</span></td><td style="padding:6px 9px"><button class="btn xs cy" onclick="openSI(\''+c.reg+'\')">+ Invoice</button></td></tr>';}).join('');}
+
+
+// ===== VENDOR OUTSTANDING =====
+function rVout(data){
+  var vendors={};
+  data.filter(function(r){return r.payment_done!=='Paid';}).forEach(function(r){
+    var v=r.vendor_name||'Unknown';
+    if(!vendors[v])vendors[v]={name:v,total:0,pending:0,partial:0,nos:[]};
+    vendors[v].total+=N(r.total_parts_purchase||r.total);
+    if(r.payment_done==='Pending'){vendors[v].pending++;vendors[v].nos.push(r.bill_no||'-');}
+    if(r.payment_done==='Partial')vendors[v].partial++;
+  });
+  var rows=Object.values(vendors).sort(function(a,b){return b.total-a.total;});
+  var tot=rows.reduce(function(a,v){return a+v.total;},0);
+  S('vo-tot','₹'+FL(tot));S('vo-vs',rows.length+' vendors');S('d-vo','₹'+FL(tot));S('d-vos',rows.length+' vendors');
+  S('voc',rows.length);S('vo-pb',DB.pb.filter(function(r){return r.payment_done==='Pending';}).length);
+  S('vo-par',DB.pb.filter(function(r){return r.payment_done==='Partial';}).length);
+  S('vo-paid',DB.pb.filter(function(r){return r.payment_done==='Paid';}).length);
+  var wrap=Q('vo-wrap');if(!wrap)return;
+  if(!rows.length){wrap.innerHTML='<div class="emp">No outstanding vendor payments.</div>';return;}
+  wrap.innerHTML='<div class="tw"><table><thead><tr><th>Vendor</th><th>Pending Bills</th><th>Partial Bills</th><th>Outstanding</th><th>Bill Nos</th><th>Actions</th></tr></thead><tbody>'+
+    rows.map(function(v){return'<tr><td style="font-weight:600;color:var(--t)">'+v.name+'</td><td style="text-align:center"><span class="bx rd">'+v.pending+'</span></td><td style="text-align:center"><span class="bx am">'+v.partial+'</span></td><td style="font-weight:700;color:var(--rd)">₹'+F(v.total)+'</td><td style="font-size:10px;color:var(--t2)">'+v.nos.slice(0,4).join(', ')+(v.nos.length>4?'...':'')+'</td><td><button class="btn xs gn" onclick="waVendor(\''+v.name+'\',\''+F(v.total)+'\')">&#128172; WA</button></td></tr>';}).join('')+
+    '</tbody></table></div>';
+}
+function fVO(v){var lv=v.toLowerCase();rVout(v?DB.pb.filter(function(r){return(r.vendor_name||'').toLowerCase().indexOf(lv)>=0;}):DB.pb);}
+function waVendor(n,amt){var wn=Q('wa-num');var num=wn&&wn.value?wn.value.replace(/[^0-9]/g,''):'';if(!num){toast('Set WA number in WA Alerts','am');return;}window.open('https://wa.me/'+num+'?text='+encodeURIComponent('Carecay: Payment of Rs.'+amt+' due to vendor '+n+'.'),'_blank');}
+
+// ===== CUSTOMER OUTSTANDING =====
+var _coMode='partner';
+function coTab(mode,el){_coMode=mode;document.querySelectorAll('.tabs .tab').forEach(function(t){t.classList.remove('on');});el.classList.add('on');rCout();}
+function fCO(v){rCout();}
+function rCout(){
+  // ONLY from Sales Invoices — NO purchase bill data
+  var pending = DB.si.filter(function(s){ return s.payment_status !== 'Paid'; });
+
+  // Pending payment = the actual pending_payment field entered by user
+  // NOT inv_amount — that caused the wrong total
+  var totOut  = pending.reduce(function(a,s){ return a + N(s.pending_payment); }, 0);
+  var custOut = pending.reduce(function(a,s){ return a + N(s.customer_payment||0); }, 0);
+  var insOut  = pending.reduce(function(a,s){ return a + N(s.insurance_liability); }, 0);
+  var totTDS  = DB.si.reduce(function(a,s){ return a + N(s.tds); }, 0);
+
+  S('co-tot', '₹'+FL(totOut));
+  S('co-cs',  pending.length+' invoices');
+  S('co-ins', '₹'+FL(insOut));
+  S('co-cus', '₹'+FL(custOut));
+  S('co-tds', '₹'+FL(totTDS));
+  S('coc',    pending.length);
+  S('d-pen',  '₹'+FL(totOut));
+  S('d-pns',  pending.length+' invoices');
+
+  var wrap = Q('co-wrap'); if(!wrap) return;
+  var html = '';
+
+  // TAB 1: Partner-wise — grouped by Partner Name
+  if(_coMode === 'partner'){
+    var partners = {};
+    pending.forEach(function(s){
+      var p = s.partner_name || s.billed_company || 'Direct / Cash';
+      if(!partners[p]) partners[p] = {
+        name:p, invoices:[], tot_parts:0, tot_labour:0,
+        tot_cgst:0, tot_sgst:0, tot_inv:0, tot_pending:0
+      };
+      partners[p].invoices.push(s);
+      partners[p].tot_parts   += N(s.parts);
+      partners[p].tot_labour  += N(s.labour);
+      partners[p].tot_cgst    += N(s.cgst);
+      partners[p].tot_sgst    += N(s.sgst);
+      partners[p].tot_inv     += N(s.inv_amount);
+      partners[p].tot_pending += N(s.pending_payment);
+    });
+    var rows = Object.values(partners).sort(function(a,b){ return b.tot_pending - a.tot_pending; });
+    html = '<div class="tw"><table><thead><tr>'+
+      '<th>Partner Name</th><th>Invoices</th>'+
+      '<th style="color:#fbbf24">Parts</th><th style="color:#fbbf24">Labour</th>'+
+      '<th style="color:#fbbf24">CGST</th><th style="color:#fbbf24">SGST</th>'+
+      '<th style="color:#fbbf24">Invoice Value</th>'+
+      '<th style="color:#fca5a5">Pending Payment</th>'+
+      '<th>Actions</th></tr></thead><tbody>'+
+      rows.map(function(p){
+        return '<tr>'+
+          '<td style="font-weight:700;color:var(--t)">'+p.name+'</td>'+
+          '<td style="text-align:center"><span class="bx rd">'+p.invoices.length+'</span></td>'+
+          '<td>₹'+F(p.tot_parts)+'</td>'+
+          '<td>₹'+F(p.tot_labour)+'</td>'+
+          '<td>₹'+F(p.tot_cgst)+'</td>'+
+          '<td>₹'+F(p.tot_sgst)+'</td>'+
+          '<td style="font-weight:700;color:var(--am)">₹'+F(p.tot_inv)+'</td>'+
+          '<td style="font-weight:700;color:var(--rd)">₹'+F(p.tot_pending)+'</td>'+
+          '<td><button class="btn xs gn" onclick="waPartner(\''+p.name+'\',\''+F(p.tot_pending)+'\')">&#128172; WA</button></td>'+
+        '</tr>';
+      }).join('')+
+      '<tr style="background:var(--bg3)"><td colspan="2" style="padding:8px 9px;font-weight:700">TOTAL</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows.reduce(function(a,r){return a+r.tot_parts;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows.reduce(function(a,r){return a+r.tot_labour;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows.reduce(function(a,r){return a+r.tot_cgst;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows.reduce(function(a,r){return a+r.tot_sgst;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows.reduce(function(a,r){return a+r.tot_inv;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--rd)">₹'+F(totOut)+'</td>'+
+      '<td></td></tr>'+
+      '</tbody></table></div>';
+
+  // TAB 2: Customer-wise
+  } else if(_coMode === 'customer'){
+    var custs = {};
+    pending.forEach(function(s){
+      var c = s.customer_name || 'Unknown';
+      if(!custs[c]) custs[c] = {
+        name:c, mob:s.mobile_no||'', cars:[],
+        invoices:[], tot_parts:0, tot_labour:0,
+        tot_cgst:0, tot_sgst:0, tot_inv:0, tot_pending:0
+      };
+      custs[c].invoices.push(s);
+      custs[c].tot_parts   += N(s.parts);
+      custs[c].tot_labour  += N(s.labour);
+      custs[c].tot_cgst    += N(s.cgst);
+      custs[c].tot_sgst    += N(s.sgst);
+      custs[c].tot_inv     += N(s.inv_amount);
+      custs[c].tot_pending += N(s.pending_payment);
+      if(s.car_reg_no && custs[c].cars.indexOf(s.car_reg_no)<0) custs[c].cars.push(s.car_reg_no);
+      if(!custs[c].mob && s.mobile_no) custs[c].mob = s.mobile_no;
+    });
+    var rows2 = Object.values(custs).filter(function(c){ return c.tot_pending > 0; }).sort(function(a,b){ return b.tot_pending - a.tot_pending; });
+    html = '<div class="tw"><table><thead><tr>'+
+      '<th>Customer Name</th><th>Mobile No</th><th>Car Reg No</th><th>Invoices</th>'+
+      '<th style="color:#fbbf24">Parts</th><th style="color:#fbbf24">Labour</th>'+
+      '<th style="color:#fbbf24">CGST</th><th style="color:#fbbf24">SGST</th>'+
+      '<th style="color:#fbbf24">Invoice Value</th>'+
+      '<th style="color:#fca5a5">Pending Payment</th>'+
+      '<th>Actions</th></tr></thead><tbody>'+
+      rows2.map(function(c){
+        return '<tr>'+
+          '<td style="font-weight:700;color:var(--t)">'+c.name+'</td>'+
+          '<td style="color:var(--bl)">'+c.mob+'</td>'+
+          '<td style="color:var(--bl);font-weight:600">'+c.cars.join(', ')+'</td>'+
+          '<td style="text-align:center"><span class="bx rd">'+c.invoices.length+'</span></td>'+
+          '<td>₹'+F(c.tot_parts)+'</td>'+
+          '<td>₹'+F(c.tot_labour)+'</td>'+
+          '<td>₹'+F(c.tot_cgst)+'</td>'+
+          '<td>₹'+F(c.tot_sgst)+'</td>'+
+          '<td style="font-weight:700;color:var(--am)">₹'+F(c.tot_inv)+'</td>'+
+          '<td style="font-weight:700;color:var(--rd)">₹'+F(c.tot_pending)+'</td>'+
+          '<td><button class="btn xs gn" '+(c.mob?'onclick="waCust(\''+c.name+'\',\''+c.mob+'\',\''+F(c.tot_pending)+'\')"':'disabled')+'>&#128172;</button></td>'+
+        '</tr>';
+      }).join('')+
+      '<tr style="background:var(--bg3)"><td colspan="4" style="padding:8px 9px;font-weight:700">TOTAL</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows2.reduce(function(a,r){return a+r.tot_parts;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows2.reduce(function(a,r){return a+r.tot_labour;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows2.reduce(function(a,r){return a+r.tot_cgst;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows2.reduce(function(a,r){return a+r.tot_sgst;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(rows2.reduce(function(a,r){return a+r.tot_inv;},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--rd)">₹'+F(totOut)+'</td>'+
+      '<td></td></tr>'+
+      '</tbody></table></div>';
+
+  // TAB 3: All Pending
+  } else {
+    var sorted = pending.filter(function(s){ return N(s.pending_payment) > 0; })
+      .sort(function(a,b){ return N(b.pending_payment) - N(a.pending_payment); });
+    html = '<div class="tw"><table><thead><tr>'+
+      '<th>Car Model</th><th>Car Reg No</th><th>Invoice No</th>'+
+      '<th>Customer Name</th><th>Mobile No</th>'+
+      '<th style="color:#fbbf24">Total Parts</th><th style="color:#fbbf24">Total Labour</th>'+
+      '<th style="color:#fbbf24">CGST</th><th style="color:#fbbf24">SGST</th>'+
+      '<th style="color:#fbbf24">Invoice Value</th>'+
+      '<th style="color:#fca5a5">Pending Payment</th>'+
+      '<th>Status</th><th>Actions</th></tr></thead><tbody>'+
+      sorted.map(function(s){
+        return '<tr style="border-bottom:1px solid var(--b)">'+
+          '<td style="font-size:10px;color:var(--t2)">'+(s.car_ref||'-')+'</td>'+
+          '<td style="font-weight:700;color:var(--bl)">'+(s.car_reg_no||'-')+'</td>'+
+          '<td style="font-weight:600;color:var(--t)">'+(s.inv_no||'-')+'</td>'+
+          '<td>'+(s.customer_name||'-')+'</td>'+
+          '<td style="color:var(--bl)">'+(s.mobile_no||'-')+'</td>'+
+          '<td>₹'+F(s.parts)+'</td>'+
+          '<td>₹'+F(s.labour)+'</td>'+
+          '<td>₹'+F(s.cgst)+'</td>'+
+          '<td>₹'+F(s.sgst)+'</td>'+
+          '<td style="font-weight:700;color:var(--am)">₹'+F(s.inv_amount)+'</td>'+
+          '<td style="font-weight:700;color:var(--rd)">₹'+F(s.pending_payment)+'</td>'+
+          '<td><span class="bx '+(s.payment_status==='Partial'?'am':'rd')+'">'+(s.payment_status||'Pending')+'</span></td>'+
+          '<td><button class="btn xs" onclick="openEditSI('+DB.si.indexOf(s)+')">&#9999;</button></td>'+
+        '</tr>';
+      }).join('')+
+      '<tr style="background:var(--bg3)">'+
+      '<td colspan="5" style="padding:8px 9px;font-weight:700">TOTAL ('+sorted.length+')</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(sorted.reduce(function(a,s){return a+N(s.parts);},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(sorted.reduce(function(a,s){return a+N(s.labour);},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(sorted.reduce(function(a,s){return a+N(s.cgst);},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(sorted.reduce(function(a,s){return a+N(s.sgst);},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--am)">₹'+F(sorted.reduce(function(a,s){return a+N(s.inv_amount);},0))+'</td>'+
+      '<td style="padding:8px 9px;font-weight:700;color:var(--rd)">₹'+F(totOut)+'</td>'+
+      '<td colspan="2"></td></tr>'+
+      '</tbody></table></div>';
+  }
+  wrap.innerHTML = html;
+}
+
+function waPartner(n,amt){var wn=Q('wa-num');var num=wn&&wn.value?wn.value.replace(/[^0-9]/g,''):'';if(!num)return;window.open('https://wa.me/'+num+'?text='+encodeURIComponent('Follow up: Insurance claim Rs.'+amt+' from '+n+' pending.'),'_blank');}
+function waCust(n,mob,amt){var phone=mob.replace(/[^0-9]/g,'');var tmpl=Q('wa-tmpl');var msg=(tmpl?tmpl.value:'Dear {customer}, Rs.{amount} pending.').replace('{customer}',n).replace('{inv_no}','').replace('{amount}',amt);window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(msg),'_blank');DB.wh.unshift({time:new Date().toLocaleString(),customer:n,mobile:mob,amount:amt});localStorage.setItem('cc_wh',JSON.stringify(DB.wh));rWAH();}
+
+// ===== P&L =====
+function rPL(){
+  var map={};
+
+  // Build purchase map — store full item list per car reg
+  DB.pb.forEach(function(b){
+    var reg=(b.used_for_car_reg||'').trim().toUpperCase(); if(!reg) return;
+    if(!map[reg]) map[reg]={
+      reg:reg, customer:'', mobile:'', partner:'', car_model:'', month:b.month||'',
+      inv_no:'', inv_date:'',
+      pur_items:[], sal_items:[],
+      pur_taxable:0, pur_cgst:0, pur_sgst:0, pur_total:0,
+      sal_taxable:0, sal_cgst:0, sal_sgst:0, sal_total:0
+    };
+    var tax=N(b.taxable_price)||( N(b.purchase_price)*N(b.nos||1)*(1-N(b.discount||0)/100));
+    var gamt=N(b.gst_amount)||(tax*N(b.gst_percent||0)/100);
+    var tot=N(b.total_parts_purchase||b.total)||(tax+gamt);
+    map[reg].pur_items.push({
+      particulars: b.particulars||b.part_no||'-',
+      qty: N(b.nos||1),
+      taxable: tax,
+      cgst: Math.round(gamt/2*100)/100,
+      sgst: Math.round(gamt/2*100)/100,
+      total: tot
+    });
+    map[reg].pur_taxable += tax;
+    map[reg].pur_cgst   += Math.round(gamt/2*100)/100;
+    map[reg].pur_sgst   += Math.round(gamt/2*100)/100;
+    map[reg].pur_total  += tot;
+    if(b.month && !map[reg].month) map[reg].month=b.month;
+  });
+
+  // Build sales map — use line_items if saved, else use summary fields
+  DB.si.forEach(function(s){
+    var reg=(s.car_reg_no||'').trim().toUpperCase(); if(!reg) return;
+    if(!map[reg]) map[reg]={
+      reg:reg, customer:s.customer_name||'', mobile:s.mobile_no||'',
+      partner:s.partner_name||s.billed_company||'',
+      car_model:s.car_ref||'', month:s.month||'',
+      inv_no:s.inv_no||'', inv_date:s.inv_date||'',
+      pur_items:[], sal_items:[],
+      pur_taxable:0, pur_cgst:0, pur_sgst:0, pur_total:0,
+      sal_taxable:0, sal_cgst:0, sal_sgst:0, sal_total:0
+    };
+    map[reg].customer  = map[reg].customer  || s.customer_name||'';
+    map[reg].mobile    = map[reg].mobile    || s.mobile_no||'';
+    map[reg].partner   = map[reg].partner   || s.partner_name||s.billed_company||'';
+    map[reg].car_model = map[reg].car_model || s.car_ref||'';
+    map[reg].inv_no    = map[reg].inv_no    || s.inv_no||'';
+    map[reg].inv_date  = map[reg].inv_date  || s.inv_date||'';
+
+    // Try to get item-level detail from saved line_items
+    var gotItems = false;
+    if(s.line_items){
+      try{
+        var li = JSON.parse(s.line_items);
+        if(li && li.length>0){
+          li.forEach(function(item){
+            var tax = N(item.taxable)||0;
+            var cg  = N(item.cgst)||0;
+            var sg  = N(item.sgst)||0;
+            var tot = N(item.total)||0;
+            map[reg].sal_items.push({
+              particulars: item.particulars||item.part_no||'-',
+              qty: N(item.qty||1),
+              taxable: tax, cgst: cg, sgst: sg, total: tot
+            });
+            map[reg].sal_taxable += tax;
+            map[reg].sal_cgst    += cg;
+            map[reg].sal_sgst    += sg;
+            map[reg].sal_total   += tot;
+          });
+          gotItems = true;
+        }
+      } catch(e){}
+    }
+    // Fallback to summary totals if no line items
+    if(!gotItems){
+      var stax = N(s.parts);
+      var scg  = N(s.cgst);
+      var ssg  = N(s.sgst);
+      var stot = N(s.inv_amount)||(stax+N(s.labour)+scg+ssg+N(s.igst));
+      map[reg].sal_items.push({
+        particulars: 'Invoice '+( s.inv_no||s.sr||'-'),
+        qty: 1, taxable: stax, cgst: scg, sgst: ssg, total: stot
+      });
+      map[reg].sal_taxable += stax;
+      map[reg].sal_cgst    += scg;
+      map[reg].sal_sgst    += ssg;
+      map[reg].sal_total   += stot;
+    }
+  });
+
+  var ftext = DB.plFilter||'';
+  var rows = Object.values(map).filter(function(r){
+    return !ftext || JSON.stringify(r).toLowerCase().indexOf(ftext.toLowerCase())>=0;
+  }).sort(function(a,b){ return a.reg.localeCompare(b.reg); });
+
+  // Month filter
+  var months=[]; rows.forEach(function(r){ if(r.month && months.indexOf(r.month)<0) months.push(r.month); });
+  var mf=Q('pl-mf'); if(mf){ var cv=mf.value; mf.innerHTML='<option value="">All Months</option>'+months.map(function(m){return'<option '+(cv===m?'selected':'')+'>'+m+'</option>';}).join(''); }
+
+  // Totals
+  var totP=0, totS=0;
+  rows.forEach(function(r){ totP+=r.pur_total; totS+=r.sal_total; });
+  var gp=totS-totP; var mg=totS>0?((gp/totS)*100).toFixed(1):0;
+  S('pl-tp','₹'+FL(totP)); S('pl-ts','₹'+FL(totS));
+  S('pl-gp','₹'+FL(Math.abs(gp)));
+  S('pl-mg',(gp>=0?'▲ ':'▼ ')+Math.abs(mg)+'% margin');
+  S('pl-veh',rows.length);
+
+  var tb=Q('pl-tb');
+  if(!rows.length){
+    tb.innerHTML='<tr><td colspan="21"><div class="emp">No P&L data. Add purchase bills with Car Reg No, then matching sales invoices.</div></td></tr>';
+    Q('pl-tf').innerHTML=''; return;
+  }
+
+  // Helper: render stacked items in a cell
+  function itemStack(items, field, isAmt){
+    if(!items||!items.length) return '<span style="color:var(--t3)">-</span>';
+    return items.map(function(it){
+      var v = it[field];
+      var display = isAmt ? '₹'+F(v) : (field==='qty'?v:v);
+      return '<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px">'+display+'</div>';
+    }).join('');
+  }
+
+  tb.innerHTML = rows.map(function(r,i){
+    var profit  = r.sal_total - r.pur_total;
+    var mg2     = r.sal_total>0 ? ((profit/r.sal_total)*100).toFixed(1) : 0;
+    var pc      = profit>=0 ? 'gn' : 'rd';
+    var pi      = profit>=0 ? '▲' : '▼';
+    var rowspan = Math.max(r.pur_items.length, r.sal_items.length, 1);
+
+    // Build purchase item rows
+    var purRows = r.pur_items.length ? r.pur_items : [{particulars:'-',qty:0,taxable:0,cgst:0,sgst:0,total:0}];
+    var salRows = r.sal_items.length ? r.sal_items : [{particulars:'-',qty:0,taxable:0,cgst:0,sgst:0,total:0}];
+    var maxRows = Math.max(purRows.length, salRows.length);
+
+    var html = '';
+    for(var ri=0; ri<maxRows; ri++){
+      var p = purRows[ri] || {particulars:'',qty:'',taxable:'',cgst:'',sgst:'',total:''};
+      var s2 = salRows[ri] || {particulars:'',qty:'',taxable:'',cgst:'',sgst:'',total:''};
+      var isFirst = (ri===0);
+      var rs = ' rowspan="'+maxRows+'"';
+
+      html += '<tr style="border-bottom:1px solid '+(ri===maxRows-1?'rgba(0,0,0,0.15)':'var(--b)')+';">';
+      // Fixed columns — only on first row
+      if(isFirst){
+        html += '<td style="padding:6px 9px;text-align:center;color:var(--t3)"'+rs+'>'+(i+1)+'</td>';
+        html += '<td style="padding:6px 9px;font-weight:700;color:var(--bl);font-size:11px"'+rs+'>'+(r.inv_no||'-')+'</td>';
+        html += '<td style="padding:6px 9px;font-size:11px;color:var(--t2)"'+rs+'>'+(r.inv_date||'-')+'</td>';
+        html += '<td style="padding:6px 9px;font-weight:600;color:var(--t);max-width:100px;overflow:hidden;text-overflow:ellipsis"'+rs+'>'+(r.partner||'Direct')+'</td>';
+        html += '<td style="padding:6px 9px;max-width:110px;overflow:hidden;text-overflow:ellipsis"'+rs+'>'+(r.customer||'-')+'</td>';
+        html += '<td style="padding:6px 9px;color:var(--bl)"'+rs+'>'+(r.mobile||'-')+'</td>';
+        html += '<td style="padding:6px 9px;font-size:10px"'+rs+'>'+(r.car_model||'-')+'</td>';
+        html += '<td style="padding:6px 9px;font-weight:700;color:var(--bl)"'+rs+'>'+r.reg+'</td>';
+      }
+      // Purchase item columns
+      html += '<td style="padding:5px 9px;background:rgba(245,158,11,0.04);max-width:130px;overflow:hidden;text-overflow:ellipsis;font-size:11px">'+(p.particulars||'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(245,158,11,0.04);text-align:center;font-size:11px">'+(p.qty||'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(245,158,11,0.04);color:var(--am);font-size:11px">'+(p.taxable?'₹'+F(p.taxable):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(245,158,11,0.04);color:var(--am);font-size:11px">'+(p.cgst?'₹'+F(p.cgst):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(245,158,11,0.04);color:var(--am);font-size:11px">'+(p.sgst?'₹'+F(p.sgst):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(245,158,11,0.04);color:var(--am);font-size:11px">'+(p.cgst||p.sgst?'₹'+F((p.cgst||0)+(p.sgst||0)):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(245,158,11,0.04);font-weight:700;color:var(--am);font-size:11px">'+(p.total?'₹'+F(p.total):'')+'</td>';
+      // Sale item columns
+      html += '<td style="padding:5px 9px;background:rgba(5,150,105,0.04);max-width:130px;overflow:hidden;text-overflow:ellipsis;font-size:11px">'+(s2.particulars||'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(5,150,105,0.04);text-align:center;font-size:11px">'+(s2.qty||'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(5,150,105,0.04);color:var(--gn);font-size:11px">'+(s2.taxable?'₹'+F(s2.taxable):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(5,150,105,0.04);color:var(--gn);font-size:11px">'+(s2.cgst?'₹'+F(s2.cgst):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(5,150,105,0.04);color:var(--gn);font-size:11px">'+(s2.sgst?'₹'+F(s2.sgst):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(5,150,105,0.04);color:var(--gn);font-size:11px">'+(s2.cgst||s2.sgst?'₹'+F((s2.cgst||0)+(s2.sgst||0)):'')+'</td>';
+      html += '<td style="padding:5px 9px;background:rgba(5,150,105,0.04);font-weight:700;color:var(--gn);font-size:11px">'+(s2.total?'₹'+F(s2.total):'')+'</td>';
+      // Profit/margin/action — only first row
+      if(isFirst){
+        html += '<td style="padding:6px 9px;font-weight:700;color:var(--'+pc+')"'+rs+'>'+pi+' ₹'+F(Math.abs(profit))+'</td>';
+        html += '<td style="padding:6px 9px"'+rs+'><span class="bx '+pc+'">'+mg2+'%</span></td>';
+        html += '<td style="padding:6px 9px"'+rs+'><button class="btn xs cy" onclick="openSI(\''+r.reg+'\')">+S</button></td>';
+      }
+      html += '</tr>';
+    }
+    // Subtotal row for this car
+    html += '<tr style="background:var(--bg3);border-bottom:2px solid var(--b2)">';
+    html += '<td colspan="8" style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--t)">Subtotal — '+r.reg+' &nbsp;<span style="font-size:10px;color:var(--t3)">Inv: '+(r.inv_no||'-')+' &nbsp; '+(r.inv_date||'')+'</span></td>';
+    // Purchase subtotal: blank | qty | taxable | cgst | sgst | total gst | total pur
+    html += '<td style="padding:5px 9px"></td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--t3)">'+r.pur_items.reduce(function(a,x){return a+N(x.qty);},0)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--am)">₹'+F(r.pur_taxable)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--am)">₹'+F(r.pur_cgst)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--am)">₹'+F(r.pur_sgst)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--am)">₹'+F(r.pur_cgst+r.pur_sgst)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:12px;font-weight:700;color:var(--am)">₹'+F(r.pur_total)+'</td>';
+    // Sale subtotal: blank | qty | taxable | cgst | sgst | total gst | total sale
+    html += '<td style="padding:5px 9px"></td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--t3)">'+r.sal_items.reduce(function(a,x){return a+N(x.qty);},0)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--gn)">₹'+F(r.sal_taxable)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--gn)">₹'+F(r.sal_cgst)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--gn)">₹'+F(r.sal_sgst)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:11px;font-weight:700;color:var(--gn)">₹'+F(r.sal_cgst+r.sal_sgst)+'</td>';
+    html += '<td style="padding:5px 9px;font-size:12px;font-weight:700;color:var(--gn)">₹'+F(r.sal_total)+'</td>';
+    html += '<td colspan="3"></td></tr>';
+    return html;
+  }).join('');
+
+  // Grand total footer
+  var ttx_p=0,tcg_p=0,tsg_p=0,ttp=0, ttx_s=0,tcg_s=0,tsg_s=0, tqp=0,tqs=0;
+  rows.forEach(function(r){
+    ttx_p+=r.pur_taxable; tcg_p+=r.pur_cgst; tsg_p+=r.pur_sgst;
+    ttx_s+=r.sal_taxable; tcg_s+=r.sal_cgst; tsg_s+=r.sal_sgst;
+    tqp+=r.pur_items.reduce(function(a,x){return a+N(x.qty);},0);
+    tqs+=r.sal_items.reduce(function(a,x){return a+N(x.qty);},0);
+  });
+  Q('pl-tf').innerHTML=
+    '<tr style="background:var(--sb);color:#e2e8f0">'+
+    '<td colspan="8" style="padding:9px;font-size:12px;font-weight:700">GRAND TOTAL ('+rows.length+' vehicles)</td>'+
+    // Purchase grand total
+    '<td style="padding:9px;color:#fbbf24"></td>'+
+    '<td style="padding:9px;font-weight:700;color:#fbbf24">'+tqp+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#fbbf24">₹'+F(ttx_p)+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#fbbf24">₹'+F(tcg_p)+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#fbbf24">₹'+F(tsg_p)+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#fbbf24">₹'+F(tcg_p+tsg_p)+'</td>'+
+    '<td style="padding:9px;font-size:13px;font-weight:700;color:#fbbf24">₹'+F(totP)+'</td>'+
+    // Sale grand total
+    '<td style="padding:9px;color:#6ee7b7"></td>'+
+    '<td style="padding:9px;font-weight:700;color:#6ee7b7">'+tqs+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#6ee7b7">₹'+F(ttx_s)+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#6ee7b7">₹'+F(tcg_s)+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#6ee7b7">₹'+F(tsg_s)+'</td>'+
+    '<td style="padding:9px;font-weight:700;color:#6ee7b7">₹'+F(tcg_s+tsg_s)+'</td>'+
+    '<td style="padding:9px;font-size:13px;font-weight:700;color:#6ee7b7">₹'+F(totS)+'</td>'+
+    // Profit
+    '<td style="padding:9px;font-size:13px;font-weight:700;color:'+(gp>=0?'#86efac':'#fca5a5')+'">'+(gp>=0?'▲':'▼')+' ₹'+F(Math.abs(gp))+'</td>'+
+    '<td style="padding:9px"><span class="bx '+(gp>=0?'gn':'rd')+'">'+mg+'%</span></td>'+
+    '<td></td></tr>';
+}
+function fPL(v){DB.plFilter=v;rPL();}
+function fPLM(v){DB.plFilter=v;rPL();}
+function exPL(){
+  // Build same map as rPL
+  var map={};
+
+  DB.pb.forEach(function(b){
+    var reg=(b.used_for_car_reg||'').trim().toUpperCase(); if(!reg) return;
+    if(!map[reg]) map[reg]={
+      inv_no:'', inv_date:'', partner:'', customer:'', mobile:'',
+      car_model:'', reg:reg, month:b.month||'',
+      pur_items:[], sal_items:[],
+      pur_taxable:0, pur_cgst:0, pur_sgst:0, pur_total:0,
+      sal_taxable:0, sal_cgst:0, sal_sgst:0, sal_total:0
+    };
+    var tax = N(b.taxable_price)||(N(b.purchase_price)*N(b.nos||1)*(1-N(b.discount||0)/100));
+    var gamt = N(b.gst_amount)||(tax*N(b.gst_percent||0)/100);
+    var tot = N(b.total_parts_purchase||b.total)||(tax+gamt);
+    var cgst = Math.round(gamt/2*100)/100;
+    var sgst = Math.round(gamt/2*100)/100;
+    map[reg].pur_items.push({
+      particulars: b.particulars||b.part_no||'-',
+      part_no: b.part_no||'', hsn: b.hsn_code||'',
+      qty: N(b.nos||1), rate: N(b.purchase_price||0),
+      taxable: tax, cgst: cgst, sgst: sgst,
+      total_gst: Math.round(gamt*100)/100, total: tot
+    });
+    map[reg].pur_taxable += tax;
+    map[reg].pur_cgst   += cgst;
+    map[reg].pur_sgst   += sgst;
+    map[reg].pur_total  += tot;
+  });
+
+  DB.si.forEach(function(s){
+    var reg=(s.car_reg_no||'').trim().toUpperCase(); if(!reg) return;
+    if(!map[reg]) map[reg]={
+      inv_no:s.inv_no||'', inv_date:s.inv_date||'',
+      partner:s.partner_name||s.billed_company||'',
+      customer:s.customer_name||'', mobile:s.mobile_no||'',
+      car_model:s.car_ref||'', reg:reg, month:s.month||'',
+      pur_items:[], sal_items:[],
+      pur_taxable:0, pur_cgst:0, pur_sgst:0, pur_total:0,
+      sal_taxable:0, sal_cgst:0, sal_sgst:0, sal_total:0
+    };
+    map[reg].inv_no    = map[reg].inv_no    || s.inv_no||'';
+    map[reg].inv_date  = map[reg].inv_date  || s.inv_date||'';
+    map[reg].partner   = map[reg].partner   || s.partner_name||s.billed_company||'';
+    map[reg].customer  = map[reg].customer  || s.customer_name||'';
+    map[reg].mobile    = map[reg].mobile    || s.mobile_no||'';
+    map[reg].car_model = map[reg].car_model || s.car_ref||'';
+
+    // Load line items from saved line_items
+    var gotItems = false;
+    if(s.line_items){
+      try{
+        var li = JSON.parse(s.line_items);
+        if(li && li.length>0){
+          li.forEach(function(item){
+            var tax=N(item.taxable)||0; var cg=N(item.cgst)||0; var sg=N(item.sgst)||0; var tot=N(item.total)||0;
+            map[reg].sal_items.push({
+              particulars:item.particulars||item.part_no||'-',
+              part_no:item.part_no||'', hsn:item.hsn_code||'',
+              qty:N(item.qty||1), rate:N(item.sale_price||0),
+              taxable:tax, cgst:cg, sgst:sg,
+              total_gst:Math.round((cg+sg)*100)/100, total:tot
+            });
+            map[reg].sal_taxable+=tax; map[reg].sal_cgst+=cg;
+            map[reg].sal_sgst+=sg; map[reg].sal_total+=tot;
+          });
+          gotItems=true;
+        }
+      }catch(e){}
+    }
+    if(!gotItems){
+      var stax=N(s.parts); var scg=N(s.cgst); var ssg=N(s.sgst);
+      var stot=N(s.inv_amount)||(stax+N(s.labour)+scg+ssg);
+      map[reg].sal_items.push({particulars:'Invoice '+(s.inv_no||'-'),part_no:'',hsn:'',qty:1,rate:stot,taxable:stax,cgst:scg,sgst:ssg,total_gst:scg+ssg,total:stot});
+      map[reg].sal_taxable+=stax; map[reg].sal_cgst+=scg; map[reg].sal_sgst+=ssg; map[reg].sal_total+=stot;
+    }
+  });
+
+  if(!Object.keys(map).length){toast('No P&L data.','am');return;}
+
+  // Build Excel rows — one row per item (purchase or sale)
+  var exRows = [];
+  Object.values(map).sort(function(a,b){return a.reg.localeCompare(b.reg);}).forEach(function(r){
+    var profit = r.sal_total - r.pur_total;
+    var margin = r.sal_total>0?((profit/r.sal_total)*100).toFixed(1)+'%':'0%';
+    var maxRows = Math.max(r.pur_items.length, r.sal_items.length, 1);
+    var purRows = r.pur_items.length ? r.pur_items : [{}];
+    var salRows = r.sal_items.length ? r.sal_items : [{}];
+
+    for(var ri=0; ri<maxRows; ri++){
+      var p = purRows[ri]||{};
+      var s2 = salRows[ri]||{};
+      var row = {
+        'Inv No':          ri===0 ? r.inv_no   : '',
+        'Inv Date':        ri===0 ? r.inv_date  : '',
+        'Partner Name':    ri===0 ? r.partner   : '',
+        'Customer':        ri===0 ? r.customer  : '',
+        'Mobile':          ri===0 ? r.mobile    : '',
+        'Car Model':       ri===0 ? r.car_model : '',
+        'Car Reg No':      ri===0 ? r.reg       : '',
+        // Purchase columns
+        'Pur Part No':     p.part_no    || '',
+        'Pur HSN':         p.hsn        || '',
+        'Pur Particulars': p.particulars|| '',
+        'Pur Qty':         p.qty        || '',
+        'Pur Rate':        p.rate       || '',
+        'Pur Taxable':     p.taxable    || '',
+        'Pur CGST':        p.cgst       || '',
+        'Pur SGST':        p.sgst       || '',
+        'Pur Total GST':   p.total_gst  || '',
+        'Pur Total':       p.total      || '',
+        // Sale columns
+        'Sale Part No':     s2.part_no    || '',
+        'Sale HSN':         s2.hsn        || '',
+        'Sale Particulars': s2.particulars|| '',
+        'Sale Qty':         s2.qty        || '',
+        'Sale Rate':        s2.rate       || '',
+        'Sale Taxable':     s2.taxable    || '',
+        'Sale CGST':        s2.cgst       || '',
+        'Sale SGST':        s2.sgst       || '',
+        'Sale Total GST':   s2.total_gst  || '',
+        'Sale Total':       s2.total      || '',
+        // Summary — only first row
+        'Profit/Loss':  ri===0 ? profit  : '',
+        'Margin %':     ri===0 ? margin  : ''
+      };
+      exRows.push(row);
+    }
+    // Subtotal row per car
+    exRows.push({
+      'Inv No':'','Inv Date':'','Partner Name':'','Customer':'','Mobile':'',
+      'Car Model':'SUBTOTAL','Car Reg No':r.reg,
+      'Pur Part No':'','Pur HSN':'','Pur Particulars':'',
+      'Pur Qty': r.pur_items.reduce(function(a,x){return a+N(x.qty);},0),
+      'Pur Rate':'',
+      'Pur Taxable': r.pur_taxable, 'Pur CGST': r.pur_cgst, 'Pur SGST': r.pur_sgst,
+      'Pur Total GST': r.pur_cgst+r.pur_sgst, 'Pur Total': r.pur_total,
+      'Sale Part No':'','Sale HSN':'','Sale Particulars':'',
+      'Sale Qty': r.sal_items.reduce(function(a,x){return a+N(x.qty);},0),
+      'Sale Rate':'',
+      'Sale Taxable': r.sal_taxable, 'Sale CGST': r.sal_cgst, 'Sale SGST': r.sal_sgst,
+      'Sale Total GST': r.sal_cgst+r.sal_sgst, 'Sale Total': r.sal_total,
+      'Profit/Loss': r.sal_total-r.pur_total,
+      'Margin %': r.sal_total>0?(((r.sal_total-r.pur_total)/r.sal_total)*100).toFixed(1)+'%':'0%'
+    });
+    // Blank separator row
+    exRows.push({});
+  });
+
+  if(!exRows.length){toast('No data.','am');return;}
+  var ws = XLSX.utils.json_to_sheet(exRows);
+
+  // Set column widths
+  ws['!cols'] = [
+    {wch:12},{wch:12},{wch:18},{wch:20},{wch:13},{wch:14},{wch:13},
+    {wch:10},{wch:10},{wch:22},{wch:6},{wch:10},{wch:12},{wch:10},{wch:10},{wch:12},{wch:12},
+    {wch:10},{wch:10},{wch:22},{wch:6},{wch:10},{wch:12},{wch:10},{wch:10},{wch:12},{wch:12},
+    {wch:12},{wch:10}
+  ];
+
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'P&L Item-wise');
+  XLSX.writeFile(wb, 'carecay_pl_itemwise_'+new Date().toISOString().split('T')[0]+'.xlsx');
+  toast('P&L exported with full item details!','gn');
+}
+
+// ===== DASHBOARD =====
+function updDash(){
+  var tp=DB.pb.reduce(function(a,b){return a+N(b.total_parts_purchase||b.total);},0);
+  var ts=DB.si.reduce(function(a,s){return a+N(s.inv_amount);},0);
+  S('d-pur','₹'+FL(tp));S('d-ps',DB.pb.length+' bills');
+  S('d-sal','₹'+FL(ts));S('d-ss',DB.si.length+' invoices');
+  buildInv();
+  var ls=Object.values(DB.inv).filter(function(p){return p.purchased<=2;}).length;
+  rVout(DB.pb);rCout();rPSP();rPL();
+  var lp=DB.pb.slice(-5).reverse();
+  Q('d-pl').innerHTML=lp.length?lp.map(function(b){return'<div style="display:flex;justify-content:space-between;padding:7px 14px;border-bottom:1px solid var(--b);font-size:12px"><div><div style="font-weight:600;color:var(--t)">'+(b.vendor_name||'Unknown')+'</div><div style="font-size:10px;color:var(--t3)">'+(b.bill_date||'-')+(b.used_for_car_reg?' · &#128663; '+b.used_for_car_reg:'')+' · '+(b.particulars||b.part_no||'-')+'</div></div><div style="text-align:right"><div style="color:var(--am);font-weight:700">₹'+F(b.total_parts_purchase||b.total)+'</div><span class="bx '+(b.payment_done==='Paid'?'gn':'rd')+'">'+(b.payment_done||'Pending')+'</span></div></div>';}).join(''):'<div class="emp">No bills yet.</div>';
+  var ls2=DB.si.slice(-5).reverse();
+  Q('d-sl').innerHTML=ls2.length?ls2.map(function(s){return'<div style="display:flex;justify-content:space-between;padding:7px 14px;border-bottom:1px solid var(--b);font-size:12px"><div><div style="font-weight:600;color:var(--t)">'+(s.customer_name||s.car_reg_no||'Invoice')+'</div><div style="font-size:10px;color:var(--t3)">'+(s.inv_date||'-')+' · '+(s.type_of_service||'-')+(s.car_reg_no?' · &#128663; '+s.car_reg_no:'')+'</div></div><div style="text-align:right"><div style="color:var(--gn);font-weight:700">₹'+F(s.inv_amount)+'</div><span class="bx '+(s.payment_status==='Paid'?'gn':s.payment_status==='Partial'?'am':'rd')+'">'+(s.payment_status||'Pending')+'</span></div></div>';}).join(''):'<div class="emp">No invoices yet.</div>';
+  var pending=getPendingCars();
+  var pc=DB.si.filter(function(s){return s.payment_status!=='Paid';}).length;
+  var pamt=DB.si.filter(function(s){return s.payment_status!=='Paid';}).reduce(function(a,s){return a+N(s.pending_payment||s.inv_amount);},0);
+  var voAmt=DB.pb.filter(function(r){return r.payment_done!=='Paid';}).reduce(function(a,r){return a+N(r.total_parts_purchase||r.total);},0);
+  var alerts=[];var today=new Date();
+  var urgentCars=pending.filter(function(c){if(!c.oldest)return false;var p=c.oldest.split('/');var bd=p.length>=3?new Date(parseInt(p[2])<100?(2000+parseInt(p[2])):parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])):new Date(c.oldest);return!isNaN(bd)&&Math.floor((today-bd)/(1000*60*60*24))>14;});
+  if(urgentCars.length>0)alerts.push('<div class="al e"><span>&#128663;</span><span><strong>'+urgentCars.length+' car'+(urgentCars.length>1?'s':'')+' waiting 14+ days</strong> for invoice: '+urgentCars.map(function(c){return'<strong>'+c.reg+'</strong>';}).join(', ')+'. <button class="btn xs rd" onclick="go(\'pending\')">View &#8594;</button></span></div>');
+  else if(pending.length>0)alerts.push('<div class="al w"><span>&#128663;</span><span><strong>'+pending.length+' car'+(pending.length>1?'s':'')+' need invoice</strong>: '+pending.map(function(c){return'<strong>'+c.reg+'</strong>';}).join(', ')+'. <button class="btn xs cy" onclick="go(\'pending\')">Raise &#8594;</button></span></div>');
+  if(ls>0)alerts.push('<div class="al w"><span>&#9888;&#65039;</span><span>'+ls+' parts low in stock.</span></div>');
+  if(pc>0)alerts.push('<div class="al w"><span>&#128176;</span><span>'+pc+' invoices with ₹'+FL(pamt)+' pending. <button class="btn xs gn" onclick="go(\'cout\')">View &#8594;</button></span></div>');
+  if(voAmt>0)alerts.push('<div class="al w"><span>&#127978;</span><span>Vendor outstanding: ₹'+FL(voAmt)+'. <button class="btn xs am" onclick="go(\'vout\')">View &#8594;</button></span></div>');
+  var dups=DB.pb.filter(function(b){return b.duplicate==='Yes';}).length;
+  if(dups>0)alerts.push('<div class="al e"><span>&#128260;</span><span>'+dups+' duplicate bills flagged.</span></div>');
+  if(!alerts.length)alerts.push('<div class="al s"><span>&#10003;</span><span>All clear! All cars have invoices.</span></div>');
+  Q('d-al').innerHTML=alerts.join('');
+}
+
+// ===== WHATSAPP =====
+function buildWAQ(){
+  var p=DB.si.filter(function(s){return s.payment_status!=='Paid'&&s.mobile_no;});
+  S('wac',p.length);S('wa-qc',p.length);
+  var q=Q('wa-q');if(!q)return;
+  if(!p.length){q.innerHTML='<div class="emp">No pending.</div>';return;}
+  q.innerHTML=p.map(function(s,i){return'<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b)"><div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--t)">'+(s.customer_name||'Customer')+' · '+(s.car_reg_no||'-')+'</div><div style="font-size:10px;color:var(--t3)">Inv: '+(s.inv_no||'-')+' · ₹'+F(s.pending_payment||s.inv_amount)+' · '+s.mobile_no+'</div></div><button class="btn xs gn" onclick="sendWAOne('+i+')">Send WA</button></div>';}).join('');
+}
+function sendWAOne(idx){var p=DB.si.filter(function(s){return s.payment_status!=='Paid'&&s.mobile_no;});var s=p[idx];var tmpl=Q('wa-tmpl');var msg=(tmpl?tmpl.value:'Dear {customer}, invoice {inv_no} of Rs.{amount} pending.').replace('{customer}',s.customer_name||'Customer').replace('{inv_no}',s.inv_no||'-').replace('{amount}',F(s.pending_payment||s.inv_amount));window.open('https://wa.me/'+s.mobile_no.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(msg),'_blank');DB.wh.unshift({time:new Date().toLocaleString(),customer:s.customer_name,mobile:s.mobile_no,amount:F(s.pending_payment||s.inv_amount)});localStorage.setItem('cc_wh',JSON.stringify(DB.wh));rWAH();toast('WA opened','gn');}
+function sendAllWA(){var p=DB.si.filter(function(s){return s.payment_status!=='Paid'&&s.mobile_no;});if(!p.length){toast('No pending with mobile.','am');return;}p.forEach(function(_,i){sendWAOne(i);});}
+function testWA(){var n=Q('wa-num');if(!n||!n.value){toast('Enter WA number first.','am');return;}window.open('https://wa.me/'+n.value.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Carecay BMS v3 test. Working!'),'_blank');}
+function rWAH(){var el=Q('wa-h');if(!el)return;if(!DB.wh.length){el.innerHTML='<div class="emp">No alerts sent.</div>';return;}el.innerHTML=DB.wh.slice(0,10).map(function(h){return'<div style="padding:7px 0;border-bottom:1px solid var(--b);font-size:12px"><div style="display:flex;justify-content:space-between"><span style="font-weight:600;color:var(--t)">'+(h.customer||'-')+' · '+(h.mobile||'-')+'</span><span style="font-size:10px;color:var(--t3)">'+h.time+'</span></div><div style="font-size:10px;color:var(--t2)">₹'+h.amount+' pending</div></div>';}).join('');}
+
+// ===== REPORTS =====
+function genR(type){
+  buildInv();var headers=[],rows=[],title='';
+  if(type==='stock'){title='Stock Inventory';headers=['Part No','HSN','Description','Vendor','Stock','Rate','Value','Status'];rows=Object.values(DB.inv).map(function(p){var s=p.purchased;return[p.part_no||'-',p.hsn||'-',p.desc||'-',p.vendor||'-',s,'₹'+F(p.price),'₹'+F(s*p.price),s<=2?'LOW STOCK':'OK'];});}
+  else if(type==='pvs'){title='Purchase vs Sales';var mv={};DB.pb.forEach(function(b){var m=b.month||'?';if(!mv[m])mv[m]={p:0,s:0};mv[m].p+=N(b.total_parts_purchase||b.total);});DB.si.forEach(function(s){var m=s.month||'?';if(!mv[m])mv[m]={p:0,s:0};mv[m].s+=N(s.inv_amount);});headers=['Month','Purchase','Sales','Profit','Margin%'];rows=Object.entries(mv).map(function(kv){var m=kv[0],d=kv[1];return[m,'₹'+F(d.p),'₹'+F(d.s),'₹'+F(d.s-d.p),d.s>0?((d.s-d.p)/d.s*100).toFixed(1)+'%':'0%'];});}
+  else if(type==='gst'){title='GST Summary';var gv={};DB.pb.forEach(function(b){var m=b.month||'?';if(!gv[m])gv[m]={pt:0,pg:0,cg:0,sg:0,ig:0};gv[m].pt+=N(b.taxable_price);gv[m].pg+=N(b.gst_amount);});DB.si.forEach(function(s){var m=s.month||'?';if(!gv[m])gv[m]={pt:0,pg:0,cg:0,sg:0,ig:0};gv[m].cg+=N(s.cgst);gv[m].sg+=N(s.sgst);gv[m].ig+=N(s.igst);});headers=['Month','Pur Taxable','ITC','CGST','SGST','IGST','Output GST','Net Payable'];rows=Object.entries(gv).map(function(kv){var m=kv[0],d=kv[1];var og=d.cg+d.sg+d.ig;return[m,'₹'+F(d.pt),'₹'+F(d.pg),'₹'+F(d.cg),'₹'+F(d.sg),'₹'+F(d.ig),'₹'+F(og),'₹'+F(og-d.pg)];});}
+  else if(type==='insurance'){title='Insurance Pending';headers=['Inv No','Date','Car Reg','Company','Claim No','Liability','Received','Pending'];rows=DB.si.filter(function(s){return s.type_of_service==='Insurance'&&N(s.insurance_liability)>N(s.payment_received_from_insurance);}).map(function(s){return[s.inv_no||'-',s.inv_date||'-',s.car_reg_no||'-',s.billed_company||'-',s.claim_no||'-','₹'+F(s.insurance_liability),'₹'+F(s.payment_received_from_insurance),'₹'+F(N(s.insurance_liability)-N(s.payment_received_from_insurance))];});}
+  else if(type==='dup'){title='Duplicate Bills';headers=['SR','Date','Vendor','Bill No','Part No','HSN','Particulars','Total'];rows=DB.pb.filter(function(b){return b.duplicate==='Yes';}).map(function(b){return[b.sr||'-',b.bill_date||'-',b.vendor_name||'-',b.bill_no||'-',b.part_no||'-',b.hsn_code||'-',b.particulars||'-','₹'+F(b.total_parts_purchase||b.total)];});}
+  else if(type==='vehicle'){title='Vehicle-wise Usage';var veh={};DB.pb.forEach(function(b){var v=b.used_for_car_reg||'Unassigned';if(!veh[v])veh[v]={parts:[],total:0};veh[v].parts.push(b.particulars||b.part_no||'-');veh[v].total+=N(b.total_parts_purchase||b.total);});headers=['Car Reg No','Parts Used','Total Cost'];rows=Object.entries(veh).map(function(kv){var v=kv[0],d=kv[1];return[v,d.parts.slice(0,4).join(', ')+(d.parts.length>4?'...':''),'₹'+F(d.total)];});}
+  else if(type==='voucher-pending'){
+    title='Voucher No / Google Link Pending';
+    // Purchase bills missing voucher no OR missing invoice link
+    var pbPending = DB.pb.filter(function(b){ return !b.voucher_no || !b.invoice_link; });
+    // Sales invoices missing invoice link
+    var siPending = DB.si.filter(function(s){ return !s.invoice_link; });
+    headers=['Type','SR','Date','Bill/Inv No','Vendor/Customer','Car Reg','Particulars/Desc','Total','Voucher No','Google Drive Link','Missing'];
+    var pbRows = pbPending.map(function(b){
+      var missing=[];
+      if(!b.voucher_no) missing.push('Voucher No');
+      if(!b.invoice_link) missing.push('Google Drive Link');
+      return['Purchase',b.sr||'-',b.bill_date||'-',b.bill_no||'-',b.vendor_name||'-',b.used_for_car_reg||'-',b.particulars||b.part_no||'-','₹'+F(b.total_parts_purchase||b.total),b.voucher_no||'❌ MISSING',b.invoice_link||'❌ MISSING',missing.join(', ')];
+    });
+    var siRows = siPending.map(function(s){
+      return['Sales',s.sr||'-',s.inv_date||'-',s.inv_no||'-',s.customer_name||'-',s.car_reg_no||'-',s.billed_company||'-','₹'+F(s.inv_amount),'-',s.invoice_link||'❌ MISSING','Google Drive Link'];
+    });
+    rows = pbRows.concat(siRows);
+  }
+  Q('rep-hd').innerHTML='<tr>'+headers.map(function(h){return'<th>'+h+'</th>';}).join('')+'</tr>';
+  Q('rep-bd').innerHTML=rows.length?rows.map(function(r){return'<tr>'+r.map(function(c){return'<td>'+c+'</td>';}).join('')+'</tr>';}).join(''):'<tr><td colspan="'+headers.length+'"><div class="emp">No data.</div></td></tr>';
+  S('rep-ttl',title);Q('rep-out').style.display='block';Q('rep-out').scrollIntoView({behavior:'smooth'});
+  DB.repRows=rows;DB.repHdrs=headers;DB.repTitle=title;
+}
+function exRep(type){
+  var headers,rows,title;
+  if(type==='current'&&DB.repHdrs.length){headers=DB.repHdrs;rows=DB.repRows;title=DB.repTitle;}
+  else if(type==='vout'){title='Vendor Outstanding';headers=['Vendor','Pending','Partial','Outstanding'];var v={};DB.pb.filter(function(r){return r.payment_done!=='Paid';}).forEach(function(r){var vn=r.vendor_name||'?';if(!v[vn])v[vn]={bills:0,partial:0,total:0};v[vn].total+=N(r.total_parts_purchase||r.total);if(r.payment_done==='Pending')v[vn].bills++;if(r.payment_done==='Partial')v[vn].partial++;});rows=Object.entries(v).map(function(kv){var vn=kv[0],d=kv[1];return[vn,d.bills,d.partial,F(d.total)];});}
+  else if(type==='cout'){title='Customer Outstanding';headers=['Customer','Mobile','Car Reg','Inv No','Inv Date','Billed Co','Inv Amt','Ins Liability','Ins Recd','Cust Recd','TDS','Pending'];rows=DB.si.filter(function(s){return s.payment_status!=='Paid';}).map(function(s){return[s.customer_name||'-',s.mobile_no||'-',s.car_reg_no||'-',s.inv_no||'-',s.inv_date||'-',s.billed_company||'-',F(s.inv_amount),F(s.insurance_liability),F(s.payment_received_from_insurance),F(s.payment_rs_received),F(s.tds),F(s.pending_payment||s.inv_amount)];});}
+  else return;
+  if(!rows||!rows.length){toast('No data.','am');return;}
+  var data=rows.map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});
+  var ws=XLSX.utils.json_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,title.substring(0,30));XLSX.writeFile(wb,'carecay_'+title.replace(/\s+/g,'_').toLowerCase()+'_'+new Date().toISOString().split('T')[0]+'.xlsx');toast('Exported!','gn');
+}
+
+// ===== EXPORT =====
+function exSheet(type){
+  var data=[];
+  if(type==='purchase')data=DB.pb;
+  else if(type==='sales')data=DB.si;
+  else if(type==='pending'){var p=getPendingCars();p.forEach(function(c){c.bills.forEach(function(b){data.push(b);});});}
+  else{buildInv();data=Object.values(DB.inv).map(function(p){return{part_no:p.part_no,hsn:p.hsn,description:p.desc,vendor:p.vendor,stock:p.purchased,price:p.price,value:p.purchased*p.price};});}
+  if(!data.length){toast('No data.','am');return;}
+  var ws=XLSX.utils.json_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,type);XLSX.writeFile(wb,'carecay_'+type+'_'+new Date().toISOString().split('T')[0]+'.xlsx');toast('Exported!','gn');
+}
+function exportAll(){
+  var wb=XLSX.utils.book_new();
+  if(DB.pb.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.pb),'Purchase Bills');
+  if(DB.si.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.si),'Sales Invoices');
+  buildInv();var inv=Object.values(DB.inv).map(function(p){return{part_no:p.part_no,hsn:p.hsn,desc:p.desc,vendor:p.vendor,stock:p.purchased,price:p.price,value:p.purchased*p.price};});
+  if(inv.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(inv),'Inventory');
+  XLSX.writeFile(wb,'carecay_complete_'+new Date().toISOString().split('T')[0]+'.xlsx');toast('All exported!','gn');
+}
+
+// ===== CLOUD SYNC =====
+function updSync(){
+  var sz=Math.round(JSON.stringify({pb:DB.pb,si:DB.si}).length/1024);
+  S('sync-sz',sz+' KB');
+  S('sync-pb',DB.pb.length+' records');
+  S('sync-si',DB.si.length+' records');
+}
+// ===== IMPORT EXCEL =====
+var _importMode = 'add'; // 'add' or 'replace'
+function importMode(mode){
+  _importMode = mode;
+  var st = Q('import-status');
+  if(st) st.textContent = 'Mode set to: ' + (mode==='replace'?'REPLACE all data':'ADD to existing data') + '. Now click the import button to select file.';
+  toast('Import mode: ' + (mode==='replace'?'Replace all':'Add to existing'), 'am');
+}
+
+function importExcel(input){
+  var file = input.files[0];
+  if(!file){ return; }
+  var st = Q('import-status');
+  if(st) st.textContent = 'Reading file: ' + file.name + '...';
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type:'array'});
+      var pbImported = 0, siImported = 0;
+
+      // If replace mode — clear first
+      if(_importMode === 'replace'){
+        if(!confirm('This will DELETE all existing data and replace with imported data. Are you sure?')){
+          if(st) st.textContent = 'Import cancelled.';
+          input.value = '';
+          return;
+        }
+        DB.pb.splice(0, DB.pb.length);
+        DB.si.splice(0, DB.si.length);
+      }
+
+      // Import Purchase Bills sheet
+      if(wb.SheetNames.indexOf('Purchase Bills') >= 0){
+        var ws = wb.Sheets['Purchase Bills'];
+        var rows = XLSX.utils.sheet_to_json(ws);
+        rows.forEach(function(r){
+          // Avoid duplicates by bill_no + vendor
+          var exists = DB.pb.some(function(b){
+            return b.bill_no && r.bill_no && b.bill_no.toString()===r.bill_no.toString() &&
+                   b.vendor_name && r.vendor_name && b.vendor_name.toString()===r.vendor_name.toString();
+          });
+          if(!exists){ DB.pb.push(r); pbImported++; }
+        });
+      }
+      // Also try 'purchase' sheet name
+      else if(wb.SheetNames.indexOf('purchase') >= 0){
+        var ws2 = wb.Sheets['purchase'];
+        var rows2 = XLSX.utils.sheet_to_json(ws2);
+        rows2.forEach(function(r){
+          var exists = DB.pb.some(function(b){ return b.bill_no && r.bill_no && b.bill_no.toString()===r.bill_no.toString() && b.vendor_name && r.vendor_name && b.vendor_name.toString()===r.vendor_name.toString(); });
+          if(!exists){ DB.pb.push(r); pbImported++; }
+        });
+      }
+
+      // Import Sales Invoices sheet
+      if(wb.SheetNames.indexOf('Sales Invoices') >= 0){
+        var ws3 = wb.Sheets['Sales Invoices'];
+        var rows3 = XLSX.utils.sheet_to_json(ws3);
+        rows3.forEach(function(r){
+          var exists = DB.si.some(function(s){
+            return s.inv_no && r.inv_no && s.inv_no.toString()===r.inv_no.toString();
+          });
+          if(!exists){ DB.si.push(r); siImported++; }
+        });
+      }
+      else if(wb.SheetNames.indexOf('sales') >= 0){
+        var ws4 = wb.Sheets['sales'];
+        var rows4 = XLSX.utils.sheet_to_json(ws4);
+        rows4.forEach(function(r){
+          var exists = DB.si.some(function(s){ return s.inv_no && r.inv_no && s.inv_no.toString()===r.inv_no.toString(); });
+          if(!exists){ DB.si.push(r); siImported++; }
+        });
+      }
+
+      // Re-number SRs
+      DB.pb.forEach(function(r,i){ r.sr=i+1; });
+      DB.si.forEach(function(r,i){ r.sr=i+1; });
+
+      persist();
+      var msg = 'Import done! ' + pbImported + ' purchase bills + ' + siImported + ' sales invoices imported.';
+      if(st) st.innerHTML = '<span style="color:var(--gn);font-weight:700">&#10003; ' + msg + '</span>';
+      toast(msg, 'gn');
+      addLog('Import: ' + pbImported + ' PB + ' + siImported + ' SI from ' + file.name);
+      input.value = '';
+      updSync();
+    } catch(err){
+      if(st) st.innerHTML = '<span style="color:var(--rd)">&#10005; Error: ' + err.message + '. Make sure you selected the correct .xlsx file.</span>';
+      toast('Import failed: ' + err.message, 'rd');
+      input.value = '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ===== FIREBASE REAL-TIME SYNC =====
+var FB = {
+  url: localStorage.getItem('cc_fb_url') || '',
+  autoTimer: null,
+  lastHash: ''
+};
+
+function fbLog(msg, type) {
+  var el = Q('fb-log'); if(!el) return;
+  var time = new Date().toLocaleTimeString();
+  var icon = type==='ok'?'✅':type==='err'?'❌':type==='warn'?'⚠️':'ℹ️';
+  el.innerHTML = '['+time+'] '+icon+' '+msg+'<br>' + el.innerHTML;
+  // Also update status dot
+  var dot = Q('fb-dot'); var st = Q('fb-status');
+  if(type==='ok'&&dot){dot.style.background='var(--gn)';if(st)st.textContent='Connected ✓';}
+  if(type==='err'&&dot){dot.style.background='var(--rd)';if(st)st.textContent='Error';}
+}
+
+function fbConnect() {
+  var url = (Q('fb-url').value || '').trim().replace(/\/+$/, '');
+  if(!url) { toast('Enter Firebase URL first.','am'); return; }
+  if(!url.startsWith('https://')) { toast('URL must start with https://','am'); return; }
+  FB.url = url;
+  localStorage.setItem('cc_fb_url', url);
+  var dot = Q('fb-dot'); var st = Q('fb-status');
+  if(dot) dot.style.background = 'var(--am)';
+  if(st) st.textContent = 'Connecting...';
+  fbLog('Connecting to: '+url, 'info');
+  // Test connection
+  fetch(url + '/ping.json', {method:'PUT', body:JSON.stringify({t:Date.now()})})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(){ fbLog('Connected successfully!', 'ok'); toast('Firebase connected!','gn'); })
+    .catch(function(e){ fbLog('Connection failed: '+e.message+'. Check URL.','err'); toast('Connection failed: '+e.message,'rd'); });
+}
+
+function fbPush() {
+  if(!FB.url) { toast('Connect Firebase first.','am'); return; }
+  var payload = { pb: DB.pb, si: DB.si, ts: Date.now(), by: 'carecay-bms' };
+  var json = JSON.stringify(payload);
+  fbLog('Pushing '+DB.pb.length+' bills + '+DB.si.length+' invoices...','info');
+  fetch(FB.url + '/carecay.json', { method:'PUT', headers:{'Content-Type':'application/json'}, body:json })
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(){
+      FB.lastHash = json.length + '_' + payload.ts;
+      fbLog('Push OK — '+DB.pb.length+' bills, '+DB.si.length+' invoices synced.','ok');
+      toast('Pushed to Firebase! Both PCs will sync.','gn');
+      addLog('Firebase push: '+DB.pb.length+' PB, '+DB.si.length+' SI');
+    })
+    .catch(function(e){ fbLog('Push failed: '+e.message,'err'); toast('Push failed: '+e.message,'rd'); });
+}
+
+function fbPull() {
+  if(!FB.url) { toast('Connect Firebase first.','am'); return; }
+  fbLog('Pulling from Firebase...','info');
+  fetch(FB.url + '/carecay.json')
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(d){
+      if(!d || (!d.pb && !d.si)) { fbLog('No data in Firebase yet. Push first.','warn'); return; }
+      var pb = d.pb || []; var si = d.si || [];
+      DB.pb.splice(0, DB.pb.length); [].push.apply(DB.pb, pb);
+      DB.si.splice(0, DB.si.length); [].push.apply(DB.si, si);
+      DB.pb.forEach(function(r,i){ r.sr=i+1; });
+      DB.si.forEach(function(r,i){ r.sr=i+1; });
+      persist();
+      FB.lastHash = JSON.stringify(d).length + '_' + (d.ts||0);
+      fbLog('Pull OK — '+pb.length+' bills, '+si.length+' invoices loaded. Last saved: '+new Date(d.ts||0).toLocaleString(),'ok');
+      toast('Pulled from Firebase! '+pb.length+' bills, '+si.length+' invoices.','gn');
+      addLog('Firebase pull: '+pb.length+' PB, '+si.length+' SI');
+    })
+    .catch(function(e){ fbLog('Pull failed: '+e.message,'err'); toast('Pull failed: '+e.message,'rd'); });
+}
+
+function fbAutoOn() {
+  if(!FB.url) { toast('Connect Firebase first.','am'); return; }
+  if(FB.autoTimer) clearInterval(FB.autoTimer);
+  fbLog('Auto-Sync ON — checking every 10 seconds...','ok');
+  toast('Auto-Sync ON — watching for changes','gn');
+  var dot = Q('fb-dot'); var st = Q('fb-status');
+  if(dot) dot.style.background='var(--gn)'; if(st) st.textContent='Auto-Sync ON ⚡';
+  FB.autoTimer = setInterval(function(){
+    if(!FB.url) return;
+    fetch(FB.url + '/carecay.json')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d || !d.pb) return;
+        var newHash = JSON.stringify(d).length + '_' + (d.ts||0);
+        if(newHash !== FB.lastHash) {
+          FB.lastHash = newHash;
+          DB.pb.splice(0, DB.pb.length); [].push.apply(DB.pb, d.pb||[]);
+          DB.si.splice(0, DB.si.length); [].push.apply(DB.si, d.si||[]);
+          DB.pb.forEach(function(r,i){ r.sr=i+1; });
+          DB.si.forEach(function(r,i){ r.sr=i+1; });
+          persist();
+          fbLog('Auto-pulled: '+( d.pb||[]).length+' bills, '+(d.si||[]).length+' invoices — updated at '+new Date().toLocaleTimeString(),'ok');
+          toast('🔄 Data updated from other PC!','gn');
+        }
+      })
+      .catch(function(){});
+  }, 10000);
+}
+
+function fbAutoOff() {
+  if(FB.autoTimer){ clearInterval(FB.autoTimer); FB.autoTimer=null; }
+  var dot=Q('fb-dot'); var st=Q('fb-status');
+  if(dot) dot.style.background='var(--t3)'; if(st) st.textContent='Auto-Sync OFF';
+  fbLog('Auto-Sync turned OFF.','warn');
+  toast('Auto-Sync OFF','am');
+}
+
+// Auto-push to Firebase whenever data is saved (if Firebase connected)
+var _origPersist = persist;
+persist = function() {
+  _origPersist();
+  if(FB.url && FB.autoTimer) {
+    // Auto-push after 2 seconds delay (debounce)
+    if(FB._pushTimer) clearTimeout(FB._pushTimer);
+    FB._pushTimer = setTimeout(function(){ fbPush(); }, 2000);
+  }
+  updSync();
+};
+function clearAll(){if(!confirm('DELETE ALL local data?'))return;DB.pb.splice(0);DB.si.splice(0);DB.wh.splice(0);localStorage.removeItem('cc_pb');localStorage.removeItem('cc_si');persist();toast('All data cleared.','rd');addLog('All cleared.');}
+function gsPush(){var url=Q('gs-url').value.trim();if(!url){toast('Enter Google Sheets URL.','am');return;}DB.gsUrl=url;localStorage.setItem('cc_gs',url);var log=Q('gs-log');if(log)log.innerHTML='Pushing '+DB.pb.length+' bills, '+DB.si.length+' invoices...<br>'+log.innerHTML;fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'push',pb:DB.pb,si:DB.si})}).then(function(r){return r.json();}).then(function(d){var l=Q('gs-log');if(l)l.innerHTML='&#10003; Push done: '+d.pb+' bills, '+d.si+' invoices.<br>'+l.innerHTML;toast('Pushed to Google Sheets!','gn');}).catch(function(e){var l=Q('gs-log');if(l)l.innerHTML='&#10005; '+e.message+'<br>'+l.innerHTML;toast('Push failed.','rd');});}
+function gsPull(){var url=Q('gs-url').value.trim();if(!url){toast('Enter Google Sheets URL.','am');return;}if(!confirm('Pull will replace local data. Continue?'))return;fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'pull'})}).then(function(r){return r.json();}).then(function(d){if(d.pb){DB.pb.splice(0);[].push.apply(DB.pb,d.pb||[]);}if(d.si){DB.si.splice(0);[].push.apply(DB.si,d.si||[]);}persist();toast('Pulled '+DB.pb.length+' bills, '+DB.si.length+' invoices!','gn');}).catch(function(e){toast('Pull failed: '+e.message,'rd');});}
+
+// ===== INIT =====
+buildInv();
+updDash();
+rPB(DB.pb);
+rSI(DB.si);
+rWAH();
+updSync();
+if(DB.blobId){var bel=Q('blob-id');if(bel)bel.value=DB.blobId;}
+if(DB.gsUrl){var gsel2=Q('gs-url');if(gsel2)gsel2.value=DB.gsUrl;}
+addLog('Carecay BMS v3 started. '+DB.pb.length+' purchase bills, '+DB.si.length+' invoices.');
+// Load Firebase URL if saved
+if(FB.url){ var fbu=Q('fb-url'); if(fbu) fbu.value=FB.url; fbLog('Firebase URL loaded from memory: '+FB.url,'ok'); }
+</script>
+
+</div> <!-- /module-bms -->
+
+
+<script>
+// ===== MODULE SWITCHER =====
+var _currentModule = 'workshop';
+function switchModule(mod) {
+  _currentModule = mod;
+  var wsEl = document.getElementById('module-workshop');
+  var bmsEl = document.getElementById('module-bms');
+  var btnWs = document.getElementById('msw-workshop');
+  var btnBms = document.getElementById('msw-bms');
+  if (mod === 'workshop') {
+    wsEl.style.display = 'block';
+    bmsEl.style.display = 'none';
+    btnWs.className = 'msw-btn msw-active';
+    btnBms.className = 'msw-btn';
+  } else {
+    wsEl.style.display = 'none';
+    bmsEl.style.display = 'block';
+    btnBms.className = 'msw-btn msw-active-bms';
+    btnWs.className = 'msw-btn';
+    // Refresh BMS dashboard when switching
+    if (typeof updDash === 'function') setTimeout(updDash, 50);
+  }
+}
+// Also update search bar position after login
+var _origDoLock = window.doLockCheck;
+</script>
+
 </body>
 </html>
