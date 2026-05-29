@@ -5815,7 +5815,7 @@ function printPartsCards(){ ppcPrintAll(); }
   <div class="hdr"><div><h1>Purchase Bills</h1><div class="hdr-s" id="pb-sub">0 bills</div></div><div class="hdr-a"><button class="btn pr" onclick="openPB(null)">+ Add Bill</button><button class="btn gn" onclick="exSheet('purchase')">Export</button></div></div>
   <div class="cnt">
     <div class="flt"><input class="sf" placeholder="Search vendor, bill no, part, car reg..." oninput="fPB(this.value)" style="width:240px"><select class="sf" onchange="fPBP(this.value)"><option value="">All Payments</option><option>Paid</option><option>Pending</option><option>Partial</option></select><select class="sf" onchange="fPBM(this.value)" id="pb-mf"><option value="">All Months</option></select></div>
-    <div class="tw"><table><thead><tr><th>SR</th><th>Type</th><th>Month</th><th>Bill Date</th><th>Bill No</th><th>Vendor</th><th>Part No</th><th>HSN</th><th>Particulars</th><th>Nos</th><th>Rate</th><th>Disc%</th><th>Taxable</th><th>GST%</th><th>GST Amt</th><th>Total</th><th>Round Off</th><th>Final Amt</th><th>Pur Date</th><th>Payment</th><th>Pay Type</th><th>Car Reg</th><th>Our Inv No</th><th>Voucher No</th><th>Duplicate</th><th>Invoice Link</th><th>Actions</th></tr></thead><tbody id="pb-tb"><tr><td colspan="27"><div class="emp">No purchase bills yet.</div></td></tr></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>SR</th><th>Type</th><th>Month</th><th>Bill Date</th><th>Bill No</th><th>Vendor</th><th>Items</th><th>HSN</th><th>Particulars</th><th>Nos</th><th>Rate</th><th>Disc%</th><th>Taxable</th><th>GST%</th><th>GST Amt</th><th>Total</th><th>Round Off</th><th>Final Amt</th><th>Pur Date</th><th>Payment</th><th>Pay Type</th><th>Car Reg</th><th>Our Inv No</th><th>Voucher No</th><th>Duplicate</th><th>Invoice Link</th><th>Actions</th></tr></thead><tbody id="pb-tb"><tr><td colspan="27"><div class="emp">No purchase bills yet.</div></td></tr></tbody></table></div>
   </div>
 </div>
 
@@ -6732,37 +6732,123 @@ function saveSI(){
 // ===== RENDER TABLES =====
 function rPB(data){
   var tb=Q('pb-tb');
-  S('pbc',DB.pb.length);S('pb-sub',DB.pb.length+' bills');
-  var months=[];DB.pb.forEach(function(r){if(r.month&&months.indexOf(r.month)<0)months.push(r.month);});
+  // Count unique bills
+  var billKeys={};
+  data.forEach(function(r){var k=(r.bill_no||'?')+'||'+(r.vendor_name||'?');if(!billKeys[k])billKeys[k]=0;billKeys[k]++;});
+  var uniqBills=Object.keys(billKeys).length;
+  S('pbc',uniqBills);S('pb-sub',uniqBills+' bills ('+data.length+' items)');
+  var months=[];data.forEach(function(r){if(r.month&&months.indexOf(r.month)<0)months.push(r.month);});
   var mf=Q('pb-mf');if(mf){var cv=mf.value;mf.innerHTML='<option value="">All Months</option>'+months.map(function(m){return'<option '+(cv===m?'selected':'')+'>'+m+'</option>';}).join('');}
-  if(!data.length){tb.innerHTML='<tr><td colspan="25"><div class="emp">No purchase bills yet.</div></td></tr>';return;}
-  tb.innerHTML=data.map(function(r,i){
-    var lnk=r.invoice_link?'<a href="'+r.invoice_link+'" target="_blank" class="lnk">&#128206; View</a>':'-';
-    var isC=(r.bill_type||'').indexOf('Chitti')>=0;
-    var bt=isC?'<span class="bx am">Chitti</span>':(r.bill_type==='Handwritten Bill'?'<span class="bx pu">HW</span>':(r.bill_type==='Stock Transfer'?'<span class="bx cy">ST</span>':'<span class="bx gn" style="font-size:8px">Tax</span>'));
-    return'<tr>'+
-      '<td>'+r.sr+'</td><td>'+bt+'</td>'+
-      '<td>'+(r.month||'-')+'</td><td>'+(r.bill_date||'-')+'</td>'+
-      '<td style="font-weight:600;color:var(--t)">'+(r.bill_no||'-')+'</td>'+
-      '<td style="font-weight:600;color:var(--t)">'+(r.vendor_name||'-')+'</td>'+
-      '<td>'+(r.part_no||'-')+'</td>'+
-      '<td style="color:var(--cy);font-size:10px">'+(r.hsn_code||'-')+'</td>'+
-      '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">'+(r.particulars||'-')+'</td>'+
-      '<td>'+(r.nos||'-')+'</td><td>₹'+F(r.purchase_price)+'</td><td>'+(r.discount||0)+'%</td>'+
-      '<td>₹'+F(r.taxable_price)+'</td><td>'+(r.gst_percent||'-')+'%</td><td>₹'+F(r.gst_amount)+'</td>'+
-      '<td style="font-weight:700;color:var(--am)">₹'+F(r.total_parts_purchase||r.total)+'</td>'+
-      '<td style="color:var(--pu);font-size:11px">'+(r.round_off||'0.00')+'</td>'+
-      '<td style="font-weight:700;color:var(--gn)">₹'+F(r.final_amount||r.total_parts_purchase||r.total)+'</td>'+
-      '<td>'+(r.purchase_date||'-')+'</td>'+
-      '<td><span class="bx '+(r.payment_done==='Paid'?'gn':r.payment_done==='Partial'?'am':'rd')+'">'+(r.payment_done||'Pending')+'</span></td>'+
-      '<td>'+(r.payment_type||'-')+'</td>'+
-      '<td style="color:var(--bl);font-weight:600">'+(r.used_for_car_reg||'-')+'</td>'+
-      '<td>'+(r.our_inv_no||'-')+'</td><td>'+(r.voucher_no||'-')+'</td>'+
-      '<td><span class="bx '+(r.duplicate==='Yes'?'rd':'gn')+'">'+(r.duplicate||'No')+'</span></td>'+
-      '<td>'+lnk+'</td>'+
-      '<td style="display:flex;gap:4px"><button class="btn xs" onclick="openPB('+i+')">&#9999;</button><button class="btn xs rd" onclick="delPB('+i+')">&#128465;</button></td>'+
+  if(!data.length){tb.innerHTML='<tr><td colspan="21"><div class="emp">No purchase bills yet.</div></td></tr>';return;}
+
+  // Group items by bill_no + vendor_name
+  var groups=[];var groupMap={};
+  data.forEach(function(r,globalIdx){
+    var k=(r.bill_no||'?')+'||'+(r.vendor_name||'?');
+    if(!groupMap[k]){
+      groupMap[k]={key:k,bill_no:r.bill_no,vendor_name:r.vendor_name,bill_type:r.bill_type,
+        month:r.month,bill_date:r.bill_date,purchase_date:r.purchase_date,
+        payment_done:r.payment_done,payment_type:r.payment_type,
+        used_for_car_reg:r.used_for_car_reg,our_inv_no:r.our_inv_no,
+        voucher_no:r.voucher_no,invoice_link:r.invoice_link,
+        duplicate:r.duplicate,final_amount:0,total_parts_purchase:0,
+        taxable_price:0,gst_amount:0,round_off:0,items:[],firstIdx:globalIdx};
+      groups.push(groupMap[k]);
+    }
+    var g=groupMap[k];
+    g.items.push(Object.assign({},r,{_globalIdx:globalIdx}));
+    g.total_parts_purchase+=N(r.total_parts_purchase||r.total);
+    g.taxable_price+=N(r.taxable_price);
+    g.gst_amount+=N(r.gst_amount);
+    g.round_off+=N(r.round_off||0);
+    g.final_amount+=N(r.final_amount||r.total_parts_purchase||r.total);
+  });
+
+  var html='';
+  groups.forEach(function(g,gi){
+    var isC=(g.bill_type||'').indexOf('Chitti')>=0;
+    var bt=isC?'<span class="bx am">Chitti</span>':(g.bill_type==='Handwritten Bill'?'<span class="bx pu">HW</span>':(g.bill_type==='Stock Transfer'?'<span class="bx cy">ST</span>':'<span class="bx gn" style="font-size:8px">Tax</span>'));
+    var lnk=g.invoice_link?'<a href="'+g.invoice_link+'" target="_blank" class="lnk">&#128206;</a>':'-';
+    var payClr=g.payment_done==='Paid'?'gn':g.payment_done==='Partial'?'am':'rd';
+    var expandId='pb-exp-'+gi;
+    var itemCount=g.items.length;
+    // Bill summary row
+    html+='<tr style="cursor:pointer;border-left:3px solid var(--am)" onclick="togglePBItems(\''+expandId+'\')">' +
+      '<td style="color:var(--t3);font-size:11px">'+gi+'</td>' +
+      '<td>'+bt+'</td>' +
+      '<td>'+(g.month||'-')+'</td>' +
+      '<td>'+(g.bill_date||'-')+'</td>' +
+      '<td style="font-weight:700;color:var(--t)">'+((g.bill_no)||'-')+'</td>' +
+      '<td style="font-weight:700;color:var(--t)">'+((g.vendor_name)||'-')+'</td>' +
+      '<td style="color:var(--t3);font-size:11px"><span class="bx cy" style="font-size:10px">'+itemCount+' item'+(itemCount>1?'s':'')+'</span></td>' +
+      '<td style="color:var(--t3)">—</td>' +
+      '<td style="color:var(--t3);font-style:italic;font-size:11px">'+itemCount+' item'+(itemCount>1?'s':'')+'</td>' +
+      '<td>—</td><td>—</td><td>—</td>' +
+      '<td>₹'+F(g.taxable_price)+'</td>' +
+      '<td>—</td>' +
+      '<td>₹'+F(g.gst_amount)+'</td>' +
+      '<td style="font-weight:700;color:var(--am)">₹'+F(g.total_parts_purchase)+'</td>' +
+      '<td style="color:var(--pu);font-size:11px">'+g.round_off.toFixed(2)+'</td>' +
+      '<td style="font-weight:700;color:var(--gn)">₹'+F(g.final_amount)+'</td>' +
+      '<td>'+(g.purchase_date||'-')+'</td>' +
+      '<td><span class="bx '+payClr+'">'+(g.payment_done||'Pending')+'</span></td>' +
+      '<td>'+(g.payment_type||'-')+'</td>' +
+      '<td style="color:var(--bl);font-weight:600">'+(g.used_for_car_reg||'-')+'</td>' +
+      '<td>'+(g.our_inv_no||'-')+'</td>' +
+      '<td>'+(g.voucher_no||'-')+'</td>' +
+      '<td><span class="bx '+(g.duplicate==='Yes'?'rd':'gn')+'">'+(g.duplicate||'No')+'</span></td>' +
+      '<td>'+lnk+'</td>' +
+      '<td style="display:flex;gap:4px">' +
+        '<button class="btn xs" title="Expand/Collapse items" onclick="event.stopPropagation();togglePBItems(\''+expandId+'\')">&#9660;</button>' +
+        '<button class="btn xs rd" title="Delete entire bill" onclick="event.stopPropagation();delPBGroup(\''+g.bill_no+'\',\''+g.vendor_name+'\')">&#128465;</button>' +
+      '</td>' +
     '</tr>';
-  }).join('');
+    // Item detail rows (hidden by default)
+    html+='<tr id="'+expandId+'" style="display:none"><td colspan="27" style="padding:0;background:var(--bg3)">' +
+      '<table style="width:100%;font-size:11px;border-collapse:collapse">' +
+      '<thead><tr style="background:rgba(245,158,11,0.08)">' +
+      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">#</th>' +
+      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">Part No</th>' +
+      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">HSN</th>' +
+      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">Particulars</th>' +
+      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Nos</th>' +
+      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Rate</th>' +
+      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Disc%</th>' +
+      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Taxable</th>' +
+      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">GST%</th>' +
+      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">GST Amt</th>' +
+      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Total</th>' +
+      '<th style="padding:5px 8px;text-align:center;color:var(--t3)">Actions</th>' +
+      '</tr></thead><tbody>' +
+      g.items.map(function(item,ii){
+        return '<tr style="border-top:1px solid var(--b)">' +
+          '<td style="padding:5px 8px;color:var(--t3)">'+(ii+1)+'</td>' +
+          '<td style="padding:5px 8px">'+(item.part_no||'-')+'</td>' +
+          '<td style="padding:5px 8px;color:var(--cy)">'+(item.hsn_code||'-')+'</td>' +
+          '<td style="padding:5px 8px;max-width:160px;overflow:hidden;text-overflow:ellipsis">'+(item.particulars||'-')+'</td>' +
+          '<td style="padding:5px 8px;text-align:right">'+(item.nos||'-')+'</td>' +
+          '<td style="padding:5px 8px;text-align:right">₹'+F(item.purchase_price)+'</td>' +
+          '<td style="padding:5px 8px;text-align:right">'+(item.discount||0)+'%</td>' +
+          '<td style="padding:5px 8px;text-align:right">₹'+F(item.taxable_price)+'</td>' +
+          '<td style="padding:5px 8px;text-align:right">'+(item.gst_percent||'-')+'%</td>' +
+          '<td style="padding:5px 8px;text-align:right">₹'+F(item.gst_amount)+'</td>' +
+          '<td style="padding:5px 8px;text-align:right;font-weight:700;color:var(--am)">₹'+F(item.total_parts_purchase||item.total)+'</td>' +
+          '<td style="padding:5px 8px;text-align:center;display:flex;gap:4px">' +
+            '<button class="btn xs" onclick="openPB('+item._globalIdx+')">&#9999;</button>' +
+            '<button class="btn xs rd" onclick="delPB('+item._globalIdx+')">&#128465;</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></td></tr>';
+  });
+  tb.innerHTML=html;
+}
+function togglePBItems(id){var el=document.getElementById(id);if(el)el.style.display=el.style.display==='none'?'table-row':'none';}
+function delPBGroup(billNo,vendorName){
+  if(!confirm('Delete ALL items in bill '+billNo+' from '+vendorName+'?'))return;
+  DB.pb=DB.pb.filter(function(r){return!((r.bill_no||'?')===billNo&&(r.vendor_name||'?')===vendorName);});
+  DB.pb.forEach(function(r,i){r.sr=i+1;});
+  persist();toast('Bill '+billNo+' deleted.','rd');
 }
 
 function rSI(data){
