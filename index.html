@@ -6,10 +6,77 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Carecay Suite">
-<meta name="mobile-web-app-capable" content="yes">
 <title>Carecay Business Suite</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0d14}
 
+/* Module switcher */
+#switcher{
+  position:fixed;top:0;left:0;right:0;
+  height:36px;z-index:999;
+  background:#080b11;
+  border-bottom:1px solid rgba(245,158,11,0.25);
+  display:none;
+  align-items:stretch;
+}
+.sw-btn{
+  flex:1;background:transparent;border:none;
+  color:#4a5568;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-size:13px;font-weight:800;letter-spacing:1.5px;
+  cursor:pointer;transition:all .2s;
+  border-bottom:3px solid transparent;
+  text-transform:uppercase;
+}
+.sw-btn:first-child{border-right:1px solid rgba(255,255,255,0.06);}
+.sw-btn.active-ws{color:#f59e0b;border-bottom-color:#f59e0b;background:rgba(245,158,11,0.07);}
+.sw-btn.active-bms{color:#0891b2;border-bottom-color:#0891b2;background:rgba(8,145,178,0.07);}
+
+/* iframes */
+iframe{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  border:none;
+  width:100%;
+  transition:opacity .15s;
+}
+#ws-frame{
+  top:0;
+  height:100%;
+  display:block;
+}
+#bms-frame{
+  top:36px;
+  height:calc(100% - 36px);
+  display:none;
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Module Switcher (hidden until login) -->
+<div id="switcher">
+  <button class="sw-btn active-ws" id="btn-ws" onclick="showModule('ws')">🔧 Workshop</button>
+  <button class="sw-btn" id="btn-bms" onclick="showModule('bms')">📋 BMS</button>
+</div>
+
+<!-- Workshop iframe (full screen, handles its own login) -->
+<iframe id="ws-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads"></iframe>
+
+<!-- BMS iframe (shown after login, below switcher) -->
+<iframe id="bms-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads"></iframe>
+
+<script>
+var _wsBlob=null, _bmsBlob=null;
+var _loggedIn=false;
+var _currentModule='ws';
+
+// ── Build Blob URLs ──────────────────────────────────────────────────
+var wsHTML=`<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -285,124 +352,8 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
   @page{size:A4 portrait;margin:10mm;}
 }
 </style>
-
-<style id="bms-scoped-styles">
-*{box-sizing:border-box;margin:0;padding:0}
-#module-bms {
-  --bg:#f0f2f5;--bg2:#fff;--bg3:#f4f6f8;--bg4:#e8edf2;--bg5:#dde3ea;
-  --b:rgba(0,0,0,0.08);--b2:rgba(0,0,0,0.14);
-  --t:#1e293b;--t2:#475569;--t3:#94a3b8;
-  --am:#d97706;--am2:#b45309;--amd:rgba(217,119,6,0.10);
-  --gn:#059669;--gnd:rgba(5,150,105,0.10);
-  --rd:#dc2626;--rdd:rgba(220,38,38,0.10);
-  --bl:#2563eb;--bld:rgba(37,99,235,0.10);
-  --pu:#7c3aed;--pud:rgba(124,58,237,0.10);
-  --cy:#0891b2;--cyd:rgba(8,145,178,0.10);
-  --sb:#1e293b;--sb2:#162032;--sb3:#253549;
-  --sbt:#f1f5f9;--sbt2:#94a3b8;--sbt3:#475569;--sbam:#f59e0b;
-}#module-bms body{background:var(--bg);color:var(--t);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;overflow:hidden}#module-bms .app{display:flex;height:100vh}#module-bms .sb{width:220px;background:var(--sb);border-right:1px solid rgba(0,0,0,0.2);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}#module-bms .sb-logo{padding:14px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:9px}#module-bms .sb-ic{width:30px;height:30px;background:rgba(245,158,11,0.15);border:1px solid var(--sbam);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}#module-bms .sb-nav{padding:8px 6px;flex:1}#module-bms .sb-sec{font-size:9px;font-weight:700;color:var(--sbt3);text-transform:uppercase;letter-spacing:.1em;padding:10px 8px 4px}#module-bms .ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--sbt2);font-size:12px;transition:all .15s;margin-bottom:1px;user-select:none}#module-bms .ni:hover{background:var(--sb3);color:var(--sbt)}#module-bms .ni.on{background:rgba(245,158,11,0.15);color:var(--sbam);font-weight:600}#module-bms .ni svg{width:14px;height:14px;flex-shrink:0}#module-bms .nb{margin-left:auto;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;background:var(--sbam);color:#000;min-width:16px;text-align:center}#module-bms .nb.r{background:var(--rd);color:#fff}#module-bms .sb-user{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:9px;flex-shrink:0}#module-bms .sb-av{width:28px;height:28px;border-radius:50%;background:rgba(245,158,11,0.15);border:1px solid var(--sbam);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--sbam)}#module-bms .main{flex:1;overflow:hidden;display:flex;flex-direction:column}#module-bms .pg{display:none;flex-direction:column;flex:1;overflow:hidden}#module-bms .pg.on{display:flex}#module-bms .hdr{padding:12px 20px;border-bottom:1px solid var(--b2);display:flex;align-items:center;gap:12px;background:var(--bg2);flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .hdr h1{font-size:15px;font-weight:700;color:var(--t)}#module-bms .hdr-s{font-size:10px;color:var(--t3)}#module-bms .hdr-a{margin-left:auto;display:flex;gap:7px;align-items:center}#module-bms .cnt{padding:16px 20px;flex:1;overflow-y:auto}#module-bms .btn{padding:6px 13px;border-radius:6px;border:1px solid var(--b2);background:var(--bg2);color:var(--t);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,0.06)}#module-bms .btn:hover{background:var(--bg4)}#module-bms .btn.pr{background:var(--am);border-color:var(--am2);color:#fff;font-weight:700}#module-bms .btn.gn{background:var(--gnd);border-color:var(--gn);color:var(--gn)}#module-bms .btn.rd{background:var(--rdd);border-color:var(--rd);color:var(--rd)}#module-bms .btn.bl{background:var(--bld);border-color:var(--bl);color:var(--bl)}#module-bms .btn.cy{background:var(--cyd);border-color:var(--cy);color:var(--cy)}#module-bms .btn.am{background:var(--amd);border-color:var(--am);color:var(--am)}#module-bms .btn.sm{padding:3px 8px;font-size:11px}#module-bms .btn.xs{padding:2px 6px;font-size:10px}#module-bms .stats{display:grid;gap:10px;margin-bottom:14px}#module-bms .stats.c4{grid-template-columns:repeat(4,1fr)}#module-bms .stats.c5{grid-template-columns:repeat(5,1fr)}#module-bms .sc{background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:14px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .scl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-weight:700}#module-bms .scv{font-size:20px;font-weight:700}#module-bms .scs{font-size:10px;color:var(--t2);margin-top:2px}#module-bms .sci{position:absolute;right:10px;top:10px;font-size:22px;opacity:.08}#module-bms .sc.am .scv{color:var(--am)}#module-bms .sc.gn .scv{color:var(--gn)}#module-bms .sc.rd .scv{color:var(--rd)}#module-bms .sc.bl .scv{color:var(--bl)}#module-bms .sc.pu .scv{color:var(--pu)}#module-bms .card{background:var(--bg2);border:1px solid var(--b);border-radius:10px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .card-h{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);font-size:12px;font-weight:600;color:var(--t);gap:8px}#module-bms .card-b{padding:14px}#module-bms .tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b);box-shadow:0 1px 3px rgba(0,0,0,0.04)}#module-bms table{width:100%;border-collapse:collapse;font-size:11px}#module-bms thead th{background:var(--sb);color:#e2e8f0;padding:8px 9px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-bottom:2px solid rgba(0,0,0,0.2);white-space:nowrap;position:sticky;top:0;z-index:1}#module-bms tbody td{padding:7px 9px;border-bottom:1px solid var(--b);color:var(--t2);white-space:nowrap;background:var(--bg2)}#module-bms tbody tr:hover td{background:var(--bg3)}#module-bms tbody tr:last-child td{border-bottom:none}#module-bms .bx{display:inline-block;font-size:9px;padding:2px 7px;border-radius:8px;font-weight:700}#module-bms .bx.gn{background:#dcfce7;color:#15803d}#module-bms .bx.rd{background:#fee2e2;color:#b91c1c}#module-bms .bx.am{background:#fef3c7;color:#92400e}#module-bms .bx.bl{background:#dbeafe;color:#1d4ed8}#module-bms .bx.pu{background:#ede9fe;color:#6d28d9}#module-bms .bx.cy{background:#cffafe;color:#0e7490}#module-bms .fg{display:grid;gap:10px}#module-bms .fg.c4{grid-template-columns:repeat(4,1fr)}#module-bms .fg.c3{grid-template-columns:repeat(3,1fr)}#module-bms .fg.c2{grid-template-columns:repeat(2,1fr)}#module-bms .fg2{display:flex;flex-direction:column;gap:3px}#module-bms .fg2.s2{grid-column:span 2}#module-bms .fg2.s3{grid-column:span 3}#module-bms .fg2.s4{grid-column:span 4}#module-bms .fl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}#module-bms .fi{background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:6px 9px;color:var(--t);font-size:12px;outline:none;width:100%;transition:border-color .15s}#module-bms .fi:focus{border-color:var(--bl)}#module-bms select.fi option{background:var(--bg2)}#module-bms .al{padding:10px 14px;border-radius:6px;font-size:12px;display:flex;align-items:flex-start;gap:9px;margin-bottom:10px}#module-bms .al.i{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}#module-bms .al.s{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}#module-bms .al.w{background:#fffbeb;border:1px solid #fde68a;color:#92400e}#module-bms .al.e{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}#module-bms .tabs{display:flex;gap:2px;background:var(--bg4);padding:3px;border-radius:8px;margin-bottom:14px;border:1px solid var(--b)}#module-bms .tab{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--t2);font-weight:500;transition:all .15s}#module-bms .tab.on{background:var(--bg2);color:var(--t);box-shadow:0 1px 2px rgba(0,0,0,0.08);font-weight:600}#module-bms .flt{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}#module-bms .sf{background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:5px 9px;color:var(--t);font-size:12px;outline:none}#module-bms .sf:focus{border-color:var(--bl)}#module-bms .mov{position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}#module-bms .mbox{background:var(--bg2);border:1px solid var(--b2);border-radius:12px;width:100%;max-width:940px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25)}#module-bms .mhdr{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}#module-bms .mhdr h3{font-size:14px;font-weight:700;color:var(--t)}#module-bms .mbody{padding:18px}#module-bms .mfoot{padding:12px 18px;border-top:1px solid var(--b);display:flex;justify-content:flex-end;gap:8px;background:var(--bg3)}#module-bms .dov{position:fixed;inset:0;background:rgba(15,23,42,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}#module-bms .dbox{background:var(--bg2);border:2px solid var(--rd);border-radius:12px;width:100%;max-width:460px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}#module-bms .tog{width:34px;height:18px;background:var(--bg5);border-radius:9px;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s;border:1px solid var(--b2)}#module-bms .tog.on{background:var(--gn);border-color:var(--gn)}#module-bms .tog::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,0.2)}#module-bms .tog.on::after{left:18px}#module-bms .rg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}#module-bms .rc{background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,0.06)}#module-bms .rc:hover{border-color:var(--am);transform:translateY(-2px)}#module-bms .rc h4{font-size:11px;font-weight:700;color:var(--t);margin-bottom:3px}#module-bms .rc p{font-size:10px;color:var(--t3)}#module-bms .tw2{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px}#module-bms .tst{background:var(--bg2);border:1px solid var(--b2);border-left:3px solid var(--bl);border-radius:7px;padding:10px 14px;font-size:12px;min-width:240px;animation:tI .25s ease;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.12);color:var(--t)}#module-bms .tst.gn{border-left-color:var(--gn)}#module-bms .tst.rd{border-left-color:var(--rd)}#module-bms .tst.am{border-left-color:var(--am)}
-@keyframes tI{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}#module-bms .ic{background:var(--bg2);border:1px solid var(--b2);border-radius:4px;padding:4px 6px;color:var(--t);font-size:11px;outline:none;width:100%}#module-bms .ic:focus{border-color:var(--bl)}#module-bms .ic.ro{background:var(--bg3);cursor:default;color:var(--am)}#module-bms .emp{text-align:center;padding:28px;color:var(--t3);font-size:12px}#module-bms .lnk{color:var(--bl);text-decoration:none;font-size:11px;font-weight:500}#module-bms .lnk:hover{text-decoration:underline}#module-bms .gl{background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:10px;font-size:11px;color:var(--t2);font-family:monospace;max-height:110px;overflow-y:auto;line-height:1.7}#module-bms .sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b)}#module-bms .sr:last-child{border-bottom:none}#module-bms ::-webkit-scrollbar{width:5px;height:5px}#module-bms ::-webkit-scrollbar-track{background:var(--bg3)}#module-bms ::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px}
-
-</style>
-
-<style id="module-system-styles">
-/* ── Module Switcher Bar ── */
-#module-switcher {
-  position: fixed;
-  top: 54px; left: 0; right: 0;
-  z-index: 500;
-  background: #0a0d14;
-  border-bottom: 1px solid rgba(245,158,11,0.2);
-  display: none;
-  align-items: stretch;
-  height: 36px;
-}
-.msw-btn {
-  flex: 1; height: 100%;
-  background: transparent; border: none;
-  color: #5a6480;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px; font-weight: 800;
-  letter-spacing: 1.5px; cursor: pointer;
-  transition: all .2s;
-  border-bottom: 2px solid transparent;
-  text-transform: uppercase;
-}
-.msw-btn:first-child { border-right: 1px solid rgba(255,255,255,0.06); }
-.msw-btn.msw-active { color: #f59e0b; border-bottom-color: #f59e0b; background: rgba(245,158,11,0.06); }
-.msw-btn.msw-active-bms { color: #0891b2; border-bottom-color: #0891b2; background: rgba(8,145,178,0.06); }
-
-/* ── Workshop module: when BMS is active, hide EVERYTHING ── */
-body.show-bms #module-workshop { display: none !important; }
-
-/* ── When Workshop is shown: push content below switcher bar ── */
-body:not(.show-bms) .hdr { top: 0 !important; }
-body:not(.show-bms) #global-search-wrap { top: 54px !important; }
-body:not(.show-bms) .ca { top: 100px !important; }
-body:not(.show-bms) .dsb { top: 100px !important; }
-
-/* After login: hdr stays at 0, switcher at 54px, search at 90px, content at 136px */
-body.logged-in:not(.show-bms) #global-search-wrap { top: 90px !important; }
-body.logged-in:not(.show-bms) .ca { top: 136px !important; }
-body.logged-in:not(.show-bms) .dsb { top: 136px !important; }
-
-/* ── BMS module ── */
-#module-bms {
-  display: none;
-  position: fixed;
-  left: 0; right: 0;
-  top: 90px; bottom: 0;
-  overflow: hidden;
-  z-index: 100;
-}
-body.show-bms #module-bms {
-  display: block !important;
-}
-#module-bms .app {
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-}
-#module-bms .sb {
-  width: 220px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  height: 100%;
-}
-#module-bms .main {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-width: 0;
-}
-#module-bms .pg {
-  display: none;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
-}
-#module-bms .pg.on { display: flex; }
-#module-bms .cnt {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px;
-}
-</style>
 </head>
-</head>
-<body class="theme-midnight">
-
-<!-- ===== MODULE SWITCHER BAR ===== -->
-<div id="module-switcher">
-  <button class="msw-btn msw-active" id="msw-workshop" onclick="switchModule('workshop')">🔧 Workshop</button>
-  <button class="msw-btn" id="msw-bms" onclick="switchModule('bms')">📋 BMS</button>
-</div>
-
-<div id="module-workshop">
-
+<body>
 
 <!-- WORKER SELECT OVERLAY -->
 <div id="worker-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(10,13,20,.97);align-items:center;justify-content:center;flex-direction:column;padding:20px;">
@@ -539,7 +490,7 @@ body.show-bms #module-bms {
 </div>
 
 <!-- GLOBAL SEARCH BAR -->
-<div id="global-search-wrap" style="position:fixed;top:54px;left:0;right:0;z-index:150;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 12px;">
+<div style="position:fixed;top:54px;left:0;right:0;z-index:150;background:var(--s1);border-bottom:1px solid var(--border);padding:7px 12px;">
   <div style="position:relative;max-width:100%;">
     <input id="global-search" 
       placeholder="🔍 Search Reg No, Car Name, Customer..." 
@@ -1260,7 +1211,7 @@ body.show-bms #module-bms {
   // Telegram in-app browser
   else if (/Telegram/i.test(ua)) { isBadBrowser = true; browserName = 'Telegram'; }
   // Gmail WebView
-  else if (/GSA\//i.test(ua)) { isBadBrowser = true; browserName = 'Gmail'; }
+  else if (/GSA\\//i.test(ua)) { isBadBrowser = true; browserName = 'Gmail'; }
 
   // Also check: if localStorage throws, warn regardless
   if (!isBadBrowser) {
@@ -1556,7 +1507,7 @@ function pipeHTML(current, workType){
   }).join('') + '</div>';
 }
 
-function fmt(d){if(!d)return'—';const p=d.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:'—';}
+function fmt(d){if(!d)return'—';const p=d.split('-');return p.length===3?\`\${p[2]}/\${p[1]}/\${p[0]}\`:'—';}
 
 // ════════════════════════════════════
 // RENDER CARS
@@ -1572,7 +1523,7 @@ function renderCars(){
   } else {
     displayCars = cars;
   }
-  if(!displayCars.length){el.innerHTML=`<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>`;return;}
+  if(!displayCars.length){el.innerHTML=\`<div class="empty"><div class="ei">🚗</div><p>No cars added yet.</p></div>\`;return;}
   el.innerHTML=displayCars.map(car=>{
     const p=car.parts||[];
     const bPend=p.filter(x=>x.before!=='yes').length;
@@ -1582,49 +1533,49 @@ function renderCars(){
     const done=p.filter(x=>x.before==='yes'&&x.ri==='yes'&&x.received==='yes'&&x.bill==='yes').length;
     const hasDmg=p.some(x=>x.damaged==='yes');
     const stage=car.stage||'waiting';
-    return`<div class="car-card">
-      <div class="car-hdr" onclick="toggleParts('cp-${car.id}')">
+    return\`<div class="car-card">
+      <div class="car-hdr" onclick="toggleParts('cp-\${car.id}')">
         <div style="flex:1;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div class="car-reg">${car.regno}</div>
-            <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${getStageIcon(stage)} ${getStageLabel(stage)}</span>
+            <div class="car-reg">\${car.regno}</div>
+            <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">\${getStageIcon(stage)} \${getStageLabel(stage)}</span>
           </div>
-          <div class="car-sub">${car.model||''} ${car.customer?'· '+car.customer:''} ${car.insco?'· '+car.insco:''}</div>
+          <div class="car-sub">\${car.model||''} \${car.customer?'· '+car.customer:''} \${car.insco?'· '+car.insco:''}</div>
           <div class="car-dates">
-            <span class="cdate ${car.date?'has':''}">📥 In: ${fmt(car.date)}</span>
-            <span class="cdate ${car.dentDate?'has':''}">🔨 Dent: ${fmt(car.dentDate)}</span>
-            <span class="cdate ${car.paintDate?'has':''}">🎨 Paint: ${fmt(car.paintDate)}</span>
+            <span class="cdate \${car.date?'has':''}">📥 In: \${fmt(car.date)}</span>
+            <span class="cdate \${car.dentDate?'has':''}">🔨 Dent: \${fmt(car.dentDate)}</span>
+            <span class="cdate \${car.paintDate?'has':''}">🎨 Paint: \${fmt(car.paintDate)}</span>
           </div>
-          ${car.workType&&car.workType!=='body-shop'?`<div style="margin-top:3px;"><span class="pipe-tag pt-mech">${{'body-shop':'🔩 Body Shop','repair':'🔧 Repair/Mech','both':'🔩🔧 Both','glass':'🪟 Glass','electrical':'⚡ Electrical','other':'📋 Other'}[car.workType]||car.workType}</span></div>`:''}
-          ${(car.dentor||car.painter||car.mechanic||car.fitter||car.helper||car.panels)?`<div class="car-sub" style="margin-top:3px;">${car.mechanic?'🔧 '+car.mechanic:''}${car.dentor?(car.mechanic?' · ':'')+'🔨 '+car.dentor:''}${car.painter?' · 🎨 '+car.painter:''}${car.fitter?' · 🔩 '+car.fitter:''}${car.helper?' · 🙋 '+car.helper:''}${car.panels?' · <strong style="color:var(--purple);">'+car.panels+' panels</strong>':''}</div>`:''}
-          <div class="car-badges" id="badges-${car.id}">
-            ${bPend?`<span class="cbadge cb-red">📸 ${bPend} Before</span>`:''}
-            ${rPend?`<span class="cbadge cb-red">🔍 ${rPend} RI</span>`:''}
-            ${aPend?`<span class="cbadge cb-pend">⏳ ${aPend} Parts</span>`:''}
-            ${blPend?`<span class="cbadge cb-pend">🧾 ${blPend} Bills</span>`:''}
-            ${hasDmg?`<span class="cbadge cb-red">⚠ Damaged</span>`:''}
-            ${done===p.length&&p.length?`<span class="cbadge cb-ok">✅ Complete</span>`:''}
+          \${car.workType&&car.workType!=='body-shop'?\`<div style="margin-top:3px;"><span class="pipe-tag pt-mech">\${{'body-shop':'🔩 Body Shop','repair':'🔧 Repair/Mech','both':'🔩🔧 Both','glass':'🪟 Glass','electrical':'⚡ Electrical','other':'📋 Other'}[car.workType]||car.workType}</span></div>\`:''}
+          \${(car.dentor||car.painter||car.mechanic||car.fitter||car.helper||car.panels)?\`<div class="car-sub" style="margin-top:3px;">\${car.mechanic?'🔧 '+car.mechanic:''}\${car.dentor?(car.mechanic?' · ':'')+'🔨 '+car.dentor:''}\${car.painter?' · 🎨 '+car.painter:''}\${car.fitter?' · 🔩 '+car.fitter:''}\${car.helper?' · 🙋 '+car.helper:''}\${car.panels?' · <strong style="color:var(--purple);">'+car.panels+' panels</strong>':''}</div>\`:''}
+          <div class="car-badges" id="badges-\${car.id}">
+            \${bPend?\`<span class="cbadge cb-red">📸 \${bPend} Before</span>\`:''}
+            \${rPend?\`<span class="cbadge cb-red">🔍 \${rPend} RI</span>\`:''}
+            \${aPend?\`<span class="cbadge cb-pend">⏳ \${aPend} Parts</span>\`:''}
+            \${blPend?\`<span class="cbadge cb-pend">🧾 \${blPend} Bills</span>\`:''}
+            \${hasDmg?\`<span class="cbadge cb-red">⚠ Damaged</span>\`:''}
+            \${done===p.length&&p.length?\`<span class="cbadge cb-ok">✅ Complete</span>\`:''}
           </div>
         </div>
-        <span style="color:var(--m2);font-size:20px;transition:transform .2s;" id="arr-${car.id}">›</span>
+        <span style="color:var(--m2);font-size:20px;transition:transform .2s;" id="arr-\${car.id}">›</span>
       </div>
-      ${pipeHTML(stage, car.workType)}
+      \${pipeHTML(stage, car.workType)}
       <div class="car-stats">
-        <div class="cs"><div class="csn b">${p.length}</div><div class="csl">Parts</div></div>
-        <div class="cs"><div class="csn ${bPend?'r':'g'}">${bPend}</div><div class="csl">Before✗</div></div>
-        <div class="cs"><div class="csn ${rPend?'r':'g'}">${rPend}</div><div class="csl">RI✗</div></div>
-        <div class="cs"><div class="csn ${aPend?'a':'g'}">${aPend}</div><div class="csl">Await</div></div>
-        <div class="cs"><div class="csn p">${car.panels||0}</div><div class="csl">Panels</div></div>
+        <div class="cs"><div class="csn b">\${p.length}</div><div class="csl">Parts</div></div>
+        <div class="cs"><div class="csn \${bPend?'r':'g'}">\${bPend}</div><div class="csl">Before✗</div></div>
+        <div class="cs"><div class="csn \${rPend?'r':'g'}">\${rPend}</div><div class="csl">RI✗</div></div>
+        <div class="cs"><div class="csn \${aPend?'a':'g'}">\${aPend}</div><div class="csl">Await</div></div>
+        <div class="cs"><div class="csn p">\${car.panels||0}</div><div class="csl">Panels</div></div>
       </div>
       <div class="car-actions">
-        <button class="ca-btn import" onclick="openImport('${car.id}')">📷 Import</button>
-        <button class="ca-btn parts" onclick="openOnePart('${car.id}')">+ Part</button>
-        <button class="ca-btn wip" onclick="openStageModal('${car.id}')">🔧 Stage</button>
-        <button class="ca-btn import" onclick="editCarOpen('${car.id}')">✏ Edit</button>
-        <button class="ca-btn del" onclick="workDoneCar('${car.id}')">✅ Done</button>
+        <button class="ca-btn import" onclick="openImport('\${car.id}')">📷 Import</button>
+        <button class="ca-btn parts" onclick="openOnePart('\${car.id}')">+ Part</button>
+        <button class="ca-btn wip" onclick="openStageModal('\${car.id}')">🔧 Stage</button>
+        <button class="ca-btn import" onclick="editCarOpen('\${car.id}')">✏ Edit</button>
+        <button class="ca-btn del" onclick="workDoneCar('\${car.id}')">✅ Done</button>
       </div>
-      <div class="car-parts" id="cp-${car.id}" style="display:none;">${renderPartsTable(car)}</div>
-    </div>`;
+      <div class="car-parts" id="cp-\${car.id}" style="display:none;">\${renderPartsTable(car)}</div>
+    </div>\`;
   }).join('');
   updateSidebar();
 }
@@ -1640,30 +1591,30 @@ function toggleParts(elId,forceOpen){
 
 function renderPartsTable(car){
   const p=car.parts||[];
-  if(!p.length)return`<div class="empty" style="padding:18px;"><div class="ei" style="font-size:22px;">🔩</div><p style="font-size:13px;">No parts yet</p></div>`;
-  return`<div class="cp-header"><div>Part Name</div><div style="text-align:center;">Type</div><div style="text-align:center;">Before</div><div style="text-align:center;">RI</div><div style="text-align:center;">Rcvd</div><div style="text-align:center;">Bill</div><div style="text-align:center;">Del</div></div>`+
-  p.map(pt=>`<div class="cp-row">
+  if(!p.length)return\`<div class="empty" style="padding:18px;"><div class="ei" style="font-size:22px;">🔩</div><p style="font-size:13px;">No parts yet</p></div>\`;
+  return\`<div class="cp-header"><div>Part Name</div><div style="text-align:center;">Type</div><div style="text-align:center;">Before</div><div style="text-align:center;">RI</div><div style="text-align:center;">Rcvd</div><div style="text-align:center;">Bill</div><div style="text-align:center;">Del</div></div>\`+
+  p.map(pt=>\`<div class="cp-row">
     <div class="cp-name">
-      <input class="cp-name-inp" value="${pt.name.replace(/"/g,'&quot;')}" onchange="updPart('${car.id}','${pt.id}','name',this.value,null)">
-      <small>${pt.type||''}${pt.vendor?' · 🏪'+pt.vendor:''}</small>
+      <input class="cp-name-inp" value="\${pt.name.replace(/"/g,'&quot;')}" onchange="updPart('\${car.id}','\${pt.id}','name',this.value,null)">
+      <small>\${pt.type||''}\${pt.vendor?' · 🏪'+pt.vendor:''}</small>
     </div>
-    <div><select class="cp-sel cp-work-sel ${pt.work==='new'?'work-new':'work-rep'}" onchange="updPart('${car.id}','${pt.id}','work',this.value,this)">
-      <option value="repair" ${(pt.work||'repair')==='repair'?'selected':''}>🔧 Rep</option>
-      <option value="new" ${pt.work==='new'?'selected':''}>🆕 New</option>
+    <div><select class="cp-sel cp-work-sel \${pt.work==='new'?'work-new':'work-rep'}" onchange="updPart('\${car.id}','\${pt.id}','work',this.value,this)">
+      <option value="repair" \${(pt.work||'repair')==='repair'?'selected':''}>🔧 Rep</option>
+      <option value="new" \${pt.work==='new'?'selected':''}>🆕 New</option>
     </select></div>
-    <div>${selHTML(car.id,pt.id,'before',pt.before)}</div>
-    <div>${selHTML(car.id,pt.id,'ri',pt.ri)}</div>
-    <div>${selHTML(car.id,pt.id,'received',pt.received,true)}</div>
-    <div>${selHTML(car.id,pt.id,'bill',pt.bill)}</div>
-    <div style="text-align:center;"><button class="cp-del" onclick="deletePart('${car.id}','${pt.id}')">🗑</button></div>
-  </div>`).join('');
+    <div>\${selHTML(car.id,pt.id,'before',pt.before)}</div>
+    <div>\${selHTML(car.id,pt.id,'ri',pt.ri)}</div>
+    <div>\${selHTML(car.id,pt.id,'received',pt.received,true)}</div>
+    <div>\${selHTML(car.id,pt.id,'bill',pt.bill)}</div>
+    <div style="text-align:center;"><button class="cp-del" onclick="deletePart('\${car.id}','\${pt.id}')">🗑</button></div>
+  </div>\`).join('');
 }
 
 function selHTML(cid,pid,field,val,rcv=false){
   const cls=val==='yes'?'sy':val==='pending'?'sp':'sn';
-  const opts=rcv?`<option value="pending" ${val==='pending'?'selected':''}>⏳</option><option value="yes" ${val==='yes'?'selected':''}>✅</option>`:
-    `<option value="pending" ${val==='pending'?'selected':''}>⏳</option><option value="yes" ${val==='yes'?'selected':''}>✅</option><option value="no" ${val==='no'?'selected':''}>❌</option>`;
-  return`<select class="cp-sel ${cls}" onchange="updPart('${cid}','${pid}','${field}',this.value,this)">${opts}</select>`;
+  const opts=rcv?\`<option value="pending" \${val==='pending'?'selected':''}>⏳</option><option value="yes" \${val==='yes'?'selected':''}>✅</option>\`:
+    \`<option value="pending" \${val==='pending'?'selected':''}>⏳</option><option value="yes" \${val==='yes'?'selected':''}>✅</option><option value="no" \${val==='no'?'selected':''}>❌</option>\`;
+  return\`<select class="cp-sel \${cls}" onchange="updPart('\${cid}','\${pid}','\${field}',this.value,this)">\${opts}</select>\`;
 }
 
 function updPart(carId,partId,field,val,el){
@@ -1681,12 +1632,12 @@ function refreshBadges(car){
   const pp=car.parts||[];
   const bP=pp.filter(x=>x.before!=='yes').length,rP=pp.filter(x=>x.ri!=='yes').length,aP=pp.filter(x=>x.received!=='yes').length,blP=pp.filter(x=>x.bill!=='yes').length;
   const hasDmg=pp.some(x=>x.damaged==='yes'),done=pp.filter(x=>x.before==='yes'&&x.ri==='yes'&&x.received==='yes'&&x.bill==='yes').length;
-  bEl.innerHTML=(bP?`<span class="cbadge cb-red">📸 ${bP} Before</span>`:'')+
-    (rP?`<span class="cbadge cb-red">🔍 ${rP} RI</span>`:'')+
-    (aP?`<span class="cbadge cb-pend">⏳ ${aP} Parts</span>`:'')+
-    (blP?`<span class="cbadge cb-pend">🧾 ${blP} Bills</span>`:'')+
-    (hasDmg?`<span class="cbadge cb-red">⚠ Damaged</span>`:'')+
-    (done===pp.length&&pp.length?`<span class="cbadge cb-ok">✅ Complete</span>`:'');
+  bEl.innerHTML=(bP?\`<span class="cbadge cb-red">📸 \${bP} Before</span>\`:'')+
+    (rP?\`<span class="cbadge cb-red">🔍 \${rP} RI</span>\`:'')+
+    (aP?\`<span class="cbadge cb-pend">⏳ \${aP} Parts</span>\`:'')+
+    (blP?\`<span class="cbadge cb-pend">🧾 \${blP} Bills</span>\`:'')+
+    (hasDmg?\`<span class="cbadge cb-red">⚠ Damaged</span>\`:'')+
+    (done===pp.length&&pp.length?\`<span class="cbadge cb-ok">✅ Complete</span>\`:'');
 }
 
 function deletePart(carId,partId){
@@ -1784,9 +1735,9 @@ function saveCar(){
 }
 function workDoneCar(id){
   const car=cars.find(c=>c.id===id);if(!car)return;
-  if(!confirm(`Mark ${car.regno} as Work Done? Removes from active list.`))return;
+  if(!confirm(\`Mark \${car.regno} as Work Done? Removes from active list.\`))return;
   cars=cars.filter(c=>c.id!==id);persist();syncIfConnected();renderCars();updateSidebar();
-  showToast(`✅ ${car.regno} Work Done!`,'#10b981');
+  showToast(\`✅ \${car.regno} Work Done!\`,'#10b981');
 }
 
 // ════════════════════════════════════
@@ -1833,7 +1784,7 @@ function saveStage(){
   if(!car.stageHistory)car.stageHistory=[];
   car.stageHistory.push({stage:s,date:new Date().toISOString().split('T')[0],inwardDate:inDate,dentDate:dDate,paintDate:pDate,dentor:dn,painter:pn,panels:pl});
   persist();syncIfConnected();renderCars();closeModal('stageModal');
-  showToast(`${car.regno} → ${STAGE_LABELS[s]}`,'#8b5cf6');
+  showToast(\`\${car.regno} → \${STAGE_LABELS[s]}\`,'#8b5cf6');
 }
 
 // ════════════════════════════════════
@@ -1871,7 +1822,7 @@ function renderWIP(){
       +'</div>'
       +'<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">'
       +(pend?'<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);">⚠ '+pend+' pending</span>':'')
-      +'<button onclick="workerStageBtn(\'' + car.id + '\')" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--body);">🔧 Stage</button>'
+      +'<button onclick="workerStageBtn(\\'' + car.id + '\\')" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--body);">🔧 Stage</button>'
       +'</div>'
       +'</div>';
   }
@@ -1953,7 +1904,7 @@ function exportMechanicReport(){
   });
   var blob=new Blob([lines.join(NL)],{type:'text/plain'});
   var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=url;a.download='mechanic-report-'+d.replace(/\//g,'-')+'.txt';a.click();
+  var a=document.createElement('a');a.href=url;a.download='mechanic-report-'+d.replace(/\\//g,'-')+'.txt';a.click();
   showToast('Mechanic report exported!');
 }
 
@@ -1962,38 +1913,38 @@ function exportMechanicReport(){
 // ════════════════════════════════════
 function renderDentingReport(){
   const body=document.getElementById('dreport-body');
-  if(!cars.length){body.innerHTML=`<div class="empty"><div class="ei">🔨</div><p>No cars added yet.</p></div>`;return;}
+  if(!cars.length){body.innerHTML=\`<div class="empty"><div class="ei">🔨</div><p>No cars added yet.</p></div>\`;return;}
   let rows='';
   cars.forEach(car=>{
-    rows+=`<tr>
-      <td>${fmt(car.dentDate)||fmt(car.date)}</td>
-      <td>${fmt(car.date)}</td>
-      <td><span class="wrpt-reg">${car.regno}</span></td>
-      <td>${car.model||'—'}</td>
-      <td>${car.dentor||'—'}</td>
-      <td><strong style="color:var(--purple);">${car.panels||0}</strong></td>
-      <td><span class="pipe-tag ${STAGE_CLASS[car.stage||'waiting']}">${STAGE_ICONS[car.stage||'waiting']} ${STAGE_LABELS[car.stage||'waiting']}</span></td>
-    </tr>`;
+    rows+=\`<tr>
+      <td>\${fmt(car.dentDate)||fmt(car.date)}</td>
+      <td>\${fmt(car.date)}</td>
+      <td><span class="wrpt-reg">\${car.regno}</span></td>
+      <td>\${car.model||'—'}</td>
+      <td>\${car.dentor||'—'}</td>
+      <td><strong style="color:var(--purple);">\${car.panels||0}</strong></td>
+      <td><span class="pipe-tag \${STAGE_CLASS[car.stage||'waiting']}">\${STAGE_ICONS[car.stage||'waiting']} \${STAGE_LABELS[car.stage||'waiting']}</span></td>
+    </tr>\`;
   });
   const dentMap={};
   cars.forEach(c=>{const k=c.dentor||'(unassigned)';if(!dentMap[k])dentMap[k]={cars:0,panels:0};dentMap[k].cars++;dentMap[k].panels+=parseInt(c.panels)||0;});
-  let sumHtml='';Object.entries(dentMap).forEach(([n,d])=>{sumHtml+=`<div class="rrow"><span class="rl">🔨 ${n}</span><span class="rv">${d.cars} car${d.cars!==1?'s':''} · <strong style="color:var(--purple);">${d.panels} panels</strong></span></div>`;});
-  body.innerHTML=`
+  let sumHtml='';Object.entries(dentMap).forEach(([n,d])=>{sumHtml+=\`<div class="rrow"><span class="rl">🔨 \${n}</span><span class="rv">\${d.cars} car\${d.cars!==1?'s':''} · <strong style="color:var(--purple);">\${d.panels} panels</strong></span></div>\`;});
+  body.innerHTML=\`
   <div class="rc"><div class="rch">🔨 Denting Work Log</div>
     <div style="overflow-x:auto;"><table class="wrpt">
       <thead><tr><th>Denting Date</th><th>Inward Date</th><th>Reg No.</th><th>Car</th><th>Dent or</th><th>Panels</th><th>Stage</th></tr></thead>
-      <tbody>${rows}</tbody>
+      <tbody>\${rows}</tbody>
     </table></div>
   </div>
-  <div class="rc" style="margin-top:12px;"><div class="rch">📊 Dent or Summary</div><div style="padding:12px 14px;">${sumHtml||'<div style="color:var(--m2);font-size:13px;">No dentor assigned yet.</div>'}</div></div>`;
+  <div class="rc" style="margin-top:12px;"><div class="rch">📊 Dent or Summary</div><div style="padding:12px 14px;">\${sumHtml||'<div style="color:var(--m2);font-size:13px;">No dentor assigned yet.</div>'}</div></div>\`;
 }
 
 function exportDentingReport(){
   const d=new Date().toLocaleDateString('en-IN');
-  const lines=['=== DENTING REPORT ===',`Date: ${d}`,'','Denting Date | Inward Date | Reg No. | Car | Dent or | Panels | Stage','-'.repeat(75)];
-  cars.forEach(c=>lines.push(`${fmt(c.dentDate)||fmt(c.date)} | ${fmt(c.date)} | ${c.regno} | ${c.model||'—'} | ${c.dentor||'—'} | ${c.panels||0} | ${STAGE_LABELS[c.stage||'waiting']}`));
-  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`denting-report-${d.replace(/\//g,'-')}.txt`;a.click();
+  const lines=['=== DENTING REPORT ===',\`Date: \${d}\`,'','Denting Date | Inward Date | Reg No. | Car | Dent or | Panels | Stage','-'.repeat(75)];
+  cars.forEach(c=>lines.push(\`\${fmt(c.dentDate)||fmt(c.date)} | \${fmt(c.date)} | \${c.regno} | \${c.model||'—'} | \${c.dentor||'—'} | \${c.panels||0} | \${STAGE_LABELS[c.stage||'waiting']}\`));
+  const blob=new Blob([lines.join('\\n')],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=\`denting-report-\${d.replace(/\\//g,'-')}.txt\`;a.click();
   showToast('Denting report exported!');
 }
 
@@ -2002,38 +1953,38 @@ function exportDentingReport(){
 // ════════════════════════════════════
 function renderPaintingReport(){
   const body=document.getElementById('preport-body');
-  if(!cars.length){body.innerHTML=`<div class="empty"><div class="ei">🎨</div><p>No cars added yet.</p></div>`;return;}
+  if(!cars.length){body.innerHTML=\`<div class="empty"><div class="ei">🎨</div><p>No cars added yet.</p></div>\`;return;}
   let rows='';
   cars.forEach(car=>{
-    rows+=`<tr>
-      <td>${fmt(car.paintDate)||'—'}</td>
-      <td>${fmt(car.date)}</td>
-      <td><span class="wrpt-reg">${car.regno}</span></td>
-      <td>${car.model||'—'}</td>
-      <td>${car.painter||'—'}</td>
-      <td><strong style="color:var(--orange);">${car.panels||0}</strong></td>
-      <td><span class="pipe-tag ${STAGE_CLASS[car.stage||'waiting']}">${STAGE_ICONS[car.stage||'waiting']} ${STAGE_LABELS[car.stage||'waiting']}</span></td>
-    </tr>`;
+    rows+=\`<tr>
+      <td>\${fmt(car.paintDate)||'—'}</td>
+      <td>\${fmt(car.date)}</td>
+      <td><span class="wrpt-reg">\${car.regno}</span></td>
+      <td>\${car.model||'—'}</td>
+      <td>\${car.painter||'—'}</td>
+      <td><strong style="color:var(--orange);">\${car.panels||0}</strong></td>
+      <td><span class="pipe-tag \${STAGE_CLASS[car.stage||'waiting']}">\${STAGE_ICONS[car.stage||'waiting']} \${STAGE_LABELS[car.stage||'waiting']}</span></td>
+    </tr>\`;
   });
   const paintMap={};
   cars.filter(c=>c.painter).forEach(c=>{const k=c.painter;if(!paintMap[k])paintMap[k]={cars:0,panels:0};paintMap[k].cars++;paintMap[k].panels+=parseInt(c.panels)||0;});
-  let sumHtml='';Object.entries(paintMap).forEach(([n,d])=>{sumHtml+=`<div class="rrow"><span class="rl">🎨 ${n}</span><span class="rv">${d.cars} car${d.cars!==1?'s':''} · <strong style="color:var(--orange);">${d.panels} panels</strong></span></div>`;});
-  body.innerHTML=`
+  let sumHtml='';Object.entries(paintMap).forEach(([n,d])=>{sumHtml+=\`<div class="rrow"><span class="rl">🎨 \${n}</span><span class="rv">\${d.cars} car\${d.cars!==1?'s':''} · <strong style="color:var(--orange);">\${d.panels} panels</strong></span></div>\`;});
+  body.innerHTML=\`
   <div class="rc"><div class="rch">🎨 Painting Work Log</div>
     <div style="overflow-x:auto;"><table class="wrpt">
       <thead><tr><th>Painting Date</th><th>Inward Date</th><th>Reg No.</th><th>Car</th><th>Painter</th><th>Panels</th><th>Stage</th></tr></thead>
-      <tbody>${rows}</tbody>
+      <tbody>\${rows}</tbody>
     </table></div>
   </div>
-  ${Object.keys(paintMap).length?`<div class="rc" style="margin-top:12px;"><div class="rch">📊 Painter Summary</div><div style="padding:12px 14px;">${sumHtml}</div></div>`:''}`;
+  \${Object.keys(paintMap).length?\`<div class="rc" style="margin-top:12px;"><div class="rch">📊 Painter Summary</div><div style="padding:12px 14px;">\${sumHtml}</div></div>\`:''}\`;
 }
 
 function exportPaintingReport(){
   const d=new Date().toLocaleDateString('en-IN');
-  const lines=['=== PAINTING REPORT ===',`Date: ${d}`,'','Painting Date | Inward Date | Reg No. | Car | Painter | Panels | Stage','-'.repeat(75)];
-  cars.filter(c=>c.painter).forEach(c=>lines.push(`${fmt(c.paintDate)||'—'} | ${fmt(c.date)} | ${c.regno} | ${c.model||'—'} | ${c.painter||'—'} | ${c.panels||0} | ${STAGE_LABELS[c.stage||'waiting']}`));
-  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`painting-report-${d.replace(/\//g,'-')}.txt`;a.click();
+  const lines=['=== PAINTING REPORT ===',\`Date: \${d}\`,'','Painting Date | Inward Date | Reg No. | Car | Painter | Panels | Stage','-'.repeat(75)];
+  cars.filter(c=>c.painter).forEach(c=>lines.push(\`\${fmt(c.paintDate)||'—'} | \${fmt(c.date)} | \${c.regno} | \${c.model||'—'} | \${c.painter||'—'} | \${c.panels||0} | \${STAGE_LABELS[c.stage||'waiting']}\`));
+  const blob=new Blob([lines.join('\\n')],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=\`painting-report-\${d.replace(/\\//g,'-')}.txt\`;a.click();
   showToast('Painting report exported!');
 }
 
@@ -2042,15 +1993,15 @@ function exportPaintingReport(){
 // ════════════════════════════════════
 function carBlock(car,items,fn){
   if(!items.length)return'';
-  return`<div class="pend-car-block">
-    <div style="margin-bottom:8px;"><div class="pcb-reg">${car.regno}</div><div class="pcb-info">${car.model||''} ${car.customer?'· '+car.customer:''}</div></div>
-    ${items.map(p=>`<div class="pitem"><div><div class="pn">${p.name}</div><div class="pm">${fn(p)}</div></div><span class="schip sp">⏳</span></div>`).join('')}
-  </div>`;
+  return\`<div class="pend-car-block">
+    <div style="margin-bottom:8px;"><div class="pcb-reg">\${car.regno}</div><div class="pcb-info">\${car.model||''} \${car.customer?'· '+car.customer:''}</div></div>
+    \${items.map(p=>\`<div class="pitem"><div><div class="pn">\${p.name}</div><div class="pm">\${fn(p)}</div></div><span class="schip sp">⏳</span></div>\`).join('')}
+  </div>\`;
 }
 function renderPending(){
-  [{id:'rpt-before',f:p=>p.before!=='yes',m:p=>p.type||''},{id:'rpt-ri',f:p=>p.ri!=='yes',m:p=>p.type||''},{id:'rpt-parts',f:p=>p.received!=='yes',m:p=>p.vendor?'🏪 '+p.vendor:'No vendor'},{id:'rpt-bills',f:p=>p.bill!=='yes',m:p=>`Rcvd:${p.received==='yes'?'✅':'⏳'}${p.vendor?' · 🏪'+p.vendor:''}`},{id:'rpt-dmg',f:p=>p.damaged==='yes',m:()=>'Send to Insurance'}].forEach(s=>{
+  [{id:'rpt-before',f:p=>p.before!=='yes',m:p=>p.type||''},{id:'rpt-ri',f:p=>p.ri!=='yes',m:p=>p.type||''},{id:'rpt-parts',f:p=>p.received!=='yes',m:p=>p.vendor?'🏪 '+p.vendor:'No vendor'},{id:'rpt-bills',f:p=>p.bill!=='yes',m:p=>\`Rcvd:\${p.received==='yes'?'✅':'⏳'}\${p.vendor?' · 🏪'+p.vendor:''}\`},{id:'rpt-dmg',f:p=>p.damaged==='yes',m:()=>'Send to Insurance'}].forEach(s=>{
     let h='';cars.forEach(car=>{h+=carBlock(car,(car.parts||[]).filter(s.f),s.m);});
-    document.getElementById(s.id).innerHTML=h||`<div class="empty" style="padding:16px 0;"><div class="ei">✅</div><p>All done!</p></div>`;
+    document.getElementById(s.id).innerHTML=h||\`<div class="empty" style="padding:16px 0;"><div class="ei">✅</div><p>All done!</p></div>\`;
   });
 }
 function renderBillsVendors(){
@@ -2059,11 +2010,11 @@ function renderBillsVendors(){
     aw+=carBlock(car,(car.parts||[]).filter(p=>p.received!=='yes'),p=>p.vendor?'🏪 '+p.vendor:'—');
     bp+=carBlock(car,(car.parts||[]).filter(p=>p.received==='yes'&&p.bill!=='yes'),p=>p.vendor?'🏪 '+p.vendor:'—');
     const done=(car.parts||[]).filter(p=>p.bill==='yes');
-    if(done.length)d+=`<div class="pend-car-block"><div class="pcb-reg">${car.regno}</div>${done.map(p=>`<div class="pitem"><div class="pn">${p.name}</div><span class="schip sy">✅</span></div>`).join('')}</div>`;
+    if(done.length)d+=\`<div class="pend-car-block"><div class="pcb-reg">\${car.regno}</div>\${done.map(p=>\`<div class="pitem"><div class="pn">\${p.name}</div><span class="schip sy">✅</span></div>\`).join('')}</div>\`;
   });
-  document.getElementById('bv-await').innerHTML=aw||`<div class="empty" style="padding:16px 0;"><div class="ei">✅</div><p>All received!</p></div>`;
-  document.getElementById('bv-billpend').innerHTML=bp||`<div class="empty" style="padding:16px 0;"><div class="ei">✅</div><p>All billed!</p></div>`;
-  document.getElementById('bv-done').innerHTML=d||`<div class="empty" style="padding:16px 0;"><div class="ei">—</div><p>No bills yet.</p></div>`;
+  document.getElementById('bv-await').innerHTML=aw||\`<div class="empty" style="padding:16px 0;"><div class="ei">✅</div><p>All received!</p></div>\`;
+  document.getElementById('bv-billpend').innerHTML=bp||\`<div class="empty" style="padding:16px 0;"><div class="ei">✅</div><p>All billed!</p></div>\`;
+  document.getElementById('bv-done').innerHTML=d||\`<div class="empty" style="padding:16px 0;"><div class="ei">—</div><p>No bills yet.</p></div>\`;
 }
 
 // ════════════════════════════════════
@@ -2072,40 +2023,40 @@ function renderBillsVendors(){
 function renderInvoiceTab(){
   const sel=document.getElementById('inv-car-sel');
   const prev=sel.value;
-  sel.innerHTML='<option value="">— Select Car —</option>'+cars.map(c=>`<option value="${c.id}">${c.regno} ${c.model?'('+c.model+')':''}</option>`).join('');
+  sel.innerHTML='<option value="">— Select Car —</option>'+cars.map(c=>\`<option value="\${c.id}">\${c.regno} \${c.model?'('+c.model+')':''}</option>\`).join('');
   if(prev)sel.value=prev;
   if(sel.value)loadInvoiceForCar(sel.value);
 }
 function loadInvoiceForCar(carId){
   const car=cars.find(c=>c.id===carId);
   const body=document.getElementById('inv-body');
-  if(!car){body.innerHTML=`<div class="empty"><div class="ei">🚗</div><p>Select a car above.</p></div>`;return;}
+  if(!car){body.innerHTML=\`<div class="empty"><div class="ei">🚗</div><p>Select a car above.</p></div>\`;return;}
   const inv=car.invoice||{};
-  body.innerHTML=`<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:12px;">
-    <div style="font-family:var(--disp);font-size:13px;color:var(--accent);">${car.regno}</div>
-    <div style="font-size:12px;color:var(--m1);">${car.model||''} · ${car.customer||''} · ${car.insco||''}</div>
+  body.innerHTML=\`<div style="background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:12px;">
+    <div style="font-family:var(--disp);font-size:13px;color:var(--accent);">\${car.regno}</div>
+    <div style="font-size:12px;color:var(--m1);">\${car.model||''} · \${car.customer||''} · \${car.insco||''}</div>
   </div>
   <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;">
     <div style="padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--border);font-family:var(--disp);font-size:15px;font-weight:700;">📤 Proforma Invoice</div>
     <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
       <div class="fg2">
-        <div class="ff"><label class="fl">Proforma No.</label><input class="fi" id="pi-no" value="${inv['pi-no']||''}" placeholder="PI-2024-001"></div>
-        <div class="ff"><label class="fl">Date</label><input class="fi" id="pi-date" type="date" value="${inv['pi-date']||''}"></div>
-        <div class="ff"><label class="fl">Amount (₹)</label><input class="fi" id="pi-amt" type="number" value="${inv['pi-amt']||''}" placeholder="0"></div>
+        <div class="ff"><label class="fl">Proforma No.</label><input class="fi" id="pi-no" value="\${inv['pi-no']||''}" placeholder="PI-2024-001"></div>
+        <div class="ff"><label class="fl">Date</label><input class="fi" id="pi-date" type="date" value="\${inv['pi-date']||''}"></div>
+        <div class="ff"><label class="fl">Amount (₹)</label><input class="fi" id="pi-amt" type="number" value="\${inv['pi-amt']||''}" placeholder="0"></div>
         <div class="ff"><label class="fl">Via</label><select class="fsel" id="pi-via"><option>Email</option><option>WhatsApp</option><option>Portal</option></select></div>
       </div>
-      <div class="ff"><label class="fl">Liability</label><select class="fsel" id="pi-status"><option value="pending">⏳ Pending</option><option value="received" ${inv['pi-status']==='received'?'selected':''}>✅ Received</option></select></div>
+      <div class="ff"><label class="fl">Liability</label><select class="fsel" id="pi-status"><option value="pending">⏳ Pending</option><option value="received" \${inv['pi-status']==='received'?'selected':''}>✅ Received</option></select></div>
     </div>
   </div>
   <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;">
     <div style="padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--border);font-family:var(--disp);font-size:15px;font-weight:700;">🧾 Tax Invoice</div>
     <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
       <div class="fg2">
-        <div class="ff"><label class="fl">Invoice No.</label><input class="fi" id="ti-no" value="${inv['ti-no']||''}" placeholder="TI-2024-001"></div>
-        <div class="ff"><label class="fl">Date</label><input class="fi" id="ti-date" type="date" value="${inv['ti-date']||''}"></div>
-        <div class="ff"><label class="fl">Customer Amt (₹)</label><input class="fi" id="ti-cust" type="number" value="${inv['ti-cust']||''}" placeholder="0" oninput="calcTotal()"></div>
-        <div class="ff"><label class="fl">Insurance Amt (₹)</label><input class="fi" id="ti-ins" type="number" value="${inv['ti-ins']||''}" placeholder="0" oninput="calcTotal()"></div>
-        <div class="ff"><label class="fl">Total (₹)</label><input class="fi" id="ti-total" readonly value="${inv['ti-total']||''}" placeholder="0"></div>
+        <div class="ff"><label class="fl">Invoice No.</label><input class="fi" id="ti-no" value="\${inv['ti-no']||''}" placeholder="TI-2024-001"></div>
+        <div class="ff"><label class="fl">Date</label><input class="fi" id="ti-date" type="date" value="\${inv['ti-date']||''}"></div>
+        <div class="ff"><label class="fl">Customer Amt (₹)</label><input class="fi" id="ti-cust" type="number" value="\${inv['ti-cust']||''}" placeholder="0" oninput="calcTotal()"></div>
+        <div class="ff"><label class="fl">Insurance Amt (₹)</label><input class="fi" id="ti-ins" type="number" value="\${inv['ti-ins']||''}" placeholder="0" oninput="calcTotal()"></div>
+        <div class="ff"><label class="fl">Total (₹)</label><input class="fi" id="ti-total" readonly value="\${inv['ti-total']||''}" placeholder="0"></div>
       </div>
     </div>
   </div>
@@ -2113,15 +2064,15 @@ function loadInvoiceForCar(carId){
     <div style="padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--border);font-family:var(--disp);font-size:15px;font-weight:700;">💰 Payment</div>
     <div style="padding:14px;display:flex;flex-direction:column;gap:10px;">
       <div class="fg2">
-        <div class="ff"><label class="fl">Customer Payment</label><select class="fsel" id="pay-cust"><option value="pending">⏳ Pending</option><option value="received" ${inv['pay-cust']==='received'?'selected':''}>✅ Received</option><option value="partial" ${inv['pay-cust']==='partial'?'selected':''}>🔶 Partial</option></select></div>
-        <div class="ff"><label class="fl">Cust. Rcvd (₹)</label><input class="fi" id="pay-ca" type="number" value="${inv['pay-ca']||''}" placeholder="0"></div>
-        <div class="ff"><label class="fl">Insurance Payment</label><select class="fsel" id="pay-ins"><option value="pending">⏳ Pending</option><option value="received" ${inv['pay-ins']==='received'?'selected':''}>✅ Received</option><option value="partial" ${inv['pay-ins']==='partial'?'selected':''}>🔶 Partial</option></select></div>
-        <div class="ff"><label class="fl">Ins. Rcvd (₹)</label><input class="fi" id="pay-ia" type="number" value="${inv['pay-ia']||''}" placeholder="0"></div>
+        <div class="ff"><label class="fl">Customer Payment</label><select class="fsel" id="pay-cust"><option value="pending">⏳ Pending</option><option value="received" \${inv['pay-cust']==='received'?'selected':''}>✅ Received</option><option value="partial" \${inv['pay-cust']==='partial'?'selected':''}>🔶 Partial</option></select></div>
+        <div class="ff"><label class="fl">Cust. Rcvd (₹)</label><input class="fi" id="pay-ca" type="number" value="\${inv['pay-ca']||''}" placeholder="0"></div>
+        <div class="ff"><label class="fl">Insurance Payment</label><select class="fsel" id="pay-ins"><option value="pending">⏳ Pending</option><option value="received" \${inv['pay-ins']==='received'?'selected':''}>✅ Received</option><option value="partial" \${inv['pay-ins']==='partial'?'selected':''}>🔶 Partial</option></select></div>
+        <div class="ff"><label class="fl">Ins. Rcvd (₹)</label><input class="fi" id="pay-ia" type="number" value="\${inv['pay-ia']||''}" placeholder="0"></div>
       </div>
       <div id="pay-banner"></div>
-      <button style="background:var(--accent);color:#000;border:none;border-radius:var(--rs);padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;font-family:var(--body);" onclick="saveInvoice('${carId}')">💾 Save Invoice &amp; Payment</button>
+      <button style="background:var(--accent);color:#000;border:none;border-radius:var(--rs);padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;font-family:var(--body);" onclick="saveInvoice('\${carId}')">💾 Save Invoice &amp; Payment</button>
     </div>
-  </div>`;
+  </div>\`;
 }
 function calcTotal(){
   const c=parseFloat(document.getElementById('ti-cust').value)||0;
@@ -2135,7 +2086,7 @@ function saveInvoice(carId){
   persist();syncIfConnected();
   const c=car.invoice['pay-cust'],i=car.invoice['pay-ins'];
   const b=document.getElementById('pay-banner');
-  if(b)b.innerHTML=c==='received'&&i==='received'?`<div class="ban bo">✅ All payments received!</div>`:`<div class="ban bp">⏳ Payment pending.</div>`;
+  if(b)b.innerHTML=c==='received'&&i==='received'?\`<div class="ban bo">✅ All payments received!</div>\`:\`<div class="ban bp">⏳ Payment pending.</div>\`;
   showToast('Invoice saved!');
 }
 
@@ -2189,7 +2140,7 @@ function renderDaily(){
       lastChange='<div style="font-size:10px;color:var(--m2);margin-top:3px;padding:3px 6px;background:var(--s3);border-radius:4px;border-left:2px solid var(--border);">🕐 '+upAt+' &nbsp;|&nbsp; 👤 '+car.stageUpdatedBy+'</div>';
     }
     var editBtn=isManager
-      ?'<button onclick="openDRStageModal(\''+car.id+'\')" style="flex-shrink:0;background:linear-gradient(135deg,#1e3a8a,#4c1d95);border:1px solid rgba(99,102,241,.4);border-radius:8px;padding:7px 12px;color:#a5b4fc;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--body);white-space:nowrap;letter-spacing:.3px;">✏️ Stage</button>'
+      ?'<button onclick="openDRStageModal(\\''+car.id+'\\')" style="flex-shrink:0;background:linear-gradient(135deg,#1e3a8a,#4c1d95);border:1px solid rgba(99,102,241,.4);border-radius:8px;padding:7px 12px;color:#a5b4fc;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--body);white-space:nowrap;letter-spacing:.3px;">✏️ Stage</button>'
       :'';
     return '<div style="padding:10px 12px;border-bottom:1px solid var(--border);">'
       +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
@@ -2282,7 +2233,7 @@ function renderDailyResults(){
       var upAt=car.stageUpdatedAt?new Date(car.stageUpdatedAt).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
       lastChange='<div style="font-size:10px;color:var(--m2);margin-top:3px;padding:3px 6px;background:var(--s3);border-radius:4px;border-left:2px solid var(--border);">🕐 '+upAt+' &nbsp;|&nbsp; 👤 '+car.stageUpdatedBy+'</div>';
     }
-    var editBtn=isManager?'<button onclick="openDRStageModal(\''+car.id+'\')" style="flex-shrink:0;background:linear-gradient(135deg,#1e3a8a,#4c1d95);border:1px solid rgba(99,102,241,.4);border-radius:8px;padding:7px 12px;color:#a5b4fc;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--body);white-space:nowrap;">✏️ Stage</button>':'';
+    var editBtn=isManager?'<button onclick="openDRStageModal(\\''+car.id+'\\')" style="flex-shrink:0;background:linear-gradient(135deg,#1e3a8a,#4c1d95);border:1px solid rgba(99,102,241,.4);border-radius:8px;padding:7px 12px;color:#a5b4fc;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--body);white-space:nowrap;">✏️ Stage</button>':'';
     return '<div style="padding:10px 12px;border-bottom:1px solid var(--border);">'
       +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
       +'<div style="flex:1;min-width:0;">'
@@ -2579,9 +2530,9 @@ function exportInwardCSV(){
   filtered.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
   var csvRows=[['Inward Date','Reg No.','Car Name','Customer','Ref Name','Work Type','Current Stage','Claim No.','Insurance Co.']];
   filtered.forEach(function(c){csvRows.push([c.date||'',c.regno||'',c.model||'',c.customer||'',c.ref||'',c.workType||'body-shop',getStageLabel(c.stage||'bs-inward'),c.claim||'',c.insco||'']);});
-  var csv=csvRows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
-  a.download='Carecay_Inward_'+new Date().toLocaleDateString('en-IN').replace(/\//g,'-')+'.csv';a.click();showToast('Inward report exported!');
+  var csv=csvRows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='Carecay_Inward_'+new Date().toLocaleDateString('en-IN').replace(/\\//g,'-')+'.csv';a.click();showToast('Inward report exported!');
 }
 
 // ════════════════════════════════════
@@ -2686,9 +2637,9 @@ function exportPayCSV(){
     var isPartial=payCust==='received'||payIns==='received';
     csvRows.push([c.regno||'',c.model||'',c.customer||'',c.ref||'',inv['ti-total']||inv['pi-amt']||'',inv['pay-ca']||'',inv['pay-ia']||'',isPartial?'Partial':'Pending',getStageLabel(c.stage||'bs-inward'),c.date||'']);
   });
-  var csv=csvRows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
-  a.download='Carecay_Payment_'+new Date().toLocaleDateString('en-IN').replace(/\//g,'-')+'.csv';a.click();showToast('Payment report exported!');
+  var csv=csvRows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='Carecay_Payment_'+new Date().toLocaleDateString('en-IN').replace(/\\//g,'-')+'.csv';a.click();showToast('Payment report exported!');
 }
 
 // ════════════════════════════════════
@@ -2715,16 +2666,16 @@ function updateSidebar(){
 // ════════════════════════════════════
 function exportAll(){
   const d=new Date().toLocaleDateString('en-IN');
-  const lines=['=== WORKSHOP DAILY REPORT ===',`Date: ${d}`,`Cars: ${cars.length}`,''];
+  const lines=['=== WORKSHOP DAILY REPORT ===',\`Date: \${d}\`,\`Cars: \${cars.length}\`,''];
   cars.forEach(c=>{
-    lines.push(`--- ${c.regno} | ${c.model||''} | ${STAGE_LABELS[c.stage||'waiting']} ---`);
-    lines.push(`    📥 Inward: ${fmt(c.date)} | 🔨 Denting: ${fmt(c.dentDate)} | 🎨 Painting: ${fmt(c.paintDate)}`);
-    lines.push(`    Dent or: ${c.dentor||'—'} | Painter: ${c.painter||'—'} | Panels: ${c.panels||0}`);
-    (c.parts||[]).forEach((pt,i)=>lines.push(`  ${i+1}. ${pt.name} [${pt.work==='new'?'NEW':'Repair'}]`));
+    lines.push(\`--- \${c.regno} | \${c.model||''} | \${STAGE_LABELS[c.stage||'waiting']} ---\`);
+    lines.push(\`    📥 Inward: \${fmt(c.date)} | 🔨 Denting: \${fmt(c.dentDate)} | 🎨 Painting: \${fmt(c.paintDate)}\`);
+    lines.push(\`    Dent or: \${c.dentor||'—'} | Painter: \${c.painter||'—'} | Panels: \${c.panels||0}\`);
+    (c.parts||[]).forEach((pt,i)=>lines.push(\`  \${i+1}. \${pt.name} [\${pt.work==='new'?'NEW':'Repair'}]\`));
     lines.push('');
   });
-  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`workshop-${d.replace(/\//g,'-')}.txt`;a.click();
+  const blob=new Blob([lines.join('\\n')],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=\`workshop-\${d.replace(/\\//g,'-')}.txt\`;a.click();
   showToast('Report exported!');
 }
 
@@ -2957,15 +2908,15 @@ function doImport(){
   if(!raw){showToast('Enter at least one part','#ef4444');return;}
   const car=cars.find(c=>c.id===currentCarId);if(!car)return;
   if(!car.parts)car.parts=[];
-  const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  const lines=raw.split('\\n').map(l=>l.trim()).filter(Boolean);
   lines.forEach(line=>{
-    const p2=line.split(/\t/);const name=p2[0].trim();if(!name)return;
+    const p2=line.split(/\\t/);const name=p2[0].trim();if(!name)return;
     const work=(p2[1]||'').trim().toLowerCase().includes('new')?'new':'repair';
     car.parts.push({id:'p-'+Date.now()+Math.random().toString(36).slice(2),name,work,type:'Denting/Painting',vendor,before:'pending',ri:'pending',received:'pending',bill:'pending',damaged:'no',notes:sec?'2nd: '+sec:''});
   });
   persist();syncIfConnected();renderCars();closeModal('addPartsModal');
   toggleParts('cp-'+currentCarId,true);
-  showToast(`${lines.length} part(s) added!`);
+  showToast(\`\${lines.length} part(s) added!\`);
 }
 function setupDrag(){
   const z=document.getElementById('uzone');
@@ -3115,7 +3066,7 @@ function showForgotView() {
   if(!currentLockUser){ alert('Please select your role first.'); return; }
   var q = getSecQuestion(currentLockUser);
   if(!q){
-    alert('No security question set for ' + currentLockUser + '.\nPlease contact Manager to reset your password.');
+    alert('No security question set for ' + currentLockUser + '.\\nPlease contact Manager to reset your password.');
     return;
   }
   document.getElementById('forgot-question').textContent = q;
@@ -3178,7 +3129,7 @@ function doLockCheck(){
   if(entered === correct){
     sessionStorage.setItem('cc-ok','1');
     sessionStorage.setItem('cc-login-user', currentLockUser);
-    overlay.style.display='none'; var msw=document.getElementById('module-switcher'); if(msw) msw.style.display='flex'; document.body.classList.add('logged-in'); switchModule('workshop');
+    overlay.style.display='none';
     // Auto-select worker based on login
     if(currentLockUser === 'MANAGER') {
       selectWorker(null);
@@ -3271,7 +3222,7 @@ function saveChangePassword() {
   var overlay = document.getElementById('lock-overlay');
   if(!overlay) return;
   if(sessionStorage.getItem('cc-ok')==='1'){
-    overlay.style.display='none'; var msw=document.getElementById('module-switcher'); if(msw) msw.style.display='flex'; document.body.classList.add('logged-in'); switchModule('workshop');
+    overlay.style.display='none';
     var savedUser = sessionStorage.getItem('cc-login-user') || null;
     setTimeout(function(){
       if(savedUser && savedUser !== 'MANAGER') {
@@ -3446,11 +3397,11 @@ function renderWorkerView() {
     // Action buttons
     html += '<div style="padding:10px 14px;display:flex;gap:8px;border-top:1px solid var(--border);">';
     if(nextStage && wStages.indexOf(stage) !== -1) {
-      html += '<button class="worker-next-btn" onclick="workerAdvanceStage(\'' + car.id + '\',\'' + nextStage + '\')" style="flex:1;">✅ Done → ' + (stageLabels[nextStage]||getStageLabel(nextStage)) + '</button>';
+      html += '<button class="worker-next-btn" onclick="workerAdvanceStage(\\'' + car.id + '\\',\\'' + nextStage + '\\')" style="flex:1;">✅ Done → ' + (stageLabels[nextStage]||getStageLabel(nextStage)) + '</button>';
     } else {
       html += '<div class="worker-done-badge" style="flex:1;text-align:center;">✅ Passed to next person</div>';
     }
-    html += '<button onclick="workerViewDetails(\'' + car.id + '\')" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer;font-family:var(--body);">👁 Details</button>';
+    html += '<button onclick="workerViewDetails(\\'' + car.id + '\\')" style="background:var(--s2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:12px;cursor:pointer;font-family:var(--body);">👁 Details</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -3500,7 +3451,7 @@ function renderBossView(container) {
       html += '</div>';
       html += '<div style="display:flex;gap:4px;flex-wrap:wrap;">';
       if(pendCount) html += '<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);">⚠ '+pendCount+' pending</span>';
-      html += '<button onclick="openStageModal(\'' + car.id + '\')" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">🔧 Stage</button>';
+      html += '<button onclick="openStageModal(\\'' + car.id + '\\')" style="background:var(--accent);color:#000;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;">🔧 Stage</button>';
       html += '</div>';
       html += '</div>';
     });
@@ -3513,7 +3464,7 @@ function workerAdvanceStage(carId, newStage) {
   var car = cars.find(function(c){ return c.id === carId; });
   if(!car) return;
   var stageName = getStageLabel(newStage);
-  if(!confirm('Move ' + car.regno + ' to:\n' + stageName + '?')) return;
+  if(!confirm('Move ' + car.regno + ' to:\\n' + stageName + '?')) return;
   var prevStage = car.stage;
   car.stage = newStage;
   car.stageUpdatedBy = currentWorker;
@@ -3612,8 +3563,6 @@ function logoutUser() {
   sessionStorage.removeItem('cc-ok');
   sessionStorage.removeItem('cc-login-user');
   sessionStorage.removeItem('cc-worker');
-  document.body.classList.remove('logged-in','show-bms');
-  var msw=document.getElementById('module-switcher'); if(msw) msw.style.display='none';
   location.reload();
 }
 function showWorkerSelectAfterLogin() {
@@ -3637,120 +3586,120 @@ function showWorkerSelectAfterLogin() {
 // STATUS CARD — STAGE DATA
 // ═══════════════════════════════════════
 const BS = [
-  {id:'bs-inward',    n:1,  t:24, lbl:`Car Inward & Receive Photos`,     ico:'📥',
-   msg:`Your vehicle has been received at Carecay Workshop. Our team has recorded all details and taken photos for our records. We will keep you updated at every step.`,
-   nxt:`Job Card will be created for your vehicle.`},
-  {id:'bs-jobcard',   n:2,  t:24, lbl:`Job Card Created`,                 ico:'📋',
-   msg:`A detailed job card has been created for your vehicle. All repair requirements have been documented and assigned to our expert team.`,
-   nxt:`Insurance claim intimation will be initiated.`},
-  {id:'bs-claim',     n:3,  t:24, lbl:`Claim Intimation Process`,         ico:'📄',
-   msg:`Your insurance claim has been initiated. We are coordinating with the insurance company on your behalf to ensure a smooth and quick process.`,
-   nxt:`Survey will be scheduled at your earliest.`},
-  {id:'bs-survey-pend',n:4, t:24, lbl:`Survey Pending`,                   ico:'🔍',
-   msg:`Your vehicle is awaiting the insurance surveyor visit. We will notify you immediately once the survey is completed.`,
-   nxt:`Survey will be completed and documents submitted.`},
-  {id:'bs-survey-done',n:5, t:24, lbl:`Survey Completed`,                 ico:'✅',
-   msg:`The insurance survey has been completed successfully. All required documents have been submitted to the insurance company.`,
-   nxt:`Awaiting insurance approval.`},
-  {id:'bs-ins-approval',n:6,t:24, lbl:`Waiting for Insurance Approval`,   ico:'🏢',
-   msg:`We have submitted all documents and are awaiting approval from the insurance company. This typically takes a few working days.`,
-   nxt:`Parts will be ordered upon approval.`},
-  {id:'bs-ins-received',n:7,t:24, lbl:`Insurance Approval Received`,      ico:'✅',
-   msg:`Great news! The insurance company has approved the claim. We are now moving forward with the repair process without delay.`,
-   nxt:`Your approval will be taken before proceeding.`},
-  {id:'bs-cust-approval',n:8,t:24,lbl:`Waiting for Customer Approval`,    ico:'👤',
-   msg:`We have shared the repair estimate with you. Please review and approve at your earliest so we can begin the repair work immediately.`,
-   nxt:`Parts will be ordered after your approval.`},
-  {id:'bs-parts-ordered',n:9,t:24,lbl:`Parts Ordered`,                    ico:'🛒',
-   msg:`All required parts have been ordered from our trusted vendors. Our team is ready and will begin work immediately upon arrival.`,
-   nxt:`Waiting for parts to arrive at workshop.`},
-  {id:'bs-waiting-parts',n:10,t:24,lbl:`Waiting for Parts`,               ico:'⏳',
-   msg:`We are waiting for the ordered parts to arrive. Our technicians are prepared to begin work the moment parts are received.`,
-   nxt:`Work will begin immediately after parts arrive.`},
-  {id:'bs-parts-received',n:11,t:24,lbl:`Parts Received`,                 ico:'📦',
-   msg:`All parts have arrived and been verified by our team. The repair process will now begin on your vehicle without delay.`,
-   nxt:`Denting work will begin on your vehicle.`},
-  {id:'bs-denting',   n:12, t:24, lbl:`WIP — Denting`,                   ico:'🔨',
-   msg:`Your vehicle is currently undergoing denting work. Our skilled technicians are carefully restoring all body panels to their original shape.`,
-   nxt:`Painting process will follow after denting.`},
-  {id:'bs-painting',  n:13, t:24, lbl:`WIP — Painting`,                  ico:'🎨',
-   msg:`Your vehicle is in the painting stage. Our expert painters are applying high-quality paint that perfectly matches your vehicle original colour.`,
-   nxt:`Fitting and assembly will follow painting.`},
-  {id:'bs-fitting',   n:14, t:24, lbl:`WIP — Fitting`,                   ico:'🔩',
-   msg:`All painted panels are being carefully fitted back onto your vehicle. Our team is ensuring perfect alignment and a flawless finish.`,
-   nxt:`Polish and finishing work will be done next.`},
-  {id:'bs-polish',    n:15, t:24, lbl:`WIP — Polish`,                    ico:'✨',
-   msg:`Your vehicle is receiving professional polish and finishing treatment to ensure a showroom-quality appearance before delivery.`,
-   nxt:`Vehicle will be washed and prepared for delivery.`},
-  {id:'bs-washing',   n:16, t:24, lbl:`Car Washing`,                     ico:'🚿',
-   msg:`Repair work is complete! Your vehicle is being thoroughly cleaned and detailed so it is spotless and ready for final inspection.`,
-   nxt:`Billing and final paperwork will be completed.`},
-  {id:'bs-performa-pend',n:17,t:24,lbl:`Performa Invoice Pending`,       ico:'📃',
-   msg:`All repair work is complete. We are preparing the Performa Invoice to submit to the insurance company for final settlement.`,
-   nxt:`Performa will be sent to insurance company.`},
-  {id:'bs-performa-ready',n:18,t:24,lbl:`Performa Invoice Ready`,        ico:'📃',
-   msg:`The Performa Invoice has been prepared and shared with the insurance company. We are awaiting their final liability statement.`,
-   nxt:`Waiting for insurance liability letter.`},
-  {id:'bs-ins-liability',n:19,t:24,lbl:`Waiting for Insurance Liability`, ico:'📊',
-   msg:`We are awaiting the final liability confirmation from the insurance company. Your final invoice will be prepared immediately upon receipt.`,
-   nxt:`Final invoice will be prepared upon liability receipt.`},
-  {id:'bs-billing',   n:20, t:24, lbl:`Billing Process`,                 ico:'🧾',
-   msg:`Your final invoice is being carefully prepared. All repair costs, insurance settlement and applicable charges are being calculated accurately.`,
-   nxt:`Payment and vehicle handover coming up.`},
-  {id:'bs-pay-pending',n:21,t:24, lbl:`Payment Pending`,                 ico:'💳',
-   msg:`Your vehicle is ready and the invoice has been prepared. Kindly arrange payment at your earliest convenience so we can hand over your vehicle.`,
-   nxt:`Vehicle will be handed over upon payment.`},
-  {id:'bs-pay-received',n:22,t:24,lbl:`Payment Received`,                ico:'💰',
-   msg:`Thank you! Payment has been received. Your vehicle is ready for delivery. Please visit Carecay Workshop at your convenience for handover.`,
-   nxt:`Visit us to collect your vehicle!`},
-  {id:'bs-ready',     n:23, t:24, lbl:`Ready for Delivery`,              ico:'🚗',
-   msg:`🎉 Wonderful news! Your vehicle repair is complete and it is ready for delivery. Please visit Carecay Workshop to collect your car.`,
-   nxt:`Visit us to collect your vehicle!`},
-  {id:'bs-delivered', n:24, t:24, lbl:`Delivered`,                       ico:'🎉',
-   msg:`✅ Your vehicle has been successfully delivered. Thank you for trusting Carecay Workshop. We hope to serve you again!`,
-   nxt:`Thank you for choosing Carecay Workshop!`},
+  {id:'bs-inward',    n:1,  t:24, lbl:\`Car Inward & Receive Photos\`,     ico:'📥',
+   msg:\`Your vehicle has been received at Carecay Workshop. Our team has recorded all details and taken photos for our records. We will keep you updated at every step.\`,
+   nxt:\`Job Card will be created for your vehicle.\`},
+  {id:'bs-jobcard',   n:2,  t:24, lbl:\`Job Card Created\`,                 ico:'📋',
+   msg:\`A detailed job card has been created for your vehicle. All repair requirements have been documented and assigned to our expert team.\`,
+   nxt:\`Insurance claim intimation will be initiated.\`},
+  {id:'bs-claim',     n:3,  t:24, lbl:\`Claim Intimation Process\`,         ico:'📄',
+   msg:\`Your insurance claim has been initiated. We are coordinating with the insurance company on your behalf to ensure a smooth and quick process.\`,
+   nxt:\`Survey will be scheduled at your earliest.\`},
+  {id:'bs-survey-pend',n:4, t:24, lbl:\`Survey Pending\`,                   ico:'🔍',
+   msg:\`Your vehicle is awaiting the insurance surveyor visit. We will notify you immediately once the survey is completed.\`,
+   nxt:\`Survey will be completed and documents submitted.\`},
+  {id:'bs-survey-done',n:5, t:24, lbl:\`Survey Completed\`,                 ico:'✅',
+   msg:\`The insurance survey has been completed successfully. All required documents have been submitted to the insurance company.\`,
+   nxt:\`Awaiting insurance approval.\`},
+  {id:'bs-ins-approval',n:6,t:24, lbl:\`Waiting for Insurance Approval\`,   ico:'🏢',
+   msg:\`We have submitted all documents and are awaiting approval from the insurance company. This typically takes a few working days.\`,
+   nxt:\`Parts will be ordered upon approval.\`},
+  {id:'bs-ins-received',n:7,t:24, lbl:\`Insurance Approval Received\`,      ico:'✅',
+   msg:\`Great news! The insurance company has approved the claim. We are now moving forward with the repair process without delay.\`,
+   nxt:\`Your approval will be taken before proceeding.\`},
+  {id:'bs-cust-approval',n:8,t:24,lbl:\`Waiting for Customer Approval\`,    ico:'👤',
+   msg:\`We have shared the repair estimate with you. Please review and approve at your earliest so we can begin the repair work immediately.\`,
+   nxt:\`Parts will be ordered after your approval.\`},
+  {id:'bs-parts-ordered',n:9,t:24,lbl:\`Parts Ordered\`,                    ico:'🛒',
+   msg:\`All required parts have been ordered from our trusted vendors. Our team is ready and will begin work immediately upon arrival.\`,
+   nxt:\`Waiting for parts to arrive at workshop.\`},
+  {id:'bs-waiting-parts',n:10,t:24,lbl:\`Waiting for Parts\`,               ico:'⏳',
+   msg:\`We are waiting for the ordered parts to arrive. Our technicians are prepared to begin work the moment parts are received.\`,
+   nxt:\`Work will begin immediately after parts arrive.\`},
+  {id:'bs-parts-received',n:11,t:24,lbl:\`Parts Received\`,                 ico:'📦',
+   msg:\`All parts have arrived and been verified by our team. The repair process will now begin on your vehicle without delay.\`,
+   nxt:\`Denting work will begin on your vehicle.\`},
+  {id:'bs-denting',   n:12, t:24, lbl:\`WIP — Denting\`,                   ico:'🔨',
+   msg:\`Your vehicle is currently undergoing denting work. Our skilled technicians are carefully restoring all body panels to their original shape.\`,
+   nxt:\`Painting process will follow after denting.\`},
+  {id:'bs-painting',  n:13, t:24, lbl:\`WIP — Painting\`,                  ico:'🎨',
+   msg:\`Your vehicle is in the painting stage. Our expert painters are applying high-quality paint that perfectly matches your vehicle original colour.\`,
+   nxt:\`Fitting and assembly will follow painting.\`},
+  {id:'bs-fitting',   n:14, t:24, lbl:\`WIP — Fitting\`,                   ico:'🔩',
+   msg:\`All painted panels are being carefully fitted back onto your vehicle. Our team is ensuring perfect alignment and a flawless finish.\`,
+   nxt:\`Polish and finishing work will be done next.\`},
+  {id:'bs-polish',    n:15, t:24, lbl:\`WIP — Polish\`,                    ico:'✨',
+   msg:\`Your vehicle is receiving professional polish and finishing treatment to ensure a showroom-quality appearance before delivery.\`,
+   nxt:\`Vehicle will be washed and prepared for delivery.\`},
+  {id:'bs-washing',   n:16, t:24, lbl:\`Car Washing\`,                     ico:'🚿',
+   msg:\`Repair work is complete! Your vehicle is being thoroughly cleaned and detailed so it is spotless and ready for final inspection.\`,
+   nxt:\`Billing and final paperwork will be completed.\`},
+  {id:'bs-performa-pend',n:17,t:24,lbl:\`Performa Invoice Pending\`,       ico:'📃',
+   msg:\`All repair work is complete. We are preparing the Performa Invoice to submit to the insurance company for final settlement.\`,
+   nxt:\`Performa will be sent to insurance company.\`},
+  {id:'bs-performa-ready',n:18,t:24,lbl:\`Performa Invoice Ready\`,        ico:'📃',
+   msg:\`The Performa Invoice has been prepared and shared with the insurance company. We are awaiting their final liability statement.\`,
+   nxt:\`Waiting for insurance liability letter.\`},
+  {id:'bs-ins-liability',n:19,t:24,lbl:\`Waiting for Insurance Liability\`, ico:'📊',
+   msg:\`We are awaiting the final liability confirmation from the insurance company. Your final invoice will be prepared immediately upon receipt.\`,
+   nxt:\`Final invoice will be prepared upon liability receipt.\`},
+  {id:'bs-billing',   n:20, t:24, lbl:\`Billing Process\`,                 ico:'🧾',
+   msg:\`Your final invoice is being carefully prepared. All repair costs, insurance settlement and applicable charges are being calculated accurately.\`,
+   nxt:\`Payment and vehicle handover coming up.\`},
+  {id:'bs-pay-pending',n:21,t:24, lbl:\`Payment Pending\`,                 ico:'💳',
+   msg:\`Your vehicle is ready and the invoice has been prepared. Kindly arrange payment at your earliest convenience so we can hand over your vehicle.\`,
+   nxt:\`Vehicle will be handed over upon payment.\`},
+  {id:'bs-pay-received',n:22,t:24,lbl:\`Payment Received\`,                ico:'💰',
+   msg:\`Thank you! Payment has been received. Your vehicle is ready for delivery. Please visit Carecay Workshop at your convenience for handover.\`,
+   nxt:\`Visit us to collect your vehicle!\`},
+  {id:'bs-ready',     n:23, t:24, lbl:\`Ready for Delivery\`,              ico:'🚗',
+   msg:\`🎉 Wonderful news! Your vehicle repair is complete and it is ready for delivery. Please visit Carecay Workshop to collect your car.\`,
+   nxt:\`Visit us to collect your vehicle!\`},
+  {id:'bs-delivered', n:24, t:24, lbl:\`Delivered\`,                       ico:'🎉',
+   msg:\`✅ Your vehicle has been successfully delivered. Thank you for trusting Carecay Workshop. We hope to serve you again!\`,
+   nxt:\`Thank you for choosing Carecay Workshop!\`},
 ];
 
 const RP = [
-  {id:'rp-inward',    n:1,  t:13, lbl:`Car Inward & Receive Photos`,     ico:'📥',
-   msg:`Your vehicle has been received at Carecay Workshop for mechanical repair. Our technicians have completed an initial inspection and all details are recorded.`,
-   nxt:`A detailed job card will be created.`},
-  {id:'rp-jobcard',   n:2,  t:13, lbl:`Job Card Created`,                ico:'📋',
-   msg:`A detailed job card has been prepared documenting all mechanical issues. Our expert mechanics will be working on your vehicle shortly.`,
-   nxt:`A thorough repair estimate will be prepared.`},
-  {id:'rp-estimation',n:3,  t:13, lbl:`Estimation`,                      ico:'📊',
-   msg:`Our technicians have completed a thorough inspection. A detailed repair estimate has been prepared and will be shared with you shortly.`,
-   nxt:`Waiting for your approval to proceed.`},
-  {id:'rp-cust-approval',n:4,t:13,lbl:`Waiting for Customer Approval`,   ico:'👤',
-   msg:`We have shared the repair estimate with you. Please review and approve so our mechanics can begin the repair work without delay.`,
-   nxt:`Parts will be ordered after your approval.`},
-  {id:'rp-waiting-parts',n:5,t:13,lbl:`Waiting for Parts`,               ico:'⏳',
-   msg:`Required spare parts have been ordered and we are awaiting their arrival. Our mechanics are ready to begin work immediately upon receipt.`,
-   nxt:`Repair work begins immediately after parts arrive.`},
-  {id:'rp-parts-received',n:6,t:13,lbl:`Parts Received`,                 ico:'📦',
-   msg:`All required spare parts have arrived and been verified. Our mechanics have begun the repair work on your vehicle.`,
-   nxt:`Mechanical repair work is underway.`},
-  {id:'rp-mechanical',n:7,  t:13, lbl:`WIP — Mechanic`,                  ico:'🔧',
-   msg:`Your vehicle is currently undergoing mechanical repairs. Our experienced mechanics are working carefully to restore it to perfect working condition.`,
-   nxt:`Vehicle will be washed after repairs are complete.`},
-  {id:'rp-washing',   n:8,  t:13, lbl:`Car Washing`,                     ico:'🚿',
-   msg:`All mechanical repairs are complete! Your vehicle is being thoroughly washed and cleaned before the final billing and handover process.`,
-   nxt:`Billing and final paperwork will be completed.`},
-  {id:'rp-billing',   n:9,  t:13, lbl:`Billing Process`,                 ico:'🧾',
-   msg:`Repair work is complete and your final invoice is being prepared. All costs and charges are being calculated accurately for your review.`,
-   nxt:`Payment and vehicle handover.`},
-  {id:'rp-pay-pending',n:10,t:13, lbl:`Payment Pending`,                 ico:'💳',
-   msg:`Your vehicle is ready and the invoice has been prepared. Kindly arrange payment at your earliest so we can hand over your vehicle.`,
-   nxt:`Vehicle handed over upon payment.`},
-  {id:'rp-pay-received',n:11,t:13,lbl:`Payment Received`,                ico:'💰',
-   msg:`Thank you! Payment has been received. Your vehicle is ready for collection. Please visit us at your convenience.`,
-   nxt:`Visit us to collect your vehicle!`},
-  {id:'rp-ready',     n:12, t:13, lbl:`Ready for Delivery`,              ico:'🚗',
-   msg:`🎉 Your vehicle mechanical repairs are complete and it is ready for delivery! Please visit Carecay Workshop to collect your car.`,
-   nxt:`Visit us to collect your vehicle!`},
-  {id:'rp-delivered', n:13, t:13, lbl:`Delivered`,                       ico:'🎉',
-   msg:`✅ Your vehicle has been successfully delivered. Thank you for choosing Carecay Workshop for your mechanical repairs. Drive safe!`,
-   nxt:`Thank you for choosing Carecay Workshop!`},
+  {id:'rp-inward',    n:1,  t:13, lbl:\`Car Inward & Receive Photos\`,     ico:'📥',
+   msg:\`Your vehicle has been received at Carecay Workshop for mechanical repair. Our technicians have completed an initial inspection and all details are recorded.\`,
+   nxt:\`A detailed job card will be created.\`},
+  {id:'rp-jobcard',   n:2,  t:13, lbl:\`Job Card Created\`,                ico:'📋',
+   msg:\`A detailed job card has been prepared documenting all mechanical issues. Our expert mechanics will be working on your vehicle shortly.\`,
+   nxt:\`A thorough repair estimate will be prepared.\`},
+  {id:'rp-estimation',n:3,  t:13, lbl:\`Estimation\`,                      ico:'📊',
+   msg:\`Our technicians have completed a thorough inspection. A detailed repair estimate has been prepared and will be shared with you shortly.\`,
+   nxt:\`Waiting for your approval to proceed.\`},
+  {id:'rp-cust-approval',n:4,t:13,lbl:\`Waiting for Customer Approval\`,   ico:'👤',
+   msg:\`We have shared the repair estimate with you. Please review and approve so our mechanics can begin the repair work without delay.\`,
+   nxt:\`Parts will be ordered after your approval.\`},
+  {id:'rp-waiting-parts',n:5,t:13,lbl:\`Waiting for Parts\`,               ico:'⏳',
+   msg:\`Required spare parts have been ordered and we are awaiting their arrival. Our mechanics are ready to begin work immediately upon receipt.\`,
+   nxt:\`Repair work begins immediately after parts arrive.\`},
+  {id:'rp-parts-received',n:6,t:13,lbl:\`Parts Received\`,                 ico:'📦',
+   msg:\`All required spare parts have arrived and been verified. Our mechanics have begun the repair work on your vehicle.\`,
+   nxt:\`Mechanical repair work is underway.\`},
+  {id:'rp-mechanical',n:7,  t:13, lbl:\`WIP — Mechanic\`,                  ico:'🔧',
+   msg:\`Your vehicle is currently undergoing mechanical repairs. Our experienced mechanics are working carefully to restore it to perfect working condition.\`,
+   nxt:\`Vehicle will be washed after repairs are complete.\`},
+  {id:'rp-washing',   n:8,  t:13, lbl:\`Car Washing\`,                     ico:'🚿',
+   msg:\`All mechanical repairs are complete! Your vehicle is being thoroughly washed and cleaned before the final billing and handover process.\`,
+   nxt:\`Billing and final paperwork will be completed.\`},
+  {id:'rp-billing',   n:9,  t:13, lbl:\`Billing Process\`,                 ico:'🧾',
+   msg:\`Repair work is complete and your final invoice is being prepared. All costs and charges are being calculated accurately for your review.\`,
+   nxt:\`Payment and vehicle handover.\`},
+  {id:'rp-pay-pending',n:10,t:13, lbl:\`Payment Pending\`,                 ico:'💳',
+   msg:\`Your vehicle is ready and the invoice has been prepared. Kindly arrange payment at your earliest so we can hand over your vehicle.\`,
+   nxt:\`Vehicle handed over upon payment.\`},
+  {id:'rp-pay-received',n:11,t:13,lbl:\`Payment Received\`,                ico:'💰',
+   msg:\`Thank you! Payment has been received. Your vehicle is ready for collection. Please visit us at your convenience.\`,
+   nxt:\`Visit us to collect your vehicle!\`},
+  {id:'rp-ready',     n:12, t:13, lbl:\`Ready for Delivery\`,              ico:'🚗',
+   msg:\`🎉 Your vehicle mechanical repairs are complete and it is ready for delivery! Please visit Carecay Workshop to collect your car.\`,
+   nxt:\`Visit us to collect your vehicle!\`},
+  {id:'rp-delivered', n:13, t:13, lbl:\`Delivered\`,                       ico:'🎉',
+   msg:\`✅ Your vehicle has been successfully delivered. Thank you for choosing Carecay Workshop for your mechanical repairs. Drive safe!\`,
+   nxt:\`Thank you for choosing Carecay Workshop!\`},
 ];
 
 
@@ -4138,43 +4087,43 @@ function renderRecords(filter) {
     const histRows = r.history.map((h,i) => {
       const hDate = new Date(h.ts).toLocaleString('en-IN');
       const hEst = h.est ? new Date(h.est).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-      return `<tr>
-        <td><span class="hist-pct">${h.pct}%</span></td>
-        <td><span class="hist-stage">${h.label}</span></td>
-        <td><span class="hist-del">${hEst}</span></td>
-        <td><span class="hist-date">${hDate}</span></td>
-        <td><button onclick="deleteHistEntry('${key}',${i})" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">✕</button></td>
-      </tr>`;
+      return \`<tr>
+        <td><span class="hist-pct">\${h.pct}%</span></td>
+        <td><span class="hist-stage">\${h.label}</span></td>
+        <td><span class="hist-del">\${hEst}</span></td>
+        <td><span class="hist-date">\${hDate}</span></td>
+        <td><button onclick="deleteHistEntry('\${key}',\${i})" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">✕</button></td>
+      </tr>\`;
     }).join('');
 
-    return `<div class="rec-card">
-      <div class="rec-card-hdr" onclick="toggleRec('${key}')">
+    return \`<div class="rec-card">
+      <div class="rec-card-hdr" onclick="toggleRec('\${key}')">
         <div style="flex:1;">
-          <div class="rec-reg">${r.reg}</div>
-          <div class="rec-model">${r.model||'—'} ${r.cust ? '· ' + r.cust : ''} <span style="color:${wColor};font-size:10px;">${wLabel}</span></div>
-          <div style="font-size:11px;color:var(--m2);margin-top:2px;">Last update: ${ts}</div>
+          <div class="rec-reg">\${r.reg}</div>
+          <div class="rec-model">\${r.model||'—'} \${r.cust ? '· ' + r.cust : ''} <span style="color:\${wColor};font-size:10px;">\${wLabel}</span></div>
+          <div style="font-size:11px;color:var(--m2);margin-top:2px;">Last update: \${ts}</div>
           <!-- Mini progress bar -->
           <div style="margin-top:6px;height:4px;background:var(--s2);border-radius:2px;width:100%;">
-            <div style="height:4px;width:${barW}%;background:var(--accent);border-radius:2px;"></div>
+            <div style="height:4px;width:\${barW}%;background:var(--accent);border-radius:2px;"></div>
           </div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div class="rec-pct">${pct}%</div>
-          <div class="rec-stage-tag">${label}</div>
-          <div style="font-size:11px;color:var(--green);margin-top:4px;">📅 ${est}</div>
+          <div class="rec-pct">\${pct}%</div>
+          <div class="rec-stage-tag">\${label}</div>
+          <div style="font-size:11px;color:var(--green);margin-top:4px;">📅 \${est}</div>
         </div>
-        <span style="color:var(--m2);font-size:18px;" id="arr-${key}">›</span>
+        <span style="color:var(--m2);font-size:18px;" id="arr-\${key}">›</span>
       </div>
-      <div class="rec-body" id="rec-body-${key}">
+      <div class="rec-body" id="rec-body-\${key}">
         <div style="padding:10px 14px;background:var(--s2);display:flex;gap:8px;justify-content:flex-end;">
-          <button onclick="deleteRecord('${key}')" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif;">🗑 Delete Car</button>
+          <button onclick="deleteRecord('\${key}')" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif;">🗑 Delete Car</button>
         </div>
         <table class="hist-table">
           <thead><tr><th>% Done</th><th>Stage</th><th>Est. Delivery</th><th>Date & Time</th><th></th></tr></thead>
-          <tbody>${histRows}</tbody>
+          <tbody>\${histRows}</tbody>
         </table>
       </div>
-    </div>`;
+    </div>\`;
   }).join('');
 }
 
@@ -4243,7 +4192,7 @@ function exportRecords() {
       rows.push([r.reg, r.model||'', r.cust||'', r.wt==='bs'?'Body Shop':'Mechanical', h.label, h.pct+'%', est, ts]);
     });
   });
-  const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   a.download = 'Carecay-Records-'+new Date().toISOString().slice(0,10)+'.csv';
@@ -4299,7 +4248,7 @@ function scFillStages() {
   const stages = wt === 'bs' ? BS : RP;
   const sel = document.getElementById('sc-stage');
   sel.innerHTML = stages.map(s =>
-    `<option value="${s.id}">${s.ico} Step ${s.n}/${s.t} — ${s.lbl}</option>`
+    \`<option value="\${s.id}">\${s.ico} Step \${s.n}/\${s.t} — \${s.lbl}</option>\`
   ).join('');
 }
 
@@ -4411,32 +4360,32 @@ function scRenderRecords(filter) {
     const rows = r.history.map((h,i) => {
       const hd = new Date(h.ts).toLocaleString('en-IN');
       const he = h.est ? new Date(h.est).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-      return `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);"><span style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">${h.pct}%</span></td>
-        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:12px;font-weight:600;">${h.label}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:11px;color:var(--green);">${he}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:11px;color:var(--m2);">${hd}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);"><button onclick="scDelHist('${key}',${i})" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">✕</button></td>
-      </tr>`;
+      return \`<tr>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);"><span style="font-family:var(--disp);font-size:16px;font-weight:800;color:var(--accent);">\${h.pct}%</span></td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:12px;font-weight:600;">\${h.label}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:11px;color:var(--green);">\${he}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);font-size:11px;color:var(--m2);">\${hd}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid rgba(39,45,66,.5);"><button onclick="scDelHist('\${key}',\${i})" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;">✕</button></td>
+      </tr>\`;
     }).join('');
-    return `<div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;">
-      <div onclick="scToggleRec('${key}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;gap:10px;">
+    return \`<div style="background:var(--s1);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;">
+      <div onclick="scToggleRec('\${key}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;gap:10px;">
         <div style="flex:1;">
-          <div style="font-family:var(--disp);font-size:20px;font-weight:800;color:var(--accent);letter-spacing:2px;">${r.reg}</div>
-          <div style="font-size:12px;color:var(--m1);">${r.model||'—'} ${r.cust?'· '+r.cust:''} <span style="color:${wc};font-size:10px;">${r.wt==='bs'?'🔩 Body Shop':'🔧 Mechanical'}</span></div>
-          <div style="font-size:11px;color:var(--m2);margin-top:2px;">Last: ${ts}</div>
-          <div style="margin-top:5px;height:4px;background:var(--s2);border-radius:2px;"><div style="height:4px;width:${pct}%;background:var(--accent);border-radius:2px;"></div></div>
+          <div style="font-family:var(--disp);font-size:20px;font-weight:800;color:var(--accent);letter-spacing:2px;">\${r.reg}</div>
+          <div style="font-size:12px;color:var(--m1);">\${r.model||'—'} \${r.cust?'· '+r.cust:''} <span style="color:\${wc};font-size:10px;">\${r.wt==='bs'?'🔩 Body Shop':'🔧 Mechanical'}</span></div>
+          <div style="font-size:11px;color:var(--m2);margin-top:2px;">Last: \${ts}</div>
+          <div style="margin-top:5px;height:4px;background:var(--s2);border-radius:2px;"><div style="height:4px;width:\${pct}%;background:var(--accent);border-radius:2px;"></div></div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:var(--disp);font-size:22px;font-weight:900;color:var(--accent);">${pct}%</div>
-          <div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${lat.label||''}</div>
-          <div style="font-size:11px;color:var(--green);margin-top:4px;">📅 ${est}</div>
+          <div style="font-family:var(--disp);font-size:22px;font-weight:900;color:var(--accent);">\${pct}%</div>
+          <div style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">\${lat.label||''}</div>
+          <div style="font-size:11px;color:var(--green);margin-top:4px;">📅 \${est}</div>
         </div>
-        <span id="sc-arr-${key}" style="color:var(--m2);font-size:18px;">›</span>
+        <span id="sc-arr-\${key}" style="color:var(--m2);font-size:18px;">›</span>
       </div>
-      <div id="sc-body-${key}" style="display:none;border-top:1px solid var(--border);">
+      <div id="sc-body-\${key}" style="display:none;border-top:1px solid var(--border);">
         <div style="padding:8px 12px;background:var(--s2);display:flex;justify-content:flex-end;">
-          <button onclick="scDelRec('${key}')" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:var(--body);">🗑 Delete</button>
+          <button onclick="scDelRec('\${key}')" style="background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:var(--body);">🗑 Delete</button>
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;">
           <thead><tr style="background:var(--s2);">
@@ -4446,10 +4395,10 @@ function scRenderRecords(filter) {
             <th style="padding:7px 12px;text-align:left;font-size:10px;color:var(--m1);text-transform:uppercase;border-bottom:1px solid var(--border);">Date & Time</th>
             <th style="border-bottom:1px solid var(--border);"></th>
           </tr></thead>
-          <tbody>${rows}</tbody>
+          <tbody>\${rows}</tbody>
         </table>
       </div>
-    </div>`;
+    </div>\`;
   }).join('');
 }
 
@@ -4488,7 +4437,7 @@ function scExportCSV() {
       rows.push([r.reg,r.model||'',r.cust||'',r.wt==='bs'?'Body Shop':'Mechanical',h.label,h.pct+'%',est,ts]);
     });
   });
-  const csv = rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const csv = rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='Carecay-Records-'+new Date().toISOString().slice(0,10)+'.csv';
@@ -4581,19 +4530,19 @@ function liveFilterCars(q) {
     const highlightStyle = isMatch 
       ? 'border:2px solid var(--accent);box-shadow:0 0 14px rgba(245,158,11,0.25);'
       : 'opacity:0.35;pointer-events:none;';
-    return `<div class="car-card" style="${highlightStyle}">
-      <div class="car-hdr" onclick="toggleParts('cp-${car.id}')">
+    return \`<div class="car-card" style="\${highlightStyle}">
+      <div class="car-hdr" onclick="toggleParts('cp-\${car.id}')">
         <div style="flex:1;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div class="car-reg">${car.regno}</div>
-            <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">${getStageIcon(stage)} ${stageName}</span>
+            <div class="car-reg">\${car.regno}</div>
+            <span class="pipe-tag" style="background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.3);">\${getStageIcon(stage)} \${stageName}</span>
           </div>
-          <div class="car-sub">${car.model||''} ${car.customer?'· '+car.customer:''} ${car.insco?'· '+car.insco:''}</div>
+          <div class="car-sub">\${car.model||''} \${car.customer?'· '+car.customer:''} \${car.insco?'· '+car.insco:''}</div>
         </div>
-        <span style="color:var(--m2);font-size:20px;" id="arr-${car.id}">›</span>
+        <span style="color:var(--m2);font-size:20px;" id="arr-\${car.id}">›</span>
       </div>
-      <div class="car-parts" id="cp-${car.id}" style="display:none;"></div>
-    </div>`;
+      <div class="car-parts" id="cp-\${car.id}" style="display:none;"></div>
+    </div>\`;
   }).join('');
 }
 
@@ -4630,26 +4579,26 @@ function globalSearch(query, resultsId) {
     html += '<div style="font-size:10px;color:var(--accent);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">🚗 Cars in App</div>';
     html += matches.map(c => {
       const stageLabel = (c.stage||'').replace('bs-','').replace('rp-','').replace(/-/g,' ');
-      return `<div onclick="searchSelectCar('${c.id}', ${isFromStatus})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+      return \`<div onclick="searchSelectCar('\${c.id}', \${isFromStatus})" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
         <div>
-          <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--accent);">${c.regno}</div>
-          <div style="font-size:11px;color:var(--m1);">${c.model||''} ${c.customer?'· '+c.customer:''}</div>
+          <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--accent);">\${c.regno}</div>
+          <div style="font-size:11px;color:var(--m1);">\${c.model||''} \${c.customer?'· '+c.customer:''}</div>
         </div>
-        <div style="font-size:10px;color:var(--m2);text-transform:uppercase;">${stageLabel}</div>
-      </div>`;
+        <div style="font-size:10px;color:var(--m2);text-transform:uppercase;">\${stageLabel}</div>
+      </div>\`;
     }).join('');
   }
   if (recMatches.length) {
     html += '<div style="font-size:10px;color:var(--blue);padding:8px 12px 4px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">📋 Status Records</div>';
     html += recMatches.map(r => {
       const lat = r.history[0]||{};
-      return `<div onclick="searchSelectRecord('${r.reg}')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+      return \`<div onclick="searchSelectRecord('\${r.reg}')" style="padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
         <div>
-          <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--blue);">${r.reg}</div>
-          <div style="font-size:11px;color:var(--m1);">${r.model||''} ${r.cust?'· '+r.cust:''}</div>
+          <div style="font-family:var(--disp);font-size:15px;font-weight:800;color:var(--blue);">\${r.reg}</div>
+          <div style="font-size:11px;color:var(--m1);">\${r.model||''} \${r.cust?'· '+r.cust:''}</div>
         </div>
-        <div style="font-size:10px;color:var(--accent);font-weight:700;">${lat.pct||0}% · ${lat.label||''}</div>
-      </div>`;
+        <div style="font-size:10px;color:var(--accent);font-weight:700;">\${lat.pct||0}% · \${lat.label||''}</div>
+      </div>\`;
     }).join('');
   }
   results.innerHTML = html;
@@ -4884,7 +4833,7 @@ function _buildDRStageList(currentStage) {
       var isSelected = s === _drSelectedStage;
       html += '<div class="dr-stage-item' + (isSelected ? ' selected' : '') + '"'
         + ' data-stage="' + s + '"'
-        + ' onclick="drSelectStage(\'' + s + '\')"'
+        + ' onclick="drSelectStage(\\'' + s + '\\')"'
         + ' style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:3px;cursor:pointer;'
         + 'border:2px solid ' + (isSelected ? sec.color : 'transparent') + ';'
         + 'background:' + (isSelected ? 'rgba(99,102,241,.15)' : isCurrent ? 'var(--adim)' : 'var(--s2)') + ';'
@@ -5023,7 +4972,7 @@ var THEMES = [
   {id:'light',    name:'Light',    bg:'#f0f2f7', accent:'#d97706'},
 ];
 function applyTheme(id) {
-  document.body.className = document.body.className.replace(/theme-\S+/g, '').trim();
+  document.body.className = document.body.className.replace(/theme-\\S+/g, '').trim();
   if (id && id !== 'midnight') document.body.classList.add('theme-' + id);
   localStorage.setItem('carecay_theme', id || 'midnight');
   document.querySelectorAll('.theme-swatch').forEach(function(el) {
@@ -5035,7 +4984,7 @@ function renderThemeGrid() {
   if (!grid) return;
   var saved = localStorage.getItem('carecay_theme') || 'midnight';
   grid.innerHTML = THEMES.map(function(t) {
-    return '<div class="theme-swatch' + (t.id === saved ? ' active' : '') + '" data-tid="' + t.id + '" onclick="applyTheme(\'' + t.id + '\')" style="background:' + t.bg + ';">'
+    return '<div class="theme-swatch' + (t.id === saved ? ' active' : '') + '" data-tid="' + t.id + '" onclick="applyTheme(\\'' + t.id + '\\')" style="background:' + t.bg + ';">'
       + '<div class="sw-dot" style="background:' + t.accent + ';"></div>'
       + '<div class="sw-name" style="color:' + t.accent + ';">' + t.name + '</div>'
       + '</div>';
@@ -5769,11 +5718,132 @@ function ppcFilterParts(parts){ return parts; }
 function ppcMatchFilter(parts){ return parts.length > 0; }
 function printPartsCards(){ ppcPrintAll(); }
 </script>
-
-</div> <!-- /module-workshop -->
-
-<div id="module-bms">
-
+</body>
+</html>
+`;
+var bmsHTML=`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carecay BMS — Carecay Multibrand Workshop</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f5;--bg2:#fff;--bg3:#f4f6f8;--bg4:#e8edf2;--bg5:#dde3ea;
+  --b:rgba(0,0,0,0.08);--b2:rgba(0,0,0,0.14);
+  --t:#1e293b;--t2:#475569;--t3:#94a3b8;
+  --am:#d97706;--am2:#b45309;--amd:rgba(217,119,6,0.10);
+  --gn:#059669;--gnd:rgba(5,150,105,0.10);
+  --rd:#dc2626;--rdd:rgba(220,38,38,0.10);
+  --bl:#2563eb;--bld:rgba(37,99,235,0.10);
+  --pu:#7c3aed;--pud:rgba(124,58,237,0.10);
+  --cy:#0891b2;--cyd:rgba(8,145,178,0.10);
+  --sb:#1e293b;--sb2:#162032;--sb3:#253549;
+  --sbt:#f1f5f9;--sbt2:#94a3b8;--sbt3:#475569;--sbam:#f59e0b;
+}
+body{background:var(--bg);color:var(--t);font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;overflow:hidden}
+.app{display:flex;height:100vh}
+.sb{width:220px;background:var(--sb);border-right:1px solid rgba(0,0,0,0.2);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-logo{padding:14px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:9px}
+.sb-ic{width:30px;height:30px;background:rgba(245,158,11,0.15);border:1px solid var(--sbam);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sb-nav{padding:8px 6px;flex:1}
+.sb-sec{font-size:9px;font-weight:700;color:var(--sbt3);text-transform:uppercase;letter-spacing:.1em;padding:10px 8px 4px}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--sbt2);font-size:12px;transition:all .15s;margin-bottom:1px;user-select:none}
+.ni:hover{background:var(--sb3);color:var(--sbt)}
+.ni.on{background:rgba(245,158,11,0.15);color:var(--sbam);font-weight:600}
+.ni svg{width:14px;height:14px;flex-shrink:0}
+.nb{margin-left:auto;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;background:var(--sbam);color:#000;min-width:16px;text-align:center}
+.nb.r{background:var(--rd);color:#fff}
+.sb-user{padding:10px 14px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:9px;flex-shrink:0}
+.sb-av{width:28px;height:28px;border-radius:50%;background:rgba(245,158,11,0.15);border:1px solid var(--sbam);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--sbam)}
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.pg{display:none;flex-direction:column;flex:1;overflow:hidden}
+.pg.on{display:flex}
+.hdr{padding:12px 20px;border-bottom:1px solid var(--b2);display:flex;align-items:center;gap:12px;background:var(--bg2);flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.hdr h1{font-size:15px;font-weight:700;color:var(--t)}
+.hdr-s{font-size:10px;color:var(--t3)}
+.hdr-a{margin-left:auto;display:flex;gap:7px;align-items:center}
+.cnt{padding:16px 20px;flex:1;overflow-y:auto}
+.btn{padding:6px 13px;border-radius:6px;border:1px solid var(--b2);background:var(--bg2);color:var(--t);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,0.06)}
+.btn:hover{background:var(--bg4)}
+.btn.pr{background:var(--am);border-color:var(--am2);color:#fff;font-weight:700}
+.btn.gn{background:var(--gnd);border-color:var(--gn);color:var(--gn)}
+.btn.rd{background:var(--rdd);border-color:var(--rd);color:var(--rd)}
+.btn.bl{background:var(--bld);border-color:var(--bl);color:var(--bl)}
+.btn.cy{background:var(--cyd);border-color:var(--cy);color:var(--cy)}
+.btn.am{background:var(--amd);border-color:var(--am);color:var(--am)}
+.btn.sm{padding:3px 8px;font-size:11px}
+.btn.xs{padding:2px 6px;font-size:10px}
+.stats{display:grid;gap:10px;margin-bottom:14px}
+.stats.c4{grid-template-columns:repeat(4,1fr)}.stats.c5{grid-template-columns:repeat(5,1fr)}
+.sc{background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:14px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.scl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-weight:700}
+.scv{font-size:20px;font-weight:700}
+.scs{font-size:10px;color:var(--t2);margin-top:2px}
+.sci{position:absolute;right:10px;top:10px;font-size:22px;opacity:.08}
+.sc.am .scv{color:var(--am)}.sc.gn .scv{color:var(--gn)}.sc.rd .scv{color:var(--rd)}.sc.bl .scv{color:var(--bl)}.sc.pu .scv{color:var(--pu)}
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:10px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.card-h{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);font-size:12px;font-weight:600;color:var(--t);gap:8px}
+.card-b{padding:14px}
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--b);box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{background:var(--sb);color:#e2e8f0;padding:8px 9px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;border-bottom:2px solid rgba(0,0,0,0.2);white-space:nowrap;position:sticky;top:0;z-index:1}
+tbody td{padding:7px 9px;border-bottom:1px solid var(--b);color:var(--t2);white-space:nowrap;background:var(--bg2)}
+tbody tr:hover td{background:var(--bg3)}
+tbody tr:last-child td{border-bottom:none}
+.bx{display:inline-block;font-size:9px;padding:2px 7px;border-radius:8px;font-weight:700}
+.bx.gn{background:#dcfce7;color:#15803d}.bx.rd{background:#fee2e2;color:#b91c1c}.bx.am{background:#fef3c7;color:#92400e}.bx.bl{background:#dbeafe;color:#1d4ed8}.bx.pu{background:#ede9fe;color:#6d28d9}.bx.cy{background:#cffafe;color:#0e7490}
+.fg{display:grid;gap:10px}.fg.c4{grid-template-columns:repeat(4,1fr)}.fg.c3{grid-template-columns:repeat(3,1fr)}.fg.c2{grid-template-columns:repeat(2,1fr)}
+.fg2{display:flex;flex-direction:column;gap:3px}
+.fg2.s2{grid-column:span 2}.fg2.s3{grid-column:span 3}.fg2.s4{grid-column:span 4}
+.fl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.fi{background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:6px 9px;color:var(--t);font-size:12px;outline:none;width:100%;transition:border-color .15s}
+.fi:focus{border-color:var(--bl)}
+select.fi option{background:var(--bg2)}
+.al{padding:10px 14px;border-radius:6px;font-size:12px;display:flex;align-items:flex-start;gap:9px;margin-bottom:10px}
+.al.i{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.al.s{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.al.w{background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.al.e{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+.tabs{display:flex;gap:2px;background:var(--bg4);padding:3px;border-radius:8px;margin-bottom:14px;border:1px solid var(--b)}
+.tab{padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--t2);font-weight:500;transition:all .15s}
+.tab.on{background:var(--bg2);color:var(--t);box-shadow:0 1px 2px rgba(0,0,0,0.08);font-weight:600}
+.flt{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.sf{background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:5px 9px;color:var(--t);font-size:12px;outline:none}
+.sf:focus{border-color:var(--bl)}
+.mov{position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.mbox{background:var(--bg2);border:1px solid var(--b2);border-radius:12px;width:100%;max-width:940px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.mhdr{padding:14px 18px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}
+.mhdr h3{font-size:14px;font-weight:700;color:var(--t)}
+.mbody{padding:18px}
+.mfoot{padding:12px 18px;border-top:1px solid var(--b);display:flex;justify-content:flex-end;gap:8px;background:var(--bg3)}
+.dov{position:fixed;inset:0;background:rgba(15,23,42,0.7);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.dbox{background:var(--bg2);border:2px solid var(--rd);border-radius:12px;width:100%;max-width:460px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.tog{width:34px;height:18px;background:var(--bg5);border-radius:9px;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s;border:1px solid var(--b2)}
+.tog.on{background:var(--gn);border-color:var(--gn)}.tog::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 2px rgba(0,0,0,0.2)}.tog.on::after{left:18px}
+.rg{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.rc{background:var(--bg2);border:1px solid var(--b);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.rc:hover{border-color:var(--am);transform:translateY(-2px)}
+.rc h4{font-size:11px;font-weight:700;color:var(--t);margin-bottom:3px}
+.rc p{font-size:10px;color:var(--t3)}
+.tw2{position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.tst{background:var(--bg2);border:1px solid var(--b2);border-left:3px solid var(--bl);border-radius:7px;padding:10px 14px;font-size:12px;min-width:240px;animation:tI .25s ease;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.12);color:var(--t)}
+.tst.gn{border-left-color:var(--gn)}.tst.rd{border-left-color:var(--rd)}.tst.am{border-left-color:var(--am)}
+@keyframes tI{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}
+.ic{background:var(--bg2);border:1px solid var(--b2);border-radius:4px;padding:4px 6px;color:var(--t);font-size:11px;outline:none;width:100%}
+.ic:focus{border-color:var(--bl)}.ic.ro{background:var(--bg3);cursor:default;color:var(--am)}
+.emp{text-align:center;padding:28px;color:var(--t3);font-size:12px}
+.lnk{color:var(--bl);text-decoration:none;font-size:11px;font-weight:500}
+.lnk:hover{text-decoration:underline}
+.gl{background:var(--bg3);border:1px solid var(--b);border-radius:6px;padding:10px;font-size:11px;color:var(--t2);font-family:monospace;max-height:110px;overflow-y:auto;line-height:1.7}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b)}
+.sr:last-child{border-bottom:none}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg3)}::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px}
+</style>
+</head>
+<body>
 <div class="app">
 <div class="sb">
   <div class="sb-logo"><div class="sb-ic">&#128663;</div><div><div style="font-size:13px;font-weight:700;color:var(--sbam)">Carecay BMS</div><div style="font-size:9px;color:var(--sbt3)">Bill Management v3</div></div></div>
@@ -5803,18 +5873,6 @@ function printPartsCards(){ ppcPrintAll(); }
 <div class="pg on" id="pg-dash">
   <div class="hdr"><div><h1>Dashboard</h1><div class="hdr-s">Carecay Multibrand Workshop</div></div><div class="hdr-a"><button class="btn pr" onclick="openPB(null)">+ Purchase Bill</button><button class="btn cy" onclick="openSI('')">+ Sales Invoice</button><button class="btn gn" onclick="exportAll()">Export All</button></div></div>
   <div class="cnt">
-    <!-- Migration banner: shown when no data exists -->
-    <div id="migration-banner" style="display:none;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:10px;padding:14px 18px;margin-bottom:16px;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-weight:700;color:var(--am);font-size:13px">📂 No data found — Restore your existing data</div>
-        <div style="color:var(--t2);font-size:11px;margin-top:3px">Import your Excel backup or pull from Firebase to restore all purchase bills and invoices.</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <button class="btn gn" onclick="Q('import-file').click()">⬆ Import Excel</button>
-        <button class="btn bl" onclick="go('sync');setTimeout(function(){if(FB.url)fbPull();},400)">☁ Pull from Firebase</button>
-        <button class="btn" style="background:var(--bg4)" onclick="document.getElementById('migration-banner').style.display='none'">✕ Dismiss</button>
-      </div>
-    </div>
     <div class="stats c5">
       <div class="sc am"><div class="scl">Total Purchase</div><div class="scv" id="d-pur">&#8377;0</div><div class="scs" id="d-ps">0 bills</div></div>
       <div class="sc gn"><div class="scl">Total Sales</div><div class="scv" id="d-sal">&#8377;0</div><div class="scs" id="d-ss">0 invoices</div></div>
@@ -6133,7 +6191,7 @@ function printPartsCards(){ ppcPrintAll(); }
           <div>
             <div class="fl" style="margin-bottom:5px">Firebase Database URL</div>
             <div style="display:flex;gap:6px">
-              <input class="fi" id="fb-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="flex:1;font-size:11px" value="">
+              <input class="fi" id="fb-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="flex:1;font-size:11px">
               <button class="btn bl" onclick="fbConnect()">Connect</button>
             </div>
           </div>
@@ -6211,12 +6269,11 @@ function persist(){
 }
 
 function go(id,el){
-  var bmsEl=document.getElementById('module-bms')||document;
-  bmsEl.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
-  var pg=document.getElementById('pg-'+id);if(pg)pg.classList.add('on');
-  bmsEl.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  var pg=Q('pg-'+id);if(pg)pg.classList.add('on');
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
   if(el)el.classList.add('on');
-  else bmsEl.querySelectorAll('.ni').forEach(function(n){var oc=n.getAttribute('onclick')||'';if(oc.indexOf("'"+id+"'")>=0)n.classList.add('on');});
+  else document.querySelectorAll('.ni').forEach(function(n){var oc=n.getAttribute('onclick')||'';if(oc.indexOf("'"+id+"'")>=0)n.classList.add('on');});
   if(id==='inventory')rInv();
   if(id==='wa'){buildWAQ();rWAH();}
   if(id==='vout')rVout(DB.pb);
@@ -6272,7 +6329,7 @@ function buildPBForm(d){
         '&#9989; <strong>Part No | HSN | Particulars | Qty | Rate | Disc% | GST%</strong><br>'+
         '&#9989; Tab separated from Excel also works</div>';
   html+='<textarea class="fi" id="paste-area" rows="5" style="font-family:monospace;font-size:11px" placeholder="Brake Pad&#10;Engine Oil 5W30&#10;Windshield Glass&#10;&#10;OR: A001  87089900  Brake Pad  2  850  5  18"></textarea>';
-  html+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn pr" onclick="doPaste()">&#9889; Convert to Rows</button><button class="btn sm" onclick="Q(\'paste-panel\').style.display=\'none\'">Cancel</button></div></div>';
+  html+='<div style="display:flex;gap:8px;margin-top:8px"><button class="btn pr" onclick="doPaste()">&#9889; Convert to Rows</button><button class="btn sm" onclick="Q(\\'paste-panel\\').style.display=\\'none\\'">Cancel</button></div></div>';
   var th='background:var(--sb);color:#e2e8f0;padding:6px 7px;text-align:left;font-size:9px;font-weight:700;border-bottom:1px solid rgba(0,0,0,0.2);white-space:nowrap';
   html+='<div style="overflow-x:auto;border-radius:8px;border:1px solid var(--b)"><table style="width:100%;border-collapse:collapse"><thead><tr>';
   html+='<th style="'+th+'">#</th><th style="'+th+';min-width:78px">Part No</th><th style="'+th+';min-width:70px">HSN</th><th style="'+th+';min-width:145px">Particulars</th><th style="'+th+';min-width:46px">Nos</th><th style="'+th+';min-width:70px">Rate</th><th style="'+th+';min-width:46px">Disc%</th><th style="'+th+';min-width:70px">Taxable</th><th style="'+th+';min-width:50px">GST%</th><th style="'+th+';min-width:70px">GST Amt</th><th style="'+th+';min-width:76px">Total</th><th style="'+th+'">Del</th>';
@@ -6326,7 +6383,7 @@ function doPaste(){
     emptyRows.forEach(function(id){var el=Q(id);if(el)el.remove();});
   }
 
-  var lines=raw.split('\n').filter(function(l){return l.trim();});
+  var lines=raw.split('\\n').filter(function(l){return l.trim();});
   var n=0;
 
   lines.forEach(function(line){
@@ -6334,7 +6391,7 @@ function doPaste(){
     if(!raw2)return;
 
     // Detect separator
-    var sep = raw2.indexOf('\t')>=0 ? '\t' : raw2.indexOf('|')>=0 ? '|' : raw2.indexOf(',')>=0 ? ',' : null;
+    var sep = raw2.indexOf('\\t')>=0 ? '\\t' : raw2.indexOf('|')>=0 ? '|' : raw2.indexOf(',')>=0 ? ',' : null;
 
     var d={};
 
@@ -6376,7 +6433,7 @@ function addPBRow(d){
   function ic(f,v,w,ro){
     var isEmpty=(v===''||v===undefined||v===null);
     var hl=(f==='rate'&&isEmpty)?';border:1.5px solid var(--am);background:#fffbeb':'';
-    return'<input class="ic'+(ro?' ro':'')+'" data-f="'+f+'" value="'+(v||'')+'" '+(ro?'readonly':'')+' style="width:'+(w||'100%')+hl+'" oninput="calcPBRow(this);if(this.value){this.style.border=\'\';this.style.background=\'\';}">';
+    return'<input class="ic'+(ro?' ro':'')+'" data-f="'+f+'" value="'+(v||'')+'" '+(ro?'readonly':'')+' style="width:'+(w||'100%')+hl+'" oninput="calcPBRow(this);if(this.value){this.style.border=\\'\\';this.style.background=\\'\\';}">';
   }
   var tr=document.createElement('tr');tr.id=id;tr.style.borderBottom='1px solid var(--b)';
   tr.innerHTML='<td style="padding:3px 6px;color:var(--t3);font-size:10px;text-align:center">'+n+'</td>'+
@@ -6390,7 +6447,7 @@ function addPBRow(d){
     '<td style="padding:2px"><select class="ic" data-f="gst" style="width:50px" onchange="calcPBRow(this)">'+gOpts+'</select></td>'+
     '<td style="padding:2px">'+ic('gamt',d.gamt,'68px',true)+'</td>'+
     '<td style="padding:2px">'+ic('total',d.total,'74px',true)+'</td>'+
-    '<td style="padding:2px;text-align:center"><button onclick="delPBRow(\''+id+'\')" style="background:var(--rdd);border:1px solid var(--rd);border-radius:4px;color:var(--rd);cursor:pointer;padding:3px 7px;font-size:10px">&#10005;</button></td>';
+    '<td style="padding:2px;text-align:center"><button onclick="delPBRow(\\''+id+'\\')" style="background:var(--rdd);border:1px solid var(--rd);border-radius:4px;color:var(--rd);cursor:pointer;padding:3px 7px;font-size:10px">&#10005;</button></td>';
   tb.appendChild(tr);
   if(d.nos&&(d.rate||d.purchase_price))calcPBRow(tr.querySelector('[data-f="nos"]'));
   updPBT();updPBRC();
@@ -6502,7 +6559,7 @@ function showPartDup(partNo,carReg){
     '<p style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.7">Part <strong>'+partNo+'</strong> already purchased for Car <strong style="color:var(--bl)">'+carReg+'</strong> and sales invoice not yet raised.<br><br>Raise the sales invoice first, then new purchase will be allowed.</p>'+
     '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#92400e">&#128161; Complete the sales cycle for this car first.</div>'+
     '<div style="display:flex;flex-direction:column;gap:8px">'+
-    '<button class="btn cy" style="justify-content:center" onclick="closeDup();openSI(\''+carReg+'\')">+ Raise Sales Invoice for '+carReg+'</button>'+
+    '<button class="btn cy" style="justify-content:center" onclick="closeDup();openSI(\\''+carReg+'\\')">+ Raise Sales Invoice for '+carReg+'</button>'+
     '<button class="btn rd" style="justify-content:center" onclick="closeDup()">&#10005; Cancel</button>'+
     '</div>';
   Q('dup-modal').style.display='flex';
@@ -6663,7 +6720,7 @@ function addSIRow(b){
     '<td style="padding:2px">'+sic('total',total,'74px',true)+'</td>'+
     '<td style="padding:2px"><input class="ic ro" data-f="pur_price" value="'+purPrice+'" readonly style="width:64px;color:var(--rd);font-size:10px"></td>'+
     '<td style="padding:2px"><input class="ic ro" data-f="profit" value="" readonly style="width:64px;font-weight:700"></td>'+
-    '<td style="padding:2px;text-align:center"><button onclick="delSIRow(\''+id+'\')" style="background:var(--rdd);border:1px solid var(--rd);border-radius:4px;color:var(--rd);cursor:pointer;padding:3px 7px;font-size:10px">&#10005;</button></td>';
+    '<td style="padding:2px;text-align:center"><button onclick="delSIRow(\\''+id+'\\')" style="background:var(--rdd);border:1px solid var(--rd);border-radius:4px;color:var(--rd);cursor:pointer;padding:3px 7px;font-size:10px">&#10005;</button></td>';
   tb.appendChild(tr);
   // Calc if we have values
   calcSIRow(tr.querySelector('[data-f="sale_price"]'));
@@ -6758,7 +6815,6 @@ function saveSI(){
 // ===== RENDER TABLES =====
 function rPB(data){
   var tb=Q('pb-tb');
-  // Count unique bills
   var billKeys={};
   data.forEach(function(r){var k=(r.bill_no||'?')+'||'+(r.vendor_name||'?');if(!billKeys[k])billKeys[k]=0;billKeys[k]++;});
   var uniqBills=Object.keys(billKeys).length;
@@ -6766,106 +6822,102 @@ function rPB(data){
   var months=[];data.forEach(function(r){if(r.month&&months.indexOf(r.month)<0)months.push(r.month);});
   var mf=Q('pb-mf');if(mf){var cv=mf.value;mf.innerHTML='<option value="">All Months</option>'+months.map(function(m){return'<option '+(cv===m?'selected':'')+'>'+m+'</option>';}).join('');}
   if(!data.length){tb.innerHTML='<tr><td colspan="21"><div class="emp">No purchase bills yet.</div></td></tr>';return;}
-
-  // Group items by bill_no + vendor_name
   var groups=[];var groupMap={};
-  data.forEach(function(r,globalIdx){
+  data.forEach(function(r,gi){
     var k=(r.bill_no||'?')+'||'+(r.vendor_name||'?');
     if(!groupMap[k]){
       groupMap[k]={key:k,bill_no:r.bill_no,vendor_name:r.vendor_name,bill_type:r.bill_type,
-        month:r.month,bill_date:r.bill_date,purchase_date:r.purchase_date,
+        month:r.month,bill_date:r.bill_date,
         payment_done:r.payment_done,payment_type:r.payment_type,
+        payment_amount:N(r.payment_amount||0),payment_date:r.payment_date||'',
         used_for_car_reg:r.used_for_car_reg,our_inv_no:r.our_inv_no,
         voucher_no:r.voucher_no,invoice_link:r.invoice_link,
-        duplicate:r.duplicate,final_amount:0,total_parts_purchase:0,
-        taxable_price:0,gst_amount:0,round_off:0,payment_amount:0,payment_date:'',items:[],firstIdx:globalIdx,_roundSet:false};
+        duplicate:r.duplicate,
+        total_parts_purchase:0,taxable_price:0,gst_amount:0,round_off:0,
+        items:[]};
       groups.push(groupMap[k]);
     }
     var g=groupMap[k];
-    g.items.push(Object.assign({},r,{_globalIdx:globalIdx}));
+    g.items.push(Object.assign({},r,{_gi:gi}));
     g.total_parts_purchase+=N(r.total_parts_purchase||r.total);
     g.taxable_price+=N(r.taxable_price);
     g.gst_amount+=N(r.gst_amount);
-    // round_off is a bill-level field stored on first item only
-    if(g.items.length===0){g.round_off=N(r.round_off||0);g.payment_amount=N(r.payment_amount||0);g.payment_date=r.payment_date||'';}
+    if(g.items.length===1)g.round_off=N(r.round_off||0);
   });
-
   var html='';
   groups.forEach(function(g,gi){
     var isC=(g.bill_type||'').indexOf('Chitti')>=0;
     var bt=isC?'<span class="bx am">Chitti</span>':(g.bill_type==='Handwritten Bill'?'<span class="bx pu">HW</span>':(g.bill_type==='Stock Transfer'?'<span class="bx cy">ST</span>':'<span class="bx gn" style="font-size:8px">Tax</span>'));
     var lnk=g.invoice_link?'<a href="'+g.invoice_link+'" target="_blank" class="lnk">&#128206;</a>':'-';
     var payClr=g.payment_done==='Paid'?'gn':g.payment_done==='Partial'?'am':'rd';
-    var expandId='pb-exp-'+gi;
-    var itemCount=g.items.length;
-    // Bill summary row
-    html+='<tr style="cursor:pointer;border-left:3px solid var(--am)" onclick="togglePBItems(\''+expandId+'\')">' +
-      '<td style="color:var(--t3);font-size:11px">'+gi+'</td>' +
-      '<td>'+bt+'</td>' +
-      '<td>'+(g.month||'-')+'</td>' +
-      '<td>'+(g.bill_date||'-')+'</td>' +
-      '<td style="font-weight:700;color:var(--t)">'+((g.bill_no)||'-')+'</td>' +
-      '<td style="font-weight:700;color:var(--t)">'+((g.vendor_name)||'-')+'</td>' +
-      '<td style="color:var(--t3);font-size:11px"><span class="bx cy" style="font-size:10px">'+itemCount+' item'+(itemCount>1?'s':'')+'</span></td>' +
-      '<td style="color:var(--t3)">—</td>' +
-      '<td style="color:var(--t3);font-style:italic;font-size:11px">'+itemCount+' item'+(itemCount>1?'s':'')+'</td>' +
-      '<td>—</td><td>—</td><td>—</td>' +
-      '<td>₹'+F(g.taxable_price)+'</td>' +
-      '<td>—</td>' +
-      '<td>₹'+F(g.gst_amount)+'</td>' +
-      '<td style="font-weight:700;color:var(--am)">₹'+F(g.total_parts_purchase)+'</td>' +
-      '<td style="color:var(--pu);font-size:11px">'+g.round_off.toFixed(2)+'</td>' +
-      '<td style="font-weight:700;color:var(--gn)">₹'+F(g.total_parts_purchase+g.round_off)+'</td>' +
-      '<td><span class="bx '+payClr+'">'+(g.payment_done||'Pending')+'</span></td>' +
-      '<td>'+(g.payment_type||'-')+'</td>' +
-      '<td style="font-weight:600;color:var(--gn)">'+( N(g.payment_amount)>0 ? '₹'+F(N(g.payment_amount)) : '-')+'</td>' +
-      '<td style="color:var(--t2)">'+(g.payment_date||'-')+'</td>' +
-      '<td style="color:var(--bl);font-weight:600">'+(g.used_for_car_reg||'-')+'</td>' +
-      '<td>'+(g.our_inv_no||'-')+'</td>' +
-      '<td>'+(g.voucher_no||'-')+'</td>' +
-      '<td><span class="bx '+(g.duplicate==='Yes'?'rd':'gn')+'">'+(g.duplicate||'No')+'</span></td>' +
-      '<td>'+lnk+'</td>' +
-      '<td style="display:flex;gap:4px">' +
-        '<button class="btn xs" title="Expand/Collapse items" onclick="event.stopPropagation();togglePBItems(\''+expandId+'\')">&#9660;</button>' +
-        '<button class="btn xs rd" title="Delete entire bill" onclick="event.stopPropagation();delPBGroup(\''+g.bill_no+'\',\''+g.vendor_name+'\')">&#128465;</button>' +
-      '</td>' +
+    var eid='pb-exp-'+gi;
+    var ic=g.items.length;
+    var finalAmt=g.total_parts_purchase+g.round_off;
+    html+='<tr style="cursor:pointer;border-left:3px solid var(--am)" onclick="togglePBItems(\\''+eid+'\\')">'+
+      '<td style="color:var(--t3);font-size:11px">'+gi+'</td>'+
+      '<td>'+bt+'</td>'+
+      '<td>'+(g.month||'-')+'</td>'+
+      '<td>'+(g.bill_date||'-')+'</td>'+
+      '<td style="font-weight:700;color:var(--t)">'+(g.bill_no||'-')+'</td>'+
+      '<td style="font-weight:700;color:var(--t)">'+(g.vendor_name||'-')+'</td>'+
+      '<td><span class="bx cy" style="font-size:10px">'+ic+' item'+(ic>1?'s':'')+'</span></td>'+
+      '<td>—</td><td style="color:var(--t3);font-style:italic;font-size:11px">'+ic+' items</td>'+
+      '<td>—</td><td>—</td><td>—</td>'+
+      '<td>₹'+F(g.taxable_price)+'</td>'+
+      '<td>—</td>'+
+      '<td>₹'+F(g.gst_amount)+'</td>'+
+      '<td style="font-weight:700;color:var(--am)">₹'+F(g.total_parts_purchase)+'</td>'+
+      '<td style="color:var(--pu);font-size:11px">'+g.round_off.toFixed(2)+'</td>'+
+      '<td style="font-weight:700;color:var(--gn)">₹'+F(finalAmt)+'</td>'+
+      '<td><span class="bx '+payClr+'">'+(g.payment_done||'Pending')+'</span></td>'+
+      '<td>'+(g.payment_type||'-')+'</td>'+
+      '<td style="font-weight:600;color:var(--gn)">'+(N(g.payment_amount)>0?'₹'+F(N(g.payment_amount)):'-')+'</td>'+
+      '<td style="color:var(--t2)">'+(g.payment_date||'-')+'</td>'+
+      '<td style="color:var(--bl);font-weight:600">'+(g.used_for_car_reg||'-')+'</td>'+
+      '<td>'+(g.our_inv_no||'-')+'</td>'+
+      '<td>'+(g.voucher_no||'-')+'</td>'+
+      '<td><span class="bx '+(g.duplicate==='Yes'?'rd':'gn')+'">'+(g.duplicate||'No')+'</span></td>'+
+      '<td>'+lnk+'</td>'+
+      '<td style="display:flex;gap:4px">'+
+        '<button class="btn xs" onclick="event.stopPropagation();togglePBItems(\\''+eid+'\\')">&#9660;</button>'+
+        '<button class="btn xs rd" onclick="event.stopPropagation();delPBGroup(\\''+g.bill_no+'\\',\\''+g.vendor_name+'\\')">&#128465;</button>'+
+      '</td>'+
     '</tr>';
-    // Item detail rows (hidden by default)
-    html+='<tr id="'+expandId+'" style="display:none"><td colspan="27" style="padding:0;background:var(--bg3)">' +
-      '<table style="width:100%;font-size:11px;border-collapse:collapse">' +
-      '<thead><tr style="background:rgba(245,158,11,0.08)">' +
-      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">#</th>' +
-      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">Part No</th>' +
-      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">HSN</th>' +
-      '<th style="padding:5px 8px;text-align:left;color:var(--t3)">Particulars</th>' +
-      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Nos</th>' +
-      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Rate</th>' +
-      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Disc%</th>' +
-      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Taxable</th>' +
-      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">GST%</th>' +
-      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">GST Amt</th>' +
-      '<th style="padding:5px 8px;text-align:right;color:var(--t3)">Total</th>' +
-      '<th style="padding:5px 8px;text-align:center;color:var(--t3)">Actions</th>' +
-      '</tr></thead><tbody>' +
+    html+='<tr id="'+eid+'" style="display:none"><td colspan="27" style="padding:0;background:var(--bg3)">'+
+      '<table style="width:100%;font-size:11px;border-collapse:collapse">'+
+      '<thead><tr style="background:rgba(245,158,11,0.08)">'+
+      '<th style="padding:5px 8px;text-align:left">#</th>'+
+      '<th style="padding:5px 8px;text-align:left">Part No</th>'+
+      '<th style="padding:5px 8px;text-align:left">HSN</th>'+
+      '<th style="padding:5px 8px;text-align:left">Particulars</th>'+
+      '<th style="padding:5px 8px;text-align:right">Nos</th>'+
+      '<th style="padding:5px 8px;text-align:right">Rate</th>'+
+      '<th style="padding:5px 8px;text-align:right">Disc%</th>'+
+      '<th style="padding:5px 8px;text-align:right">Taxable</th>'+
+      '<th style="padding:5px 8px;text-align:right">GST%</th>'+
+      '<th style="padding:5px 8px;text-align:right">GST Amt</th>'+
+      '<th style="padding:5px 8px;text-align:right">Total</th>'+
+      '<th style="padding:5px 8px;text-align:center">Actions</th>'+
+      '</tr></thead><tbody>'+
       g.items.map(function(item,ii){
-        return '<tr style="border-top:1px solid var(--b)">' +
-          '<td style="padding:5px 8px;color:var(--t3)">'+(ii+1)+'</td>' +
-          '<td style="padding:5px 8px">'+(item.part_no||'-')+'</td>' +
-          '<td style="padding:5px 8px;color:var(--cy)">'+(item.hsn_code||'-')+'</td>' +
-          '<td style="padding:5px 8px;max-width:160px;overflow:hidden;text-overflow:ellipsis">'+(item.particulars||'-')+'</td>' +
-          '<td style="padding:5px 8px;text-align:right">'+(item.nos||'-')+'</td>' +
-          '<td style="padding:5px 8px;text-align:right">₹'+F(item.purchase_price)+'</td>' +
-          '<td style="padding:5px 8px;text-align:right">'+(item.discount||0)+'%</td>' +
-          '<td style="padding:5px 8px;text-align:right">₹'+F(item.taxable_price)+'</td>' +
-          '<td style="padding:5px 8px;text-align:right">'+(item.gst_percent||'-')+'%</td>' +
-          '<td style="padding:5px 8px;text-align:right">₹'+F(item.gst_amount)+'</td>' +
-          '<td style="padding:5px 8px;text-align:right;font-weight:700;color:var(--am)">₹'+F(item.total_parts_purchase||item.total)+'</td>' +
-          '<td style="padding:5px 8px;text-align:center;display:flex;gap:4px">' +
-            '<button class="btn xs" onclick="openPB('+item._globalIdx+')">&#9999;</button>' +
-            '<button class="btn xs rd" onclick="delPB('+item._globalIdx+')">&#128465;</button>' +
-          '</td>' +
+        return '<tr style="border-top:1px solid var(--b)">'+
+          '<td style="padding:5px 8px;color:var(--t3)">'+(ii+1)+'</td>'+
+          '<td style="padding:5px 8px">'+(item.part_no||'-')+'</td>'+
+          '<td style="padding:5px 8px;color:var(--cy)">'+(item.hsn_code||'-')+'</td>'+
+          '<td style="padding:5px 8px;max-width:160px;overflow:hidden;text-overflow:ellipsis">'+(item.particulars||'-')+'</td>'+
+          '<td style="padding:5px 8px;text-align:right">'+(item.nos||'-')+'</td>'+
+          '<td style="padding:5px 8px;text-align:right">₹'+F(item.purchase_price)+'</td>'+
+          '<td style="padding:5px 8px;text-align:right">'+(item.discount||0)+'%</td>'+
+          '<td style="padding:5px 8px;text-align:right">₹'+F(item.taxable_price)+'</td>'+
+          '<td style="padding:5px 8px;text-align:right">'+(item.gst_percent||'-')+'%</td>'+
+          '<td style="padding:5px 8px;text-align:right">₹'+F(item.gst_amount)+'</td>'+
+          '<td style="padding:5px 8px;text-align:right;font-weight:700;color:var(--am)">₹'+F(item.total_parts_purchase||item.total)+'</td>'+
+          '<td style="padding:5px 8px;display:flex;gap:4px">'+
+            '<button class="btn xs" onclick="openPB('+item._gi+')">&#9999;</button>'+
+            '<button class="btn xs rd" onclick="delPB('+item._gi+')">&#128465;</button>'+
+          '</td>'+
         '</tr>';
-      }).join('') +
+      }).join('')+
       '</tbody></table></td></tr>';
   });
   tb.innerHTML=html;
@@ -6996,7 +7048,7 @@ function rPSP(){
           '<td style="padding:7px 9px;color:var(--t2)">'+c.oldest+'</td>'+
           '<td style="padding:7px 9px;font-weight:700;color:var(--am)">₹'+F(c.total)+'</td>'+
           '<td style="padding:7px 9px"><span class="bx '+uc+'">'+(days>0?days+'d':'-')+'</span></td>'+
-          '<td style="padding:7px 9px"><button class="btn xs cy" onclick="openSI(\''+c.reg+'\')">+ Invoice</button></td>'+
+          '<td style="padding:7px 9px"><button class="btn xs cy" onclick="openSI(\\''+c.reg+'\\')">+ Invoice</button></td>'+
         '</tr>';
       }).join('')+'</tbody></table></div>';
   }
@@ -7029,145 +7081,84 @@ function rPSP(){
       '<td style="padding:6px 9px">'+(b.bill_no||'-')+'</td>'+
       '<td style="padding:6px 9px">'+(isC?'<span class="bx am">Chitti</span>':'<span class="bx gn" style="font-size:8px">Tax</span>')+'</td>'+
       '<td style="padding:6px 9px"><span class="bx '+uc+'">'+(days>0?days+' days':'-')+'</span></td>'+
-      '<td style="padding:6px 9px"><button class="btn xs cy" onclick="openSI(\''+c.reg+'\')">+ Invoice</button></td>'+
+      '<td style="padding:6px 9px"><button class="btn xs cy" onclick="openSI(\\''+c.reg+'\\')">+ Invoice</button></td>'+
     '</tr>';
   }).join('');
 }
 function fPSP(v){var lv=v.toLowerCase();var p=getPendingCars();if(v)p=p.filter(function(c){return(c.reg+JSON.stringify(c.bills)).toLowerCase().indexOf(lv)>=0;});rPSPList(p);}
 function fPSPM(v){var p=getPendingCars();if(v)p=p.filter(function(c){return c.months.indexOf(v)>=0;});rPSPList(p);}
-function rPSPList(p){var ptb=Q('psp-tb');if(!ptb)return;if(!p.length){ptb.innerHTML='<tr><td colspan="16"><div class="emp">No matching.</div></td></tr>';return;}var allRows=[];p.forEach(function(c){c.bills.forEach(function(b){allRows.push({car:c,bill:b});});});ptb.innerHTML=allRows.map(function(x,i){var c=x.car,b=x.bill;return'<tr style="border-bottom:1px solid var(--b)"><td style="padding:6px 9px;text-align:center;color:var(--t3)">'+(i+1)+'</td><td style="padding:6px 9px;font-weight:700;color:var(--bl)">'+c.reg+'</td><td style="padding:6px 9px">'+(b.month||'-')+'</td><td style="padding:6px 9px">'+(b.vendor_name||'-')+'</td><td style="padding:6px 9px">'+(b.part_no||'-')+'</td><td style="padding:6px 9px;color:var(--cy)">'+(b.hsn_code||'-')+'</td><td style="padding:6px 9px">'+(b.particulars||'-')+'</td><td style="padding:6px 9px">'+(b.nos||'-')+'</td><td style="padding:6px 9px">₹'+F(b.purchase_price)+'</td><td style="padding:6px 9px">'+(b.gst_percent||'-')+'%</td><td style="padding:6px 9px;font-weight:700;color:var(--am)">₹'+F(b.total_parts_purchase||b.total)+'</td><td style="padding:6px 9px">'+(b.bill_date||'-')+'</td><td style="padding:6px 9px">'+(b.bill_no||'-')+'</td><td></td><td><span class="bx am">Pending</span></td><td style="padding:6px 9px"><button class="btn xs cy" onclick="openSI(\''+c.reg+'\')">+ Invoice</button></td></tr>';}).join('');}
+function rPSPList(p){var ptb=Q('psp-tb');if(!ptb)return;if(!p.length){ptb.innerHTML='<tr><td colspan="16"><div class="emp">No matching.</div></td></tr>';return;}var allRows=[];p.forEach(function(c){c.bills.forEach(function(b){allRows.push({car:c,bill:b});});});ptb.innerHTML=allRows.map(function(x,i){var c=x.car,b=x.bill;return'<tr style="border-bottom:1px solid var(--b)"><td style="padding:6px 9px;text-align:center;color:var(--t3)">'+(i+1)+'</td><td style="padding:6px 9px;font-weight:700;color:var(--bl)">'+c.reg+'</td><td style="padding:6px 9px">'+(b.month||'-')+'</td><td style="padding:6px 9px">'+(b.vendor_name||'-')+'</td><td style="padding:6px 9px">'+(b.part_no||'-')+'</td><td style="padding:6px 9px;color:var(--cy)">'+(b.hsn_code||'-')+'</td><td style="padding:6px 9px">'+(b.particulars||'-')+'</td><td style="padding:6px 9px">'+(b.nos||'-')+'</td><td style="padding:6px 9px">₹'+F(b.purchase_price)+'</td><td style="padding:6px 9px">'+(b.gst_percent||'-')+'%</td><td style="padding:6px 9px;font-weight:700;color:var(--am)">₹'+F(b.total_parts_purchase||b.total)+'</td><td style="padding:6px 9px">'+(b.bill_date||'-')+'</td><td style="padding:6px 9px">'+(b.bill_no||'-')+'</td><td></td><td><span class="bx am">Pending</span></td><td style="padding:6px 9px"><button class="btn xs cy" onclick="openSI(\\''+c.reg+'\\')">+ Invoice</button></td></tr>';}).join('');}
 
 
 // ===== VENDOR OUTSTANDING =====
 function rVout(data){
-  // Group items by bill_no+vendor to get bill-level data
   var billMap={};
   data.forEach(function(r){
     var k=(r.bill_no||'?')+'||'+(r.vendor_name||'?');
-    if(!billMap[k]){
-      billMap[k]={
-        bill_no:r.bill_no||'?',vendor_name:r.vendor_name||'Unknown',
-        bill_date:r.bill_date||'-',month:r.month||'-',
-        payment_done:r.payment_done||'Pending',
-        payment_type:r.payment_type||'-',
-        payment_amount:N(r.payment_amount||0),
-        payment_date:r.payment_date||'-',
-        bill_amount:0,used_for_car_reg:r.used_for_car_reg||'-'
-      };
-    }
+    if(!billMap[k]){billMap[k]={bill_no:r.bill_no||'?',vendor_name:r.vendor_name||'Unknown',bill_date:r.bill_date||'-',month:r.month||'-',payment_done:r.payment_done||'Pending',payment_type:r.payment_type||'-',payment_amount:N(r.payment_amount||0),payment_date:r.payment_date||'-',bill_amount:0,used_for_car_reg:r.used_for_car_reg||'-'};}
     billMap[k].bill_amount+=N(r.total_parts_purchase||r.total);
   });
-
-  // Now group bills by vendor, skip fully paid
   var vendors={};
   Object.values(billMap).filter(function(b){return b.payment_done!=='Paid';}).forEach(function(b){
     var v=b.vendor_name;
     if(!vendors[v])vendors[v]={name:v,bills:[],total_bill:0,total_paid:0,total_balance:0};
-    var balance=b.bill_amount-b.payment_amount;
-    vendors[v].bills.push(b);
-    vendors[v].total_bill+=b.bill_amount;
-    vendors[v].total_paid+=b.payment_amount;
-    vendors[v].total_balance+=balance;
+    var bal=b.bill_amount-b.payment_amount;
+    vendors[v].bills.push(b);vendors[v].total_bill+=b.bill_amount;vendors[v].total_paid+=b.payment_amount;vendors[v].total_balance+=bal;
   });
-
-  var vendorRows=Object.values(vendors).sort(function(a,b){return b.total_balance-a.total_balance;});
-  var grandTotal=vendorRows.reduce(function(a,v){return a+v.total_balance;},0);
-
-  S('vo-tot','₹'+FL(grandTotal));
-  S('vo-vs',vendorRows.length+' vendors');
-  S('d-vo','₹'+FL(grandTotal));
-  S('d-vos',vendorRows.length+' vendors');
-  S('voc',vendorRows.length);
+  var vrows=Object.values(vendors).sort(function(a,b){return b.total_balance-a.total_balance;});
+  var grand=vrows.reduce(function(a,v){return a+v.total_balance;},0);
+  S('vo-tot','₹'+FL(grand));S('vo-vs',vrows.length+' vendors');S('d-vo','₹'+FL(grand));S('d-vos',vrows.length+' vendors');
+  S('voc',vrows.length);
   S('vo-pb',DB.pb.filter(function(r){return r.payment_done==='Pending';}).length);
   S('vo-par',DB.pb.filter(function(r){return r.payment_done==='Partial';}).length);
   S('vo-paid',DB.pb.filter(function(r){return r.payment_done==='Paid';}).length);
-
   var wrap=Q('vo-wrap');if(!wrap)return;
-  if(!vendorRows.length){wrap.innerHTML='<div class="emp">No outstanding vendor payments.</div>';return;}
-
-  var html='<div class="tw"><table><thead><tr>'+
-    '<th>Vendor</th>'+
-    '<th>Bill No</th>'+
-    '<th>Bill Date</th>'+
-    '<th>Month</th>'+
-    '<th>Car Reg</th>'+
-    '<th>Bill Amt</th>'+
-    '<th>Paid Amt</th>'+
-    '<th>Balance</th>'+
-    '<th>Status</th>'+
-    '<th>Pay Type</th>'+
-    '<th>Pay Date</th>'+
-    '<th>Actions</th>'+
-    '</tr></thead><tbody>';
-
-  vendorRows.forEach(function(v){
-    // Vendor subtotal row
+  if(!vrows.length){wrap.innerHTML='<div class="emp">No outstanding vendor payments.</div>';return;}
+  var html='<div class="tw"><table><thead><tr><th>Vendor</th><th>Bill No</th><th>Bill Date</th><th>Month</th><th>Car Reg</th><th>Bill Amt</th><th>Paid Amt</th><th>Balance</th><th>Status</th><th>Pay Type</th><th>Pay Date</th><th>Action</th></tr></thead><tbody>';
+  vrows.forEach(function(v){
     html+='<tr style="background:rgba(245,158,11,0.06);border-left:3px solid var(--am)">'+
-      '<td style="font-weight:700;color:var(--t)" colspan="4">'+v.name+'</td>'+
-      '<td></td>'+
-      '<td style="font-weight:700;color:var(--t)">₹'+F(v.total_bill)+'</td>'+
+      '<td style="font-weight:700;color:var(--t)" colspan="4">'+v.name+'</td><td></td>'+
+      '<td style="font-weight:700">₹'+F(v.total_bill)+'</td>'+
       '<td style="font-weight:700;color:var(--gn)">₹'+F(v.total_paid)+'</td>'+
       '<td style="font-weight:700;color:var(--rd)">₹'+F(v.total_balance)+'</td>'+
-      '<td colspan="4"><button class="btn xs gn" onclick="waVendor(''+v.name+'',''+F(v.total_balance)+'')">&#128172; WA</button></td>'+
-    '</tr>';
-    // Bill-wise detail rows
+      '<td colspan="4"><button class="btn xs gn" onclick="waVendor(''+v.name+'',''+F(v.total_balance)+'')">&#128172; WA</button></td></tr>';
     v.bills.forEach(function(b){
-      var balance=b.bill_amount-b.payment_amount;
-      var payClr=b.payment_done==='Partial'?'am':'rd';
+      var bal=b.bill_amount-b.payment_amount;
+      var pc=b.payment_done==='Partial'?'am':'rd';
       html+='<tr style="font-size:12px">'+
-        '<td style="color:var(--t3);padding-left:20px">↳</td>'+
+        '<td style="color:var(--t3);padding-left:18px">↳</td>'+
         '<td style="font-weight:600;color:var(--cy)">'+b.bill_no+'</td>'+
-        '<td>'+b.bill_date+'</td>'+
-        '<td>'+b.month+'</td>'+
+        '<td>'+b.bill_date+'</td><td>'+b.month+'</td>'+
         '<td style="color:var(--bl);font-weight:600">'+b.used_for_car_reg+'</td>'+
         '<td>₹'+F(b.bill_amount)+'</td>'+
-        '<td style="color:var(--gn)">'+( b.payment_amount>0?'₹'+F(b.payment_amount):'-' )+'</td>'+
-        '<td style="font-weight:700;color:var(--rd)">₹'+F(balance)+'</td>'+
-        '<td><span class="bx '+payClr+'">'+b.payment_done+'</span></td>'+
+        '<td style="color:var(--gn)">'+(b.payment_amount>0?'₹'+F(b.payment_amount):'-')+'</td>'+
+        '<td style="font-weight:700;color:var(--rd)">₹'+F(bal)+'</td>'+
+        '<td><span class="bx '+pc+'">'+b.payment_done+'</span></td>'+
         '<td>'+b.payment_type+'</td>'+
-        '<td style="color:var(--t2)">'+b.payment_date+'</td>'+
+        '<td>'+b.payment_date+'</td>'+
         '<td><button class="btn xs am" onclick="quickPayPB(''+b.bill_no+'',''+b.vendor_name+'')">₹ Pay</button></td>'+
       '</tr>';
     });
   });
-
-  // Grand total row
-  html+='<tr style="background:rgba(220,38,38,0.08);border-top:2px solid var(--rd)">'+
-    '<td colspan="5" style="font-weight:700;color:var(--t)">TOTAL OUTSTANDING</td>'+
-    '<td style="font-weight:700">₹'+F(vendorRows.reduce(function(a,v){return a+v.total_bill;},0))+'</td>'+
-    '<td style="font-weight:700;color:var(--gn)">₹'+F(vendorRows.reduce(function(a,v){return a+v.total_paid;},0))+'</td>'+
-    '<td style="font-weight:700;color:var(--rd);font-size:14px">₹'+F(grandTotal)+'</td>'+
-    '<td colspan="4"></td>'+
-  '</tr>';
-
+  html+='<tr style="background:rgba(220,38,38,0.08);border-top:2px solid var(--rd)"><td colspan="5" style="font-weight:700">TOTAL OUTSTANDING</td><td style="font-weight:700">₹'+F(vrows.reduce(function(a,v){return a+v.total_bill;},0))+'</td><td style="font-weight:700;color:var(--gn)">₹'+F(vrows.reduce(function(a,v){return a+v.total_paid;},0))+'</td><td style="font-weight:700;color:var(--rd);font-size:14px">₹'+F(grand)+'</td><td colspan="4"></td></tr>';
   html+='</tbody></table></div>';
   wrap.innerHTML=html;
 }
-
-// Quick payment update from Outstanding report
-function quickPayPB(billNo, vendorName){
-  var amt=prompt('Enter payment amount for Bill '+billNo+' ('+vendorName+'):');
-  if(amt===null)return;
+function quickPayPB(billNo,vendorName){
+  var amt=prompt('Payment amount for Bill '+billNo+' ('+vendorName+'):');if(amt===null)return;
   var payAmt=parseFloat(amt)||0;
-  var date=prompt('Payment date (DD-MM-YYYY):',new Date().toLocaleDateString('en-GB').replace(/\//g,'-'));
-  if(date===null)return;
-  var payType=prompt('Payment type (Cash/NEFT/RTGS/Cheque/UPI):','NEFT');
-  if(payType===null)return;
-  // Update all items of this bill
-  var updated=0;
-  DB.pb.forEach(function(r,i){
+  var date=prompt('Payment date:',new Date().toLocaleDateString('en-GB').replace(/\\//g,'-'));if(date===null)return;
+  var payType=prompt('Payment type (Cash/NEFT/RTGS/Cheque/UPI):','NEFT');if(payType===null)return;
+  DB.pb.forEach(function(r){
     if((r.bill_no||'?')===billNo&&(r.vendor_name||'?')===vendorName){
-      // Get bill total (sum all items)
-      var billTotal=DB.pb.filter(function(x){return(x.bill_no||'?')===billNo&&(x.vendor_name||'?')===vendorName;}).reduce(function(a,x){return a+N(x.total_parts_purchase||x.total);},0);
-      r.payment_amount=payAmt;
-      r.payment_date=date;
-      r.payment_type=payType;
-      r.payment_done=payAmt>=billTotal?'Paid':payAmt>0?'Partial':'Pending';
-      updated++;
+      var bt=DB.pb.filter(function(x){return(x.bill_no||'?')===billNo&&(x.vendor_name||'?')===vendorName;}).reduce(function(a,x){return a+N(x.total_parts_purchase||x.total);},0);
+      r.payment_amount=payAmt;r.payment_date=date;r.payment_type=payType;
+      r.payment_done=payAmt>=bt?'Paid':payAmt>0?'Partial':'Pending';
     }
   });
-  if(updated){persist();toast('Payment updated for Bill '+billNo,'gn');rVout(DB.pb);}
+  persist();toast('Payment updated for '+billNo,'gn');rVout(DB.pb);
 }
+
 
 function fVO(v){var lv=v.toLowerCase();rVout(v?DB.pb.filter(function(r){return(r.vendor_name||'').toLowerCase().indexOf(lv)>=0;}):DB.pb);}
 function waVendor(n,amt){var wn=Q('wa-num');var num=wn&&wn.value?wn.value.replace(/[^0-9]/g,''):'';if(!num){toast('Set WA number in WA Alerts','am');return;}window.open('https://wa.me/'+num+'?text='+encodeURIComponent('Carecay: Payment of Rs.'+amt+' due to vendor '+n+'.'),'_blank');}
@@ -7234,7 +7225,7 @@ function rCout(){
           '<td>₹'+F(p.tot_sgst)+'</td>'+
           '<td style="font-weight:700;color:var(--am)">₹'+F(p.tot_inv)+'</td>'+
           '<td style="font-weight:700;color:var(--rd)">₹'+F(p.tot_pending)+'</td>'+
-          '<td><button class="btn xs gn" onclick="waPartner(\''+p.name+'\',\''+F(p.tot_pending)+'\')">&#128172; WA</button></td>'+
+          '<td><button class="btn xs gn" onclick="waPartner(\\''+p.name+'\\',\\''+F(p.tot_pending)+'\\')">&#128172; WA</button></td>'+
         '</tr>';
       }).join('')+
       '<tr style="background:var(--bg3)"><td colspan="2" style="padding:8px 9px;font-weight:700">TOTAL</td>'+
@@ -7287,7 +7278,7 @@ function rCout(){
           '<td>₹'+F(c.tot_sgst)+'</td>'+
           '<td style="font-weight:700;color:var(--am)">₹'+F(c.tot_inv)+'</td>'+
           '<td style="font-weight:700;color:var(--rd)">₹'+F(c.tot_pending)+'</td>'+
-          '<td><button class="btn xs gn" '+(c.mob?'onclick="waCust(\''+c.name+'\',\''+c.mob+'\',\''+F(c.tot_pending)+'\')"':'disabled')+'>&#128172;</button></td>'+
+          '<td><button class="btn xs gn" '+(c.mob?'onclick="waCust(\\''+c.name+'\\',\\''+c.mob+'\\',\\''+F(c.tot_pending)+'\\')"':'disabled')+'>&#128172;</button></td>'+
         '</tr>';
       }).join('')+
       '<tr style="background:var(--bg3)"><td colspan="4" style="padding:8px 9px;font-weight:700">TOTAL</td>'+
@@ -7524,7 +7515,7 @@ function rPL(){
       if(isFirst){
         html += '<td style="padding:6px 9px;font-weight:700;color:var(--'+pc+')"'+rs+'>'+pi+' ₹'+F(Math.abs(profit))+'</td>';
         html += '<td style="padding:6px 9px"'+rs+'><span class="bx '+pc+'">'+mg2+'%</span></td>';
-        html += '<td style="padding:6px 9px"'+rs+'><button class="btn xs cy" onclick="openSI(\''+r.reg+'\')">+S</button></td>';
+        html += '<td style="padding:6px 9px"'+rs+'><button class="btn xs cy" onclick="openSI(\\''+r.reg+'\\')">+S</button></td>';
       }
       html += '</tr>';
     }
@@ -7754,9 +7745,6 @@ function exPL(){
 
 // ===== DASHBOARD =====
 function updDash(){
-  // Show migration banner if no data
-  var mb = document.getElementById('migration-banner');
-  if(mb) mb.style.display = (DB.pb.length===0 && DB.si.length===0) ? 'flex' : 'none';
   var tp=DB.pb.reduce(function(a,b){return a+N(b.total_parts_purchase||b.total);},0);
   var ts=DB.si.reduce(function(a,s){return a+N(s.inv_amount);},0);
   S('d-pur','₹'+FL(tp));S('d-ps',DB.pb.length+' bills');
@@ -7774,11 +7762,11 @@ function updDash(){
   var voAmt=DB.pb.filter(function(r){return r.payment_done!=='Paid';}).reduce(function(a,r){return a+N(r.total_parts_purchase||r.total);},0);
   var alerts=[];var today=new Date();
   var urgentCars=pending.filter(function(c){if(!c.oldest)return false;var p=c.oldest.split('/');var bd=p.length>=3?new Date(parseInt(p[2])<100?(2000+parseInt(p[2])):parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0])):new Date(c.oldest);return!isNaN(bd)&&Math.floor((today-bd)/(1000*60*60*24))>14;});
-  if(urgentCars.length>0)alerts.push('<div class="al e"><span>&#128663;</span><span><strong>'+urgentCars.length+' car'+(urgentCars.length>1?'s':'')+' waiting 14+ days</strong> for invoice: '+urgentCars.map(function(c){return'<strong>'+c.reg+'</strong>';}).join(', ')+'. <button class="btn xs rd" onclick="go(\'pending\')">View &#8594;</button></span></div>');
-  else if(pending.length>0)alerts.push('<div class="al w"><span>&#128663;</span><span><strong>'+pending.length+' car'+(pending.length>1?'s':'')+' need invoice</strong>: '+pending.map(function(c){return'<strong>'+c.reg+'</strong>';}).join(', ')+'. <button class="btn xs cy" onclick="go(\'pending\')">Raise &#8594;</button></span></div>');
+  if(urgentCars.length>0)alerts.push('<div class="al e"><span>&#128663;</span><span><strong>'+urgentCars.length+' car'+(urgentCars.length>1?'s':'')+' waiting 14+ days</strong> for invoice: '+urgentCars.map(function(c){return'<strong>'+c.reg+'</strong>';}).join(', ')+'. <button class="btn xs rd" onclick="go(\\'pending\\')">View &#8594;</button></span></div>');
+  else if(pending.length>0)alerts.push('<div class="al w"><span>&#128663;</span><span><strong>'+pending.length+' car'+(pending.length>1?'s':'')+' need invoice</strong>: '+pending.map(function(c){return'<strong>'+c.reg+'</strong>';}).join(', ')+'. <button class="btn xs cy" onclick="go(\\'pending\\')">Raise &#8594;</button></span></div>');
   if(ls>0)alerts.push('<div class="al w"><span>&#9888;&#65039;</span><span>'+ls+' parts low in stock.</span></div>');
-  if(pc>0)alerts.push('<div class="al w"><span>&#128176;</span><span>'+pc+' invoices with ₹'+FL(pamt)+' pending. <button class="btn xs gn" onclick="go(\'cout\')">View &#8594;</button></span></div>');
-  if(voAmt>0)alerts.push('<div class="al w"><span>&#127978;</span><span>Vendor outstanding: ₹'+FL(voAmt)+'. <button class="btn xs am" onclick="go(\'vout\')">View &#8594;</button></span></div>');
+  if(pc>0)alerts.push('<div class="al w"><span>&#128176;</span><span>'+pc+' invoices with ₹'+FL(pamt)+' pending. <button class="btn xs gn" onclick="go(\\'cout\\')">View &#8594;</button></span></div>');
+  if(voAmt>0)alerts.push('<div class="al w"><span>&#127978;</span><span>Vendor outstanding: ₹'+FL(voAmt)+'. <button class="btn xs am" onclick="go(\\'vout\\')">View &#8594;</button></span></div>');
   var dups=DB.pb.filter(function(b){return b.duplicate==='Yes';}).length;
   if(dups>0)alerts.push('<div class="al e"><span>&#128260;</span><span>'+dups+' duplicate bills flagged.</span></div>');
   if(!alerts.length)alerts.push('<div class="al s"><span>&#10003;</span><span>All clear! All cars have invoices.</span></div>');
@@ -7838,7 +7826,7 @@ function exRep(type){
   else return;
   if(!rows||!rows.length){toast('No data.','am');return;}
   var data=rows.map(function(r){var o={};headers.forEach(function(h,i){o[h]=r[i];});return o;});
-  var ws=XLSX.utils.json_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,title.substring(0,30));XLSX.writeFile(wb,'carecay_'+title.replace(/\s+/g,'_').toLowerCase()+'_'+new Date().toISOString().split('T')[0]+'.xlsx');toast('Exported!','gn');
+  var ws=XLSX.utils.json_to_sheet(data);var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,title.substring(0,30));XLSX.writeFile(wb,'carecay_'+title.replace(/\\s+/g,'_').toLowerCase()+'_'+new Date().toISOString().split('T')[0]+'.xlsx');toast('Exported!','gn');
 }
 
 // ===== EXPORT =====
@@ -7968,27 +7956,6 @@ var FB = {
   autoTimer: null,
   lastHash: ''
 };
-// Auto-connect Firebase if URL was previously saved
-(function(){
-  if(FB.url) {
-    // Pre-fill input when DOM is ready
-    setTimeout(function(){
-      var inp = document.getElementById('fb-url');
-      if(inp) inp.value = FB.url;
-      // Silently verify connection
-      fetch(FB.url + '/ping.json', {method:'PUT', body:JSON.stringify({t:Date.now()})})
-        .then(function(r){ 
-          if(r.ok) { 
-            fbLog('Auto-connected to Firebase ✓', 'ok');
-            var dot=document.getElementById('fb-dot'); 
-            var st=document.getElementById('fb-status');
-            if(dot) dot.style.background='var(--gn)'; 
-            if(st) st.textContent='Connected ✓';
-          }
-        }).catch(function(){});
-    }, 800);
-  }
-})();
 
 function fbLog(msg, type) {
   var el = Q('fb-log'); if(!el) return;
@@ -8002,7 +7969,7 @@ function fbLog(msg, type) {
 }
 
 function fbConnect() {
-  var url = (Q('fb-url').value || '').trim().replace(/\/+$/, '');
+  var url = (Q('fb-url').value || '').trim().replace(/\\/+$/, '');
   if(!url) { toast('Enter Firebase URL first.','am'); return; }
   if(!url.startsWith('https://')) { toast('URL must start with https://','am'); return; }
   FB.url = url;
@@ -8120,44 +8087,68 @@ addLog('Carecay BMS v3 started. '+DB.pb.length+' purchase bills, '+DB.si.length+
 // Load Firebase URL if saved
 if(FB.url){ var fbu=Q('fb-url'); if(fbu) fbu.value=FB.url; fbLog('Firebase URL loaded from memory: '+FB.url,'ok'); }
 </script>
+</body>
+</html>
+`;
 
-</div> <!-- /module-bms -->
+// Inject postMessage into WS to notify shell on login
+// WS calls: overlay.style.display='none' on login success
+// We patch WS to also call: window.parent.postMessage({type:'login-success'},'*')
+wsHTML = wsHTML.replace(
+  "overlay.style.display='none';",
+  "overlay.style.display='none'; try{window.parent.postMessage({type:'carecay-login'},'*');}catch(e){}"
+);
 
+// Load iframes from Blob URLs (same origin = localStorage works)
+function initFrames(){
+  var wBlob = new Blob([wsHTML], {type:'text/html'});
+  var bBlob = new Blob([bmsHTML], {type:'text/html'});
+  _wsBlob = URL.createObjectURL(wBlob);
+  _bmsBlob = URL.createObjectURL(bBlob);
+  document.getElementById('ws-frame').src = _wsBlob;
+  // BMS frame loaded lazily when first switched to
+}
 
-<script>
-// ===== MODULE SWITCHER =====
-var _currentModule = 'workshop';
-function switchModule(mod) {
-  _currentModule = mod;
-  var btnWs = document.getElementById('msw-workshop');
-  var btnBms = document.getElementById('msw-bms');
-  var bmsEl = document.getElementById('module-bms');
-  if (mod === 'workshop') {
-    document.body.classList.remove('show-bms');
-    if(bmsEl) bmsEl.style.display = 'none';
-    if(btnWs) btnWs.className = 'msw-btn msw-active';
-    if(btnBms) btnBms.className = 'msw-btn';
-  } else {
-    document.body.classList.add('show-bms');
-    if(bmsEl) bmsEl.style.display = 'block';
-    if(btnBms) btnBms.className = 'msw-btn msw-active-bms';
-    if(btnWs) btnWs.className = 'msw-btn';
-    // Auto-fill Firebase URL
-    setTimeout(function(){
-      var fbInp = document.getElementById('fb-url');
-      if(fbInp && typeof FB !== 'undefined' && FB.url) fbInp.value = FB.url;
-    }, 100);
-    // Auto-pull if DB empty
-    if (typeof FB !== 'undefined' && FB.url && typeof DB !== 'undefined') {
-      if(DB.pb.length === 0 && DB.si.length === 0) {
-        setTimeout(function(){ if(typeof fbPull === 'function') fbPull(); }, 600);
-      }
+// ── Listen for login event from WS iframe ────────────────────────────
+window.addEventListener('message', function(e){
+  if(e.data && e.data.type==='carecay-login'){
+    _loggedIn=true;
+    var sw=document.getElementById('switcher');
+    sw.style.display='flex';
+    // Push WS iframe down by 36px
+    var wsf=document.getElementById('ws-frame');
+    wsf.style.top='36px';
+    wsf.style.height='calc(100% - 36px)';
+    // Load BMS frame now if not yet loaded
+    var bmsf=document.getElementById('bms-frame');
+    if(!bmsf.src || bmsf.src==='about:blank' || bmsf.src===''){
+      bmsf.src=_bmsBlob;
     }
-    if (typeof updDash === 'function') setTimeout(updDash, 50);
+  }
+});
+
+// ── Module switching ─────────────────────────────────────────────────
+function showModule(mod){
+  _currentModule=mod;
+  var wsf=document.getElementById('ws-frame');
+  var bmsf=document.getElementById('bms-frame');
+  var btnWs=document.getElementById('btn-ws');
+  var btnBms=document.getElementById('btn-bms');
+  if(mod==='ws'){
+    wsf.style.display='block';
+    bmsf.style.display='none';
+    btnWs.className='sw-btn active-ws';
+    btnBms.className='sw-btn';
+  } else {
+    wsf.style.display='none';
+    bmsf.style.display='block';
+    btnBms.className='sw-btn active-bms';
+    btnWs.className='sw-btn';
   }
 }
 
+// ── Start ────────────────────────────────────────────────────────────
+initFrames();
 </script>
-
 </body>
 </html>
