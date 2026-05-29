@@ -5815,7 +5815,7 @@ function printPartsCards(){ ppcPrintAll(); }
   <div class="hdr"><div><h1>Purchase Bills</h1><div class="hdr-s" id="pb-sub">0 bills</div></div><div class="hdr-a"><button class="btn pr" onclick="openPB(null)">+ Add Bill</button><button class="btn gn" onclick="exSheet('purchase')">Export</button></div></div>
   <div class="cnt">
     <div class="flt"><input class="sf" placeholder="Search vendor, bill no, part, car reg..." oninput="fPB(this.value)" style="width:240px"><select class="sf" onchange="fPBP(this.value)"><option value="">All Payments</option><option>Paid</option><option>Pending</option><option>Partial</option></select><select class="sf" onchange="fPBM(this.value)" id="pb-mf"><option value="">All Months</option></select></div>
-    <div class="tw"><table><thead><tr><th>SR</th><th>Type</th><th>Month</th><th>Bill Date</th><th>Bill No</th><th>Vendor</th><th>Items</th><th>HSN</th><th>Particulars</th><th>Nos</th><th>Rate</th><th>Disc%</th><th>Taxable</th><th>GST%</th><th>GST Amt</th><th>Total</th><th>Round Off</th><th>Final Amt</th><th>Pur Date</th><th>Payment</th><th>Pay Type</th><th>Car Reg</th><th>Our Inv No</th><th>Voucher No</th><th>Duplicate</th><th>Invoice Link</th><th>Actions</th></tr></thead><tbody id="pb-tb"><tr><td colspan="27"><div class="emp">No purchase bills yet.</div></td></tr></tbody></table></div>
+    <div class="tw"><table><thead><tr><th>SR</th><th>Type</th><th>Month</th><th>Bill Date</th><th>Bill No</th><th>Vendor</th><th>Items</th><th>HSN</th><th>Particulars</th><th>Nos</th><th>Rate</th><th>Disc%</th><th>Taxable</th><th>GST%</th><th>GST Amt</th><th>Total</th><th>Round Off</th><th>Final Amt</th><th>Payment</th><th>Pay Type</th><th>Pay Amt</th><th>Pay Date</th><th>Car Reg</th><th>Our Inv No</th><th>Voucher No</th><th>Duplicate</th><th>Invoice Link</th><th>Actions</th></tr></thead><tbody id="pb-tb"><tr><td colspan="27"><div class="emp">No purchase bills yet.</div></td></tr></tbody></table></div>
   </div>
 </div>
 
@@ -6225,9 +6225,10 @@ function buildPBForm(d){
   html+='<div class="fg2"><div class="fl">Bill Date</div>'+inp('bill_date',d.bill_date)+'</div>';
   html+='<div class="fg2"><div class="fl">Bill No ★</div>'+inp('bill_no',d.bill_no)+'</div>';
   html+='<div class="fg2 s2"><div class="fl">Vendor Name ★</div>'+inp('vendor_name',d.vendor_name)+'</div>';
-  html+='<div class="fg2"><div class="fl">Purchase Date</div>'+inp('purchase_date',d.purchase_date)+'</div>';
-  html+='<div class="fg2"><div class="fl">Payment Done</div>'+sel('payment_done',['Pending','Paid','Partial'],d.payment_done||'Pending')+'</div>';
+  html+='<div class="fg2"><div class="fl">Payment Status</div>'+sel('payment_done',['Pending','Paid','Partial'],d.payment_done||'Pending')+'</div>';
   html+='<div class="fg2"><div class="fl">Pay Type</div>'+sel('payment_type',['','Cash','NEFT','RTGS','Cheque','UPI'],d.payment_type||'')+'</div>';
+  html+='<div class="fg2"><div class="fl">Payment Amount (₹)</div>'+inp('payment_amount',d.payment_amount,'0.00')+'</div>';
+  html+='<div class="fg2"><div class="fl">Payment Date</div>'+inp('payment_date',d.payment_date)+'</div>';
   html+='<div class="fg2 s2"><div class="fl">Car Reg No</div>'+inp('car_reg',d.used_for_car_reg)+'</div>';
   html+='<div class="fg2"><div class="fl">Our Inv No</div>'+inp('our_inv_no',d.our_inv_no)+'</div>';
   html+='<div class="fg2"><div class="fl">Voucher No</div>'+inp('voucher_no',d.voucher_no)+'</div>';
@@ -6404,8 +6405,8 @@ function updPBRC(){var tb=Q('pb-rows');if(!tb)return;var c=tb.rows.length;var el
 function savePB(){
   var hdr={
     bill_type:EV('pbf-bill_type'),month:EV('pbf-month'),bill_date:EV('pbf-bill_date'),
-    bill_no:EV('pbf-bill_no'),vendor_name:EV('pbf-vendor_name'),purchase_date:EV('pbf-purchase_date'),
-    payment_done:EV('pbf-payment_done'),payment_type:EV('pbf-payment_type'),
+    bill_no:EV('pbf-bill_no'),vendor_name:EV('pbf-vendor_name'),
+    payment_done:EV('pbf-payment_done'),payment_type:EV('pbf-payment_type'),payment_amount:EV('pbf-payment_amount'),payment_date:EV('pbf-payment_date'),
     used_for_car_reg:EV('pbf-car_reg'),our_inv_no:EV('pbf-our_inv_no'),
     voucher_no:EV('pbf-voucher_no'),duplicate:EV('pbf-duplicate'),invoice_link:EV('pbf-invoice_link'),
     round_off:(Q('pb-roff')?Q('pb-roff').textContent:'0.00'),
@@ -6752,7 +6753,7 @@ function rPB(data){
         used_for_car_reg:r.used_for_car_reg,our_inv_no:r.our_inv_no,
         voucher_no:r.voucher_no,invoice_link:r.invoice_link,
         duplicate:r.duplicate,final_amount:0,total_parts_purchase:0,
-        taxable_price:0,gst_amount:0,round_off:0,items:[],firstIdx:globalIdx,_roundSet:false};
+        taxable_price:0,gst_amount:0,round_off:0,payment_amount:0,payment_date:'',items:[],firstIdx:globalIdx,_roundSet:false};
       groups.push(groupMap[k]);
     }
     var g=groupMap[k];
@@ -6761,7 +6762,7 @@ function rPB(data){
     g.taxable_price+=N(r.taxable_price);
     g.gst_amount+=N(r.gst_amount);
     // round_off is a bill-level field stored on first item only
-    if(g.items.length===0)g.round_off=N(r.round_off||0);
+    if(g.items.length===0){g.round_off=N(r.round_off||0);g.payment_amount=N(r.payment_amount||0);g.payment_date=r.payment_date||'';}
   });
 
   var html='';
@@ -6790,9 +6791,10 @@ function rPB(data){
       '<td style="font-weight:700;color:var(--am)">₹'+F(g.total_parts_purchase)+'</td>' +
       '<td style="color:var(--pu);font-size:11px">'+g.round_off.toFixed(2)+'</td>' +
       '<td style="font-weight:700;color:var(--gn)">₹'+F(g.total_parts_purchase+g.round_off)+'</td>' +
-      '<td>'+(g.purchase_date||'-')+'</td>' +
       '<td><span class="bx '+payClr+'">'+(g.payment_done||'Pending')+'</span></td>' +
       '<td>'+(g.payment_type||'-')+'</td>' +
+      '<td style="font-weight:600;color:var(--gn)">'+( N(g.payment_amount)>0 ? '₹'+F(N(g.payment_amount)) : '-')+'</td>' +
+      '<td style="color:var(--t2)">'+(g.payment_date||'-')+'</td>' +
       '<td style="color:var(--bl);font-weight:600">'+(g.used_for_car_reg||'-')+'</td>' +
       '<td>'+(g.our_inv_no||'-')+'</td>' +
       '<td>'+(g.voucher_no||'-')+'</td>' +
@@ -7013,26 +7015,135 @@ function rPSPList(p){var ptb=Q('psp-tb');if(!ptb)return;if(!p.length){ptb.innerH
 
 // ===== VENDOR OUTSTANDING =====
 function rVout(data){
-  var vendors={};
-  data.filter(function(r){return r.payment_done!=='Paid';}).forEach(function(r){
-    var v=r.vendor_name||'Unknown';
-    if(!vendors[v])vendors[v]={name:v,total:0,pending:0,partial:0,nos:[]};
-    vendors[v].total+=N(r.total_parts_purchase||r.total);
-    if(r.payment_done==='Pending'){vendors[v].pending++;vendors[v].nos.push(r.bill_no||'-');}
-    if(r.payment_done==='Partial')vendors[v].partial++;
+  // Group items by bill_no+vendor to get bill-level data
+  var billMap={};
+  data.forEach(function(r){
+    var k=(r.bill_no||'?')+'||'+(r.vendor_name||'?');
+    if(!billMap[k]){
+      billMap[k]={
+        bill_no:r.bill_no||'?',vendor_name:r.vendor_name||'Unknown',
+        bill_date:r.bill_date||'-',month:r.month||'-',
+        payment_done:r.payment_done||'Pending',
+        payment_type:r.payment_type||'-',
+        payment_amount:N(r.payment_amount||0),
+        payment_date:r.payment_date||'-',
+        bill_amount:0,used_for_car_reg:r.used_for_car_reg||'-'
+      };
+    }
+    billMap[k].bill_amount+=N(r.total_parts_purchase||r.total);
   });
-  var rows=Object.values(vendors).sort(function(a,b){return b.total-a.total;});
-  var tot=rows.reduce(function(a,v){return a+v.total;},0);
-  S('vo-tot','₹'+FL(tot));S('vo-vs',rows.length+' vendors');S('d-vo','₹'+FL(tot));S('d-vos',rows.length+' vendors');
-  S('voc',rows.length);S('vo-pb',DB.pb.filter(function(r){return r.payment_done==='Pending';}).length);
+
+  // Now group bills by vendor, skip fully paid
+  var vendors={};
+  Object.values(billMap).filter(function(b){return b.payment_done!=='Paid';}).forEach(function(b){
+    var v=b.vendor_name;
+    if(!vendors[v])vendors[v]={name:v,bills:[],total_bill:0,total_paid:0,total_balance:0};
+    var balance=b.bill_amount-b.payment_amount;
+    vendors[v].bills.push(b);
+    vendors[v].total_bill+=b.bill_amount;
+    vendors[v].total_paid+=b.payment_amount;
+    vendors[v].total_balance+=balance;
+  });
+
+  var vendorRows=Object.values(vendors).sort(function(a,b){return b.total_balance-a.total_balance;});
+  var grandTotal=vendorRows.reduce(function(a,v){return a+v.total_balance;},0);
+
+  S('vo-tot','₹'+FL(grandTotal));
+  S('vo-vs',vendorRows.length+' vendors');
+  S('d-vo','₹'+FL(grandTotal));
+  S('d-vos',vendorRows.length+' vendors');
+  S('voc',vendorRows.length);
+  S('vo-pb',DB.pb.filter(function(r){return r.payment_done==='Pending';}).length);
   S('vo-par',DB.pb.filter(function(r){return r.payment_done==='Partial';}).length);
   S('vo-paid',DB.pb.filter(function(r){return r.payment_done==='Paid';}).length);
+
   var wrap=Q('vo-wrap');if(!wrap)return;
-  if(!rows.length){wrap.innerHTML='<div class="emp">No outstanding vendor payments.</div>';return;}
-  wrap.innerHTML='<div class="tw"><table><thead><tr><th>Vendor</th><th>Pending Bills</th><th>Partial Bills</th><th>Outstanding</th><th>Bill Nos</th><th>Actions</th></tr></thead><tbody>'+
-    rows.map(function(v){return'<tr><td style="font-weight:600;color:var(--t)">'+v.name+'</td><td style="text-align:center"><span class="bx rd">'+v.pending+'</span></td><td style="text-align:center"><span class="bx am">'+v.partial+'</span></td><td style="font-weight:700;color:var(--rd)">₹'+F(v.total)+'</td><td style="font-size:10px;color:var(--t2)">'+v.nos.slice(0,4).join(', ')+(v.nos.length>4?'...':'')+'</td><td><button class="btn xs gn" onclick="waVendor(\''+v.name+'\',\''+F(v.total)+'\')">&#128172; WA</button></td></tr>';}).join('')+
-    '</tbody></table></div>';
+  if(!vendorRows.length){wrap.innerHTML='<div class="emp">No outstanding vendor payments.</div>';return;}
+
+  var html='<div class="tw"><table><thead><tr>'+
+    '<th>Vendor</th>'+
+    '<th>Bill No</th>'+
+    '<th>Bill Date</th>'+
+    '<th>Month</th>'+
+    '<th>Car Reg</th>'+
+    '<th>Bill Amt</th>'+
+    '<th>Paid Amt</th>'+
+    '<th>Balance</th>'+
+    '<th>Status</th>'+
+    '<th>Pay Type</th>'+
+    '<th>Pay Date</th>'+
+    '<th>Actions</th>'+
+    '</tr></thead><tbody>';
+
+  vendorRows.forEach(function(v){
+    // Vendor subtotal row
+    html+='<tr style="background:rgba(245,158,11,0.06);border-left:3px solid var(--am)">'+
+      '<td style="font-weight:700;color:var(--t)" colspan="4">'+v.name+'</td>'+
+      '<td></td>'+
+      '<td style="font-weight:700;color:var(--t)">₹'+F(v.total_bill)+'</td>'+
+      '<td style="font-weight:700;color:var(--gn)">₹'+F(v.total_paid)+'</td>'+
+      '<td style="font-weight:700;color:var(--rd)">₹'+F(v.total_balance)+'</td>'+
+      '<td colspan="4"><button class="btn xs gn" onclick="waVendor(''+v.name+'',''+F(v.total_balance)+'')">&#128172; WA</button></td>'+
+    '</tr>';
+    // Bill-wise detail rows
+    v.bills.forEach(function(b){
+      var balance=b.bill_amount-b.payment_amount;
+      var payClr=b.payment_done==='Partial'?'am':'rd';
+      html+='<tr style="font-size:12px">'+
+        '<td style="color:var(--t3);padding-left:20px">↳</td>'+
+        '<td style="font-weight:600;color:var(--cy)">'+b.bill_no+'</td>'+
+        '<td>'+b.bill_date+'</td>'+
+        '<td>'+b.month+'</td>'+
+        '<td style="color:var(--bl);font-weight:600">'+b.used_for_car_reg+'</td>'+
+        '<td>₹'+F(b.bill_amount)+'</td>'+
+        '<td style="color:var(--gn)">'+( b.payment_amount>0?'₹'+F(b.payment_amount):'-' )+'</td>'+
+        '<td style="font-weight:700;color:var(--rd)">₹'+F(balance)+'</td>'+
+        '<td><span class="bx '+payClr+'">'+b.payment_done+'</span></td>'+
+        '<td>'+b.payment_type+'</td>'+
+        '<td style="color:var(--t2)">'+b.payment_date+'</td>'+
+        '<td><button class="btn xs am" onclick="quickPayPB(''+b.bill_no+'',''+b.vendor_name+'')">₹ Pay</button></td>'+
+      '</tr>';
+    });
+  });
+
+  // Grand total row
+  html+='<tr style="background:rgba(220,38,38,0.08);border-top:2px solid var(--rd)">'+
+    '<td colspan="5" style="font-weight:700;color:var(--t)">TOTAL OUTSTANDING</td>'+
+    '<td style="font-weight:700">₹'+F(vendorRows.reduce(function(a,v){return a+v.total_bill;},0))+'</td>'+
+    '<td style="font-weight:700;color:var(--gn)">₹'+F(vendorRows.reduce(function(a,v){return a+v.total_paid;},0))+'</td>'+
+    '<td style="font-weight:700;color:var(--rd);font-size:14px">₹'+F(grandTotal)+'</td>'+
+    '<td colspan="4"></td>'+
+  '</tr>';
+
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
 }
+
+// Quick payment update from Outstanding report
+function quickPayPB(billNo, vendorName){
+  var amt=prompt('Enter payment amount for Bill '+billNo+' ('+vendorName+'):');
+  if(amt===null)return;
+  var payAmt=parseFloat(amt)||0;
+  var date=prompt('Payment date (DD-MM-YYYY):',new Date().toLocaleDateString('en-GB').replace(/\//g,'-'));
+  if(date===null)return;
+  var payType=prompt('Payment type (Cash/NEFT/RTGS/Cheque/UPI):','NEFT');
+  if(payType===null)return;
+  // Update all items of this bill
+  var updated=0;
+  DB.pb.forEach(function(r,i){
+    if((r.bill_no||'?')===billNo&&(r.vendor_name||'?')===vendorName){
+      // Get bill total (sum all items)
+      var billTotal=DB.pb.filter(function(x){return(x.bill_no||'?')===billNo&&(x.vendor_name||'?')===vendorName;}).reduce(function(a,x){return a+N(x.total_parts_purchase||x.total);},0);
+      r.payment_amount=payAmt;
+      r.payment_date=date;
+      r.payment_type=payType;
+      r.payment_done=payAmt>=billTotal?'Paid':payAmt>0?'Partial':'Pending';
+      updated++;
+    }
+  });
+  if(updated){persist();toast('Payment updated for Bill '+billNo,'gn');rVout(DB.pb);}
+}
+
 function fVO(v){var lv=v.toLowerCase();rVout(v?DB.pb.filter(function(r){return(r.vendor_name||'').toLowerCase().indexOf(lv)>=0;}):DB.pb);}
 function waVendor(n,amt){var wn=Q('wa-num');var num=wn&&wn.value?wn.value.replace(/[^0-9]/g,''):'';if(!num){toast('Set WA number in WA Alerts','am');return;}window.open('https://wa.me/'+num+'?text='+encodeURIComponent('Carecay: Payment of Rs.'+amt+' due to vendor '+n+'.'),'_blank');}
 
