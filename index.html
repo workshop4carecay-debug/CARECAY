@@ -5791,6 +5791,18 @@ function printPartsCards(){ ppcPrintAll(); }
 <div class="pg on" id="pg-dash">
   <div class="hdr"><div><h1>Dashboard</h1><div class="hdr-s">Carecay Multibrand Workshop</div></div><div class="hdr-a"><button class="btn pr" onclick="openPB(null)">+ Purchase Bill</button><button class="btn cy" onclick="openSI('')">+ Sales Invoice</button><button class="btn gn" onclick="exportAll()">Export All</button></div></div>
   <div class="cnt">
+    <!-- Migration banner: shown when no data exists -->
+    <div id="migration-banner" style="display:none;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);border-radius:10px;padding:14px 18px;margin-bottom:16px;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-weight:700;color:var(--am);font-size:13px">📂 No data found — Restore your existing data</div>
+        <div style="color:var(--t2);font-size:11px;margin-top:3px">Import your Excel backup or pull from Firebase to restore all purchase bills and invoices.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn gn" onclick="Q('import-file').click()">⬆ Import Excel</button>
+        <button class="btn bl" onclick="go('sync');setTimeout(function(){if(FB.url)fbPull();},400)">☁ Pull from Firebase</button>
+        <button class="btn" style="background:var(--bg4)" onclick="document.getElementById('migration-banner').style.display='none'">✕ Dismiss</button>
+      </div>
+    </div>
     <div class="stats c5">
       <div class="sc am"><div class="scl">Total Purchase</div><div class="scv" id="d-pur">&#8377;0</div><div class="scs" id="d-ps">0 bills</div></div>
       <div class="sc gn"><div class="scl">Total Sales</div><div class="scv" id="d-sal">&#8377;0</div><div class="scs" id="d-ss">0 invoices</div></div>
@@ -6109,7 +6121,7 @@ function printPartsCards(){ ppcPrintAll(); }
           <div>
             <div class="fl" style="margin-bottom:5px">Firebase Database URL</div>
             <div style="display:flex;gap:6px">
-              <input class="fi" id="fb-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="flex:1;font-size:11px">
+              <input class="fi" id="fb-url" placeholder="https://your-app-default-rtdb.firebaseio.com" style="flex:1;font-size:11px" value="">
               <button class="btn bl" onclick="fbConnect()">Connect</button>
             </div>
           </div>
@@ -7729,6 +7741,9 @@ function exPL(){
 
 // ===== DASHBOARD =====
 function updDash(){
+  // Show migration banner if no data
+  var mb = document.getElementById('migration-banner');
+  if(mb) mb.style.display = (DB.pb.length===0 && DB.si.length===0) ? 'flex' : 'none';
   var tp=DB.pb.reduce(function(a,b){return a+N(b.total_parts_purchase||b.total);},0);
   var ts=DB.si.reduce(function(a,s){return a+N(s.inv_amount);},0);
   S('d-pur','₹'+FL(tp));S('d-ps',DB.pb.length+' bills');
@@ -7940,6 +7955,27 @@ var FB = {
   autoTimer: null,
   lastHash: ''
 };
+// Auto-connect Firebase if URL was previously saved
+(function(){
+  if(FB.url) {
+    // Pre-fill input when DOM is ready
+    setTimeout(function(){
+      var inp = document.getElementById('fb-url');
+      if(inp) inp.value = FB.url;
+      // Silently verify connection
+      fetch(FB.url + '/ping.json', {method:'PUT', body:JSON.stringify({t:Date.now()})})
+        .then(function(r){ 
+          if(r.ok) { 
+            fbLog('Auto-connected to Firebase ✓', 'ok');
+            var dot=document.getElementById('fb-dot'); 
+            var st=document.getElementById('fb-status');
+            if(dot) dot.style.background='var(--gn)'; 
+            if(st) st.textContent='Connected ✓';
+          }
+        }).catch(function(){});
+    }, 800);
+  }
+})();
 
 function fbLog(msg, type) {
   var el = Q('fb-log'); if(!el) return;
@@ -8096,6 +8132,23 @@ function switchModule(mod) {
     btnWs.className = 'msw-btn';
     // Refresh BMS dashboard when switching
     if (typeof updDash === 'function') setTimeout(updDash, 50);
+    // Auto-fill Firebase URL input if saved
+    setTimeout(function(){
+      var fbInp = document.getElementById('fb-url');
+      if(fbInp && typeof FB !== 'undefined' && FB.url) {
+        fbInp.value = FB.url;
+      }
+    }, 100);
+    // Auto-pull from Firebase if URL is set and DB is empty
+    if (typeof FB !== 'undefined' && FB.url && typeof DB !== 'undefined') {
+      if(DB.pb.length === 0 && DB.si.length === 0) {
+        setTimeout(function(){ 
+          if(typeof fbPull === 'function') {
+            fbPull(); 
+          }
+        }, 500);
+      }
+    }
   }
 }
 // Also update search bar position after login
