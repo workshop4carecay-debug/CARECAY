@@ -3189,6 +3189,16 @@ async function ghPullSilent(){
     var data=await ghFetchData();
     if(!data){_ghPulling=false;return false;}
     if(data&&data.ts&&data.ts>_ghLastTs){
+      // Safety check: never overwrite local with FEWER records
+      var ghCount=(data.pb?data.pb.length:0)+(data.si?data.si.length:0);
+      var localCount=DB.pb.length+DB.si.length;
+      if(ghCount===0&&localCount>0){
+        // GitHub has empty data but local has data — skip pull, push instead
+        ghLog('⚠️ GitHub empty but local has data — pushing...','am');
+        _ghPulling=false;
+        ghPush();
+        return false;
+      }
       _ghLastTs=data.ts;
       localStorage.setItem('bms_gh_ts',_ghLastTs.toString());
       if(data.pb&&Array.isArray(data.pb)) DB.pb=data.pb;
@@ -3259,6 +3269,16 @@ async function ghPullSilent(){
     var data=await ghFetchData();
     if(!data){_ghPulling=false;return false;}
     if(data&&data.ts&&data.ts>_ghLastTs){
+      // Safety check: never overwrite local with FEWER records
+      var ghCount=(data.pb?data.pb.length:0)+(data.si?data.si.length:0);
+      var localCount=DB.pb.length+DB.si.length;
+      if(ghCount===0&&localCount>0){
+        // GitHub has empty data but local has data — skip pull, push instead
+        ghLog('⚠️ GitHub empty but local has data — pushing...','am');
+        _ghPulling=false;
+        ghPush();
+        return false;
+      }
       _ghLastTs=data.ts;
       localStorage.setItem('bms_gh_ts',_ghLastTs.toString());
       if(data.pb&&Array.isArray(data.pb)) DB.pb=data.pb;
@@ -3371,8 +3391,9 @@ function ghSyncOnSave(){
   if(DB.pb.length===0&&DB.si.length===0) return;
   clearTimeout(window._ghPushTimer);
   window._ghPushTimer=setTimeout(function(){
-    if(!_ghPulling&&(DB.pb.length>0||DB.si.length>0)) ghPush();
-  },2000);
+    var hasData=DB.pb.length>0||DB.si.length>0||DB.cb.length>0;
+    if(!_ghPulling&&hasData) ghPush();
+  },3000);
 }
 
 // Auto-connect on page load if token exists
@@ -3383,17 +3404,25 @@ function ghSyncOnSave(){
     GH_TOKEN=t;
     if(st) st.textContent='✅ Token saved in this browser';
     setTimeout(function(){
-      // On load: ALWAYS pull first, never push
-      // This restores data if localStorage was cleared
-      _ghLastTs=0; // force pull
-      ghPullSilent().then(function(pulled){
-        if(pulled){
-          ghLog('✅ Data restored from GitHub','ok');
-          toast('Data restored from GitHub!','gn');
-        }
-        // Start auto-sync regardless
+      // On load: smart sync
+      // If local has data → keep it, only pull if GitHub has MORE
+      // If local is empty → force pull to restore
+      var localCount = DB.pb.length + DB.si.length;
+      if(localCount === 0){
+        // Local is empty - force pull to restore
+        _ghLastTs = 0;
+        ghPullSilent().then(function(pulled){
+          if(pulled){
+            ghLog('✅ Data restored from GitHub','ok');
+            toast('Data restored!','gn');
+          }
+          ghStartAutoSync();
+        });
+      } else {
+        // Local has data - just start auto-sync, don't overwrite
+        ghLog('🟢 Local data found ('+localCount+' records) — Auto-sync started','ok');
         ghStartAutoSync();
-      });
+      }
     },800);
   }
 })();
