@@ -3186,16 +3186,15 @@ async function ghPullSilent(){
   if(_ghPushing) return false;
   _ghPulling=true;
   try{
-    var rawUrl='https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?t='+Date.now();
-    var res=await fetch(rawUrl);
-    if(!res.ok){_ghPulling=false;return false;}
-    var data=await res.json();
+    var data=await ghFetchData();
+    if(!data){_ghPulling=false;return false;}
     if(data&&data.ts&&data.ts>_ghLastTs){
       _ghLastTs=data.ts;
       localStorage.setItem('bms_gh_ts',_ghLastTs.toString());
       if(data.pb&&Array.isArray(data.pb)) DB.pb=data.pb;
       if(data.si&&Array.isArray(data.si)) DB.si=data.si;
       if(data.pr&&Array.isArray(data.pr)) DB.pr=data.pr;
+      if(data.cb&&Array.isArray(data.cb)) DB.cb=data.cb;
       persist();
       updDash();
       if(typeof rPB==='function') rPB(DB.pb);
@@ -3210,21 +3209,26 @@ async function ghPullSilent(){
   return false;
 }
 
+async function ghFetchData(){
+  var urls=[
+    'https://cdn.jsdelivr.net/gh/'+GH_USER+'/'+GH_REPO+'@main/'+GH_FILE+'?v='+Date.now(),
+    'https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?v='+Date.now(),
+    'https://rawcdn.githack.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?v='+Date.now()
+  ];
+  for(var i=0;i<urls.length;i++){
+    try{
+      var res=await fetch(urls[i],{cache:'no-store'});
+      if(res.ok){var text=await res.text();var data=JSON.parse(text);if(data&&Array.isArray(data.pb))return data;}
+    }catch(e){continue;}
+  }
+  return null;
+}
+
 async function ghPull(){
   ghLog('📥 Pulling data...','am');
-  // Reset timestamp to force fresh load
-  _ghLastTs=0;
-  localStorage.setItem('bms_gh_ts','0');
+  _ghLastTs=0;localStorage.setItem('bms_gh_ts','0');
   try{
-    // Add timestamp to bypass browser cache
-    var rawUrl='https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?v='+Date.now();
-    var res=await fetch(rawUrl);
-    if(!res.ok){
-      ghLog('❌ Error: HTTP '+res.status+' — check repo is public','err');
-      return;
-    }
-    var text=await res.text();
-    var data=JSON.parse(text);
+    var data=await ghFetchData();
     if(data&&Array.isArray(data.pb)){
       DB.pb=data.pb;
       DB.si=Array.isArray(data.si)?data.si:[];
@@ -3232,17 +3236,17 @@ async function ghPull(){
       DB.cb=Array.isArray(data.cb)?data.cb:[];
       _ghLastTs=data.ts||Date.now();
       localStorage.setItem('bms_gh_ts',_ghLastTs.toString());
-      persist();
-      updDash();
-      if(typeof rPB==='function') rPB(DB.pb);
-      if(typeof rSI==='function') rSI(DB.si);
-      ghLog('✅ Pulled — '+DB.pb.length+' PB + '+DB.si.length+' SI loaded','ok');
-      toast('✅ '+DB.pb.length+' bills restored!','gn');
-    } else {
-      ghLog('⚠️ No bills found in GitHub data','am');
-      toast('No data found on GitHub','am');
+      persist();updDash();
+      if(typeof rPB==='function')rPB(DB.pb);
+      if(typeof rSI==='function')rSI(DB.si);
+      if(typeof rCB==='function')rCB();
+      ghLog('✅ Pulled — '+DB.pb.length+' PB + '+DB.si.length+' SI + '+DB.cb.length+' Cash','ok');
+      toast('✅ '+DB.pb.length+' bills loaded!','gn');
+    }else{
+      ghLog('⚠️ No data on GitHub — Push first','am');
+      toast('No data on GitHub yet','am');
     }
-  } catch(e){
+  }catch(e){
     ghLog('❌ Pull failed: '+e.message,'err');
     toast('Pull failed: '+e.message,'rd');
   }
@@ -3252,16 +3256,15 @@ async function ghPullSilent(){
   if(_ghPushing) return false;
   _ghPulling=true;
   try{
-    var rawUrl='https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?t='+Date.now();
-    var res=await fetch(rawUrl);
-    if(!res.ok){_ghPulling=false;return false;}
-    var data=await res.json();
+    var data=await ghFetchData();
+    if(!data){_ghPulling=false;return false;}
     if(data&&data.ts&&data.ts>_ghLastTs){
       _ghLastTs=data.ts;
       localStorage.setItem('bms_gh_ts',_ghLastTs.toString());
       if(data.pb&&Array.isArray(data.pb)) DB.pb=data.pb;
       if(data.si&&Array.isArray(data.si)) DB.si=data.si;
       if(data.pr&&Array.isArray(data.pr)) DB.pr=data.pr;
+      if(data.cb&&Array.isArray(data.cb)) DB.cb=data.cb;
       persist();
       updDash();
       if(typeof rPB==='function') rPB(DB.pb);
