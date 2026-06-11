@@ -574,7 +574,7 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
     </div>
     <div class="sync-panel">
 
-      <div id="sync-status-box" class="ban bo" style="display:flex;margin-bottom:14px;">🔄 Real-time sync via GitHub — changes appear on all devices in 5 seconds</div>
+      <div id="sync-status-box" class="ban bo" style="display:flex;margin-bottom:14px;">🔄 Real-time sync via JSONBin.io — changes appear on all devices in 15 seconds</div>
 
       <!-- THEME PICKER -->
       <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
@@ -583,15 +583,18 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
         <div class="theme-grid" id="theme-grid"></div>
       </div>
 
-      <!-- GitHub Token Setup -->
+      <!-- JSONBin Setup -->
       <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
-        <div style="font-family:var(--disp);font-size:13px;color:var(--accent);letter-spacing:1px;margin-bottom:8px;">🔑 STEP 1 — Enter GitHub Token (one time only)</div>
+        <div style="font-family:var(--disp);font-size:13px;color:var(--accent);letter-spacing:1px;margin-bottom:8px;">🔑 STEP 1 — JSONBin.io Credentials (one time only)</div>
         <div style="font-size:12px;color:var(--m1);margin-bottom:8px;line-height:1.7;">
-          Get your token from: <strong style="color:var(--text);">github.com → Settings → Developer Settings → Personal Access Tokens → Fine-grained tokens</strong><br>
-          Give it <strong style="color:var(--accent);">Contents: Read & Write</strong> access to the CARECAY repo only.
+          Get from: <strong style="color:var(--text);">jsonbin.io → Account → API Keys → Master Key</strong><br>
+          Create a bin and copy its <strong style="color:var(--accent);">Bin ID</strong> from the URL.
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input id="jb-bin-inp" class="fi" type="text" placeholder="Bin ID (e.g. 64abc...)" style="font-size:12px;flex:1;">
         </div>
         <div style="display:flex;gap:8px;">
-          <input id="gh-token-inp" class="fi" type="password" placeholder="github_pat_..." style="font-size:12px;flex:1;">
+          <input id="jb-key-inp" class="fi" type="password" placeholder="Master Key ($2b$10$...)" style="font-size:12px;flex:1;">
           <button onclick="saveToken()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--body);">Save</button>
         </div>
         <div id="token-status" style="font-size:11px;margin-top:6px;color:var(--m2);"></div>
@@ -604,19 +607,12 @@ body.theme-light{--bg:#f0f2f7;--s1:#ffffff;--s2:#e8ecf5;--s3:#dde3f0;--border:#c
         <button onclick="pullSync()" style="flex:1;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--body);">⬇ Pull Now</button>
       </div>
 
-      <!-- THEME PICKER -->
-      <div style="background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;">
-        <div style="font-family:var(--disp);font-size:13px;color:var(--accent);letter-spacing:1px;margin-bottom:4px;">🎨 APP THEME / BACKGROUND COLOR</div>
-        <div style="font-size:11px;color:var(--m2);margin-bottom:2px;">Choose a color theme for the app. Saved on this device.</div>
-        <div class="theme-grid" id="theme-grid"></div>
-      </div>
-
       <div style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--m1);line-height:1.9;">
         🔄 <strong style="color:var(--accent);">How real-time sync works:</strong><br>
-        1️⃣ Enter GitHub token → tap <strong style="color:var(--text);">Save</strong><br>
+        1️⃣ Enter Bin ID + Master Key → tap <strong style="color:var(--text);">Save</strong><br>
         2️⃣ Tap <strong style="color:var(--text);">Connect</strong> on ALL devices<br>
-        3️⃣ Add/change car → auto-saves every 5 seconds to all devices ✅<br>
-        Token is saved in browser — only needed once per device
+        3️⃣ Add/change car → auto-saves in 2s, auto-pulls every 15s ✅<br>
+        Credentials saved in browser — only needed once per device
       </div>
 
       <input id="sync-code-inp" type="hidden" value="CARECAY">
@@ -2619,11 +2615,16 @@ var lastSyncTs = 0;
 var _isPushing = false;  // prevent pull during push
 var _isPulling = false;  // prevent push during pull
 
-var GH_USER  = 'workshop4carecay-debug';
-var GH_REPO  = 'CARECAY';
-var GH_FILE  = 'data.json';
-var GH_TOKEN = '';
-var GH_API   = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE;
+// ── JSONBin.io config ──────────────────────────────────────────────
+var JB_BIN_ID     = '';   // filled from localStorage
+var JB_MASTER_KEY = '';   // filled from localStorage
+var JB_BASE       = 'https://api.jsonbin.io/v3/b';
+
+function getJBConfig(){
+  JB_BIN_ID     = localStorage.getItem('jb_bin_id')     || '';
+  JB_MASTER_KEY = localStorage.getItem('jb_master_key') || '';
+  return JB_BIN_ID && JB_MASTER_KEY;
+}
 
 function setSyncStatus(type, msg) {
   var dot=document.getElementById('sdot');
@@ -2637,35 +2638,20 @@ function setSyncStatus(type, msg) {
   if(last&&type==='on') last.textContent='Synced: '+new Date().toLocaleTimeString('en-IN');
 }
 
-function getToken(){ return localStorage.getItem('gh_token') || GH_TOKEN; }
-
-// PUSH — send local data to GitHub
+// PUSH — send local data to JSONBin
 async function pushSync() {
-  var token = getToken();
-  if(!token){ showToast('Enter GitHub token first','#ef4444'); return; }
-  if(_isPushing || _isPulling) return; // prevent overlap
+  if(!getJBConfig()){ showToast('Enter JSONBin Bin ID & Master Key first','#ef4444'); return; }
+  if(_isPushing || _isPulling) return;
   _isPushing = true;
   setSyncStatus('busy','📤 Saving…');
   try {
-    // Get current SHA first
-    var getRes = await fetch(GH_API, {
-      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github+json'}
-    });
-    var sha = getRes.ok ? (await getRes.json()).sha : null;
-    
     var payload = {cars:cars, ts:Date.now(), v:4};
-    var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-    var body = {message:'Update workshop data', content:content, branch:'main'};
-    if(sha) body.sha = sha;
-    
-    var res = await fetch(GH_API, {
+    var res = await fetch(JB_BASE+'/'+JB_BIN_ID, {
       method:'PUT',
-      headers:{'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
-      body:JSON.stringify(body)
+      headers:{'Content-Type':'application/json','X-Master-Key':JB_MASTER_KEY},
+      body:JSON.stringify(payload)
     });
-    if(!res.ok){ var e=await res.json(); throw new Error(e.message); }
-    var data = await res.json();
-    if(data.content && data.content.sha) localStorage.setItem('gh_sha', data.content.sha);
+    if(!res.ok){ var e=await res.json(); throw new Error(e.message||res.status); }
     lastSyncTs = payload.ts;
     setSyncStatus('on','🟢 Saved — '+new Date().toLocaleTimeString('en-IN'));
     showToast('✅ Saved!','#10b981');
@@ -2676,18 +2662,19 @@ async function pushSync() {
   _isPushing = false;
 }
 
-// PULL — get latest data from GitHub (silent, no toast unless changed)
+// PULL — get latest data from JSONBin (silent, no toast unless changed)
 async function pullSilent() {
   if(_isPushing) return false;
+  if(!getJBConfig()) return false;
   _isPulling = true;
   try {
-    // Use raw URL for reading - works on iPhone Safari without CORS issues
-    var rawUrl = 'https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?t='+Date.now();
-    var res = await fetch(rawUrl);
+    var res = await fetch(JB_BASE+'/'+JB_BIN_ID+'/latest', {
+      headers:{'X-Master-Key':JB_MASTER_KEY}
+    });
     if(!res.ok){ _isPulling=false; return false; }
-    var data = await res.json();
+    var json = await res.json();
+    var data = json.record || json;
     if(data && data.cars && Array.isArray(data.cars) && data.ts > lastSyncTs) {
-      // Server has newer data — update local WITHOUT triggering push
       lastSyncTs = data.ts;
       cars = data.cars;
       persist();
@@ -2699,25 +2686,27 @@ async function pullSilent() {
       _isPulling = false;
       return true;
     }
-    setSyncStatus('on','🟢 Live — auto-syncing every 5s');
+    setSyncStatus('on','🟢 Live — auto-syncing every 15s');
   } catch(e) {}
   _isPulling = false;
   return false;
 }
 
 async function pullSync() {
+  if(!getJBConfig()){ showToast('Enter JSONBin Bin ID & Master Key first','#ef4444'); return; }
   setSyncStatus('busy','📥 Loading…');
   lastSyncTs = 0;
-  // Use raw URL - works on ALL devices including iPhone Safari (no CORS issues)
-  var rawUrl = 'https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/main/'+GH_FILE+'?t='+Date.now();
   try {
-    var res = await fetch(rawUrl);
+    var res = await fetch(JB_BASE+'/'+JB_BIN_ID+'/latest', {
+      headers:{'X-Master-Key':JB_MASTER_KEY}
+    });
     if(!res.ok){
       showToast('Pull error: HTTP '+res.status,'#ef4444');
       setSyncStatus('err','❌ Error '+res.status);
       return;
     }
-    var data = await res.json();
+    var json = await res.json();
+    var data = json.record || json;
     if(data && data.cars && Array.isArray(data.cars) && data.cars.length > 0){
       cars = data.cars;
       lastSyncTs = data.ts || Date.now();
@@ -2735,14 +2724,13 @@ async function pullSync() {
 }
 
 async function connectSync() {
-  var token = document.getElementById('gh-token-inp');
-  if(token && token.value.trim()){
-    localStorage.setItem('gh_token', token.value.trim());
-    GH_TOKEN = token.value.trim();
-    showToast('✅ Token saved!','#10b981');
-  }
+  var binInp = document.getElementById('jb-bin-inp');
+  var keyInp = document.getElementById('jb-key-inp');
+  if(binInp && binInp.value.trim()) localStorage.setItem('jb_bin_id',     binInp.value.trim());
+  if(keyInp && keyInp.value.trim()) localStorage.setItem('jb_master_key', keyInp.value.trim());
+  if(!getJBConfig()){ showToast('Enter Bin ID and Master Key first','#ef4444'); return; }
   setSyncStatus('busy','🔍 Connecting…');
-  lastSyncTs = 0; // reset so we always pull fresh on connect
+  lastSyncTs = 0;
   var ok = await pullSilent();
   if(ok){ showToast('✅ '+cars.length+' cars loaded!','#10b981'); }
   else if(cars.length > 0){ await pushSync(); }
@@ -2752,13 +2740,13 @@ async function connectSync() {
 
 function startAutoSync() {
   if(syncTimer) clearInterval(syncTimer);
-  syncTimer = setInterval(function(){ pullSilent(); }, 5000);
-  setSyncStatus('on','🟢 Live — auto-syncing every 5s');
+  syncTimer = setInterval(function(){ pullSilent(); }, 15000);
+  setSyncStatus('on','🟢 Live — auto-syncing every 15s');
 }
 
 // Called after every user change — push after short delay
 function syncIfConnected() {
-  if(!getToken() || _isPulling) return;
+  if(!getJBConfig() || _isPulling) return;
   clearTimeout(window._pushTimer);
   window._pushTimer = setTimeout(function(){
     if(!_isPulling) pushSync();
@@ -2766,20 +2754,23 @@ function syncIfConnected() {
 }
 
 function saveToken(){
-  var inp=document.getElementById('gh-token-inp');
-  var status=document.getElementById('token-status');
-  if(!inp||!inp.value.trim()){ showToast('Enter a token first','#ef4444'); return; }
-  localStorage.setItem('gh_token', inp.value.trim());
-  GH_TOKEN = inp.value.trim();
-  if(status) status.textContent='✅ Token saved in browser';
-  showToast('✅ Token saved!','#10b981');
-  inp.value='';
+  var binInp = document.getElementById('jb-bin-inp');
+  var keyInp = document.getElementById('jb-key-inp');
+  var status = document.getElementById('token-status');
+  var saved = false;
+  if(binInp && binInp.value.trim()){ localStorage.setItem('jb_bin_id', binInp.value.trim()); binInp.value=''; saved=true; }
+  if(keyInp && keyInp.value.trim()){ localStorage.setItem('jb_master_key', keyInp.value.trim()); keyInp.value=''; saved=true; }
+  if(!saved){ showToast('Enter Bin ID and/or Master Key first','#ef4444'); return; }
+  if(status) status.textContent='✅ JSONBin credentials saved in browser';
+  showToast('✅ Credentials saved!','#10b981');
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  var t = localStorage.getItem('gh_token');
+  var hasBin = localStorage.getItem('jb_bin_id');
+  var hasKey = localStorage.getItem('jb_master_key');
   var status = document.getElementById('token-status');
-  if(t && status) status.textContent = '✅ Token saved — ready to sync';
+  if(hasBin && hasKey && status) status.textContent = '✅ JSONBin credentials saved — ready to sync';
+  else if(status) status.textContent = 'Enter Bin ID and Master Key to enable sync';
 });
 
 
